@@ -7,6 +7,7 @@ class Config {
 	private $_configFile = NULL;
 	private $_timezone = NULL;
 	private $_enableGA = FALSE;
+	private $_gaCode = NULL;
 	private $_smartyForceRecompile = FALSE;
 	private $_isDevServer = FALSE;
 	private $_dbConnector = 'mysql';
@@ -101,6 +102,9 @@ class Config {
 					return FALSE;
 				}
 				break;
+			case "gaCode":
+				return $this->_gaCode;
+				break;
 			case 'dbConnector': 
 				return $this->_dbConnector; 
 				break;
@@ -140,7 +144,6 @@ class Config {
 			case 'mailSender': 
 				return $this->_mailSender; 
 				break;
-
 			case 'hostName': 
 				return $this->_hostName; 
 				break;	
