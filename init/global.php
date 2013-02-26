@@ -12,9 +12,15 @@ $config = Config::getInstance();
 date_default_timezone_set($config->timezone);
 
 $template = new MmOutputRendererSmarty();
-$template->assign("hostname", $_SERVER["HTTP_HOST"]);
 
-$me = ltrim($_SERVER["PHP_SELF"], "/");
+$hostname = "Unknown host - " . HTTP::server('SERVER_NAME');
+if(!is_null(HTTP::server('HTTP_HOST'))) {
+	$hostname = HTTP::server('HTTP_HOST');
+}
+
+$template->assign("hostname", $hostname);
+
+$me = ltrim(HTTP::server('PHP_SELF'), "/");
 $me = '/' . preg_replace("/\..+$/","",$me);
 if(in_array($me, array('/sitemap')))
 	$me .= ".xml";

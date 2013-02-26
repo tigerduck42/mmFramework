@@ -28,6 +28,20 @@ class HTTP {
 		}
 	} 
 	
+	/*
+	 * Server 
+	 */
+	 
+	static public function server($name) {
+		if(isset($_SERVER[$name])) {
+			return $_SERVER[$name];
+		}
+		else {
+			return NULL;
+		}
+	} 
+
+	
 
 	/*
 	 * Cookie
