@@ -46,7 +46,9 @@ class Smarty_Internal_Write_File {
         }
 
         // remove original file
-        @unlink($_filepath);
+        if(file_exists($_filepath)){
+           @unlink($_filepath);
+        }
 
         // rename tmp file
         $success = rename($_tmp_file, $_filepath);
