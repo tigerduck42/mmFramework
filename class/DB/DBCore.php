@@ -9,9 +9,9 @@ abstract class DBCore {
 	protected $_result = NULL;
 	protected $_insertId = NULL;
 
-	public function __construct() {
+	public function __construct($dbName=NULL) {
   		if(is_null($this->_link)) {
-			$this->_connect();
+			$this->_connect($dbName);
 		}
 	}
 	
@@ -36,7 +36,7 @@ abstract class DBCore {
 	}
 	
 	abstract public function asfetch();
-
+	
 	abstract protected function _connect();
 	abstract protected function _q($sql); 
 	abstract protected function _escape($value);
@@ -45,7 +45,6 @@ abstract class DBCore {
 	abstract protected function _insertId();
 	abstract protected function _errorNo();
 	abstract protected function _errorMsg();
-	
 	
 	public function query($sql) {
 		$queryType = '';

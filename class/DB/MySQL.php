@@ -1,9 +1,14 @@
 <?php
 class MySQL extends DBCore {
 
-	private function _connect() {
+	private function _connect($dbName=NULL) {
 		$config = Config::getInstance();
-		$this->_link = new mysqli($config->dbHost, $config->dbUser, $config->dbPassword, $config->dbName, $config->dbPort);
+		
+		if(is_null($dbName)) {
+			$dbName = $config->dbName;
+		}
+		
+		$this->_link = new mysqli($config->dbHost, $config->dbUser, $config->dbPassword, $dbName, $config->dbPort);
 		
 		if ($this->_link->connect_error) {
 			trigger_error('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
