@@ -94,6 +94,11 @@ abstract class DBCore {
 		
 		$this->_query($sql);		
 	}
+	
+	public function delete($table, $id) {
+		$sql = "DELETE FROM " . $table . " WHERE " . $table . "_id = " . $id;
+		$this->_query($sql);		
+	}
 
 	
 	private function _quoteValues($row) {
