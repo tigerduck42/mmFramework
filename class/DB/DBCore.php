@@ -46,20 +46,25 @@ abstract class DBCore {
 	abstract protected function _errorNo();
 	abstract protected function _errorMsg();
 	
-	public function query($sql) {
+	public function query($sql,$force=FALSE) {
 		$queryType = '';
 		if(preg_match('{\s*(\S+?)\s+}',$sql,$match)) {
 			$queryType = strtolower($match[1]);
 		}
 		
-		switch($queryType) {
-			case 'select':
-				return $this->_query($sql);
-				break;
-			default:
-				trigger_error("Query: " . $queryType . " not allowed use proper warpper method!", E_USER_ERROR);
-				break;
-		}	
+		if($force) {
+			return $this->_query($sql);
+		}
+		else {
+			switch($queryType) {
+				case 'select':
+					return $this->_query($sql);
+					break;
+				default:
+					trigger_error("Query: " . $queryType . " not allowed use proper wrapper method!", E_USER_ERROR);
+					break;
+			}	
+		}
 	}
 	
 	
