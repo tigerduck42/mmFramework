@@ -29,68 +29,33 @@
  * @version 1.0
  */
 
-class Navigation {
+class OutputRendererOb extends OutputRenderer
+{
 
-	private $_list = array();
-
-	public function __construct() {
+	/**
+	 * Initialise the Renderer
+	 */
+	public function init()
+	{
+		ob_start();
 	}
 
-	function __get($name) {
-		switch($name) {
-			case "list":
-				return $this->_list;
-				break;
-			default:
-				throw new Exception("Property " . $name . " not defined!" , 2);
-				break;
+	/**
+	 * Get the output from this Renderer
+	 * @return string
+	 */
+	public function &output($file=NULL)
+	{
+		$this->_output = ob_get_clean();
+
+		if(FALSE == is_null($file))
+		{
+			file_put_contents($file, $this->_output);
 		}
+
+		return $this->_output;
 	}
 
-
-	public function addItem($name, $url, $class="") {
-		$node = new navigationItem($name, $url, $class);
-		$this->_list[] = $node;
-		return $node->children;
-	}
-
-}
-
-
-class navigationItem {
-	private $_name;
-	private $_url;
-	private $_class;
-	private $_children;
-
-
-	public function __construct($name,$url, $class="") {
-		$this->_name = $name;
-		$this->_url = $url;
-		$this->_class = $class;
-		$this->_children = new Navigation();
-	}
-
-
-	function __get($name) {
-		switch($name) {
-			case 'name':
-				return $this->_name;
-				break;
-			case 'url':
-				return $this->_url;
-				break;
-			case 'class':
-				return $this->_class;
-				break;
-			case 'children':
-				return $this->_children;
-				break;
-			default:
-				throw new Exception("Property " . $name . " not defined!" , 2);
-				break;
-		}
-	}
 }
 
 ?>
