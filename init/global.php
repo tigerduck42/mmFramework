@@ -11,7 +11,7 @@ spl_autoload_register('customAutoLoader');
 $config = Config::getInstance();
 date_default_timezone_set($config->timezone);
 
-$template = new MmOutputRendererSmarty();
+$template = new OutputRendererSmarty();
 
 $hostname = "Unknown host - " . HTTP::hostname();
 $template->assign("hostname", $hostname);
