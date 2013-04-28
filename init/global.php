@@ -5,7 +5,7 @@ set_error_handler("customError");
 define("WEB_ROOT", $_SERVER['DOCUMENT_ROOT']);
 
 // Load classes
-spl_autoload_register('customAutoLoader'); 
+spl_autoload_register('customAutoLoader');
 
 // Set correct timezone
 $config = Config::getInstance();
@@ -13,11 +13,7 @@ date_default_timezone_set($config->timezone);
 
 $template = new OutputRendererSmarty();
 
-$hostname = "Unknown host - " . HTTP::server('SERVER_NAME');
-if(!is_null(HTTP::server('HTTP_HOST'))) {
-	$hostname = HTTP::server('HTTP_HOST');
-}
-
+$hostname = "Unknown host - " . HTTP::hostname();
 $template->assign("hostname", $hostname);
 
 $me = ltrim(HTTP::server('PHP_SELF'), "/");
@@ -31,19 +27,19 @@ $template->assign("me", $me);
 
 
 /**
- * Error  
+ * Error
  */
 
 function customError($no, $string, $file, $line, $context) {
-	
+
 	$config = Config::getInstance();
-	if($config->isDevServer) {	
+	if($config->isDevServer) {
 		$hError = new ErrorHandler(ErrorHandler::WEB);
 	}
 	else {
 		$hError = new ErrorHandler(ErrorHandler::MAIL);
 	}
-	
+
 	$hError->no = $no;
 	$hError->string = $string;
 	$hError->file = $file;
@@ -51,7 +47,7 @@ function customError($no, $string, $file, $line, $context) {
 	$hError->context = $context;
 	$hError->mailTo = ERROR_MAIL_TO;
 	$hError->output();
-} 
+}
 
 
 function customAutoLoader($className) {

@@ -119,18 +119,32 @@ class HTTP {
 	 * Misc
 	 */
 	static public function me() {
-  		return $_SERVER['SCRIPT_NAME'];
-  	}
+  	return $_SERVER['SCRIPT_NAME'];
+  }
 
 	static public function refresh() {
-  		self::redirect(self::me());
-  		exit;
+  	self::redirect(self::me());
+  	exit;
+  }
+
+  static public function redirect($url) {
+  	header("Location: " . $url);
+  	exit;
+  }
+
+  static public function hostname() {
+  	$hostname = "Unknown host";
+  	$servername = HTTP::server('SERVER_NAME');
+  	if(!is_null($servername)) {
+  		$hostname .= " - " . $servername;
   	}
 
-  	static public function redirect($url) {
-  		header("Location: " . $url);
-  		exit;
-  	}
+		if(!is_null(HTTP::server('HTTP_HOST'))) {
+			$hostname = HTTP::server('HTTP_HOST');
+		}
 
+		return $hostname;
+  }
 }
+
 ?>
