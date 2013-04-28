@@ -3,9 +3,9 @@ class HTTP {
 
 
 	/*
-	 * GET 
+	 * GET
 	 */
-	 
+
 	static public function get($name) {
 		if(isset($_GET[$name])) {
 			return $_GET[$name];
@@ -13,12 +13,12 @@ class HTTP {
 		else {
 			return NULL;
 		}
-	} 
-	
+	}
+
 	/*
-	 * POST 
+	 * POST
 	 */
-	 
+
 	static public function post($name) {
 		if(isset($_POST[$name])) {
 			return $_POST[$name];
@@ -26,12 +26,12 @@ class HTTP {
 		else {
 			return NULL;
 		}
-	} 
-	
+	}
+
 	/*
-	 * Server 
+	 * Server
 	 */
-	 
+
 	static public function server($name) {
 		if(isset($_SERVER[$name])) {
 			return $_SERVER[$name];
@@ -39,9 +39,9 @@ class HTTP {
 		else {
 			return NULL;
 		}
-	} 
+	}
 
-	
+
 
 	/*
 	 * Cookie
@@ -57,19 +57,19 @@ class HTTP {
 		if(self::isCookieSet($name)) {
 			$cookie = $_COOKIE[$name];
 		}
-		
+
 		return $cookie;
 	}
-	
+
 	static public function deleteCookie($name) {
 		self::setCookie($name, "", time() - 3600);
 	}
-	
-	
+
+
 	static public function isCookieSet($name) {
 		return isset($_COOKIE[$name]);
 	}
-	
+
 	/*
 	 * Session
 	 */
@@ -78,30 +78,47 @@ class HTTP {
 		if(self::isSessionSet($name)) {
 			$value = $_SESSION[$name];
 		}
-		
+
 		return $value;
 	}
 
 	static public function isSessionSet($name) {
 		return isset($_SESSION[$name]);
 	}
-	
+
 	/*
 	 * Misc
 	 */
 	static public function me() {
   		return $_SERVER['SCRIPT_NAME'];
-  	} 
-	 
+  	}
+
 	static public function refresh() {
   		self::redirect(self::me());
   		exit;
   	}
-  	
-  	static public function redirect($url) {
-  		header("Location: " . $url);
-  		exit;
-  	}	 
-	
+
+  static public function redirect($url) {
+  	header("Location: " . $url);
+  	exit;
+  }
+
+  static public function hostname() {
+  	$hostname = "Unknown host";
+  	$servername = HTTP::server('SERVER_NAME');
+  	if(!is_null($servername)) {
+  		$hostname .= " - " . $servername;
+  	}
+
+		if(!is_null(HTTP::server('HTTP_HOST'))) {
+			$hostname = HTTP::server('HTTP_HOST');
+		}
+
+		return $hostname;
+  }
+
+
+
 }
+
 ?>
