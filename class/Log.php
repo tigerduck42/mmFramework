@@ -29,8 +29,8 @@ class Log {
     */
     }
 
-    if(self::LOG_MAIL) {
-      trigger_error(__METHOD__ . " - LOG_MAIL: Not implemented so far");
+    if(self::LOG_DB & self::$_handleType) {
+      trigger_error(__METHOD__ . " - LOG_DB: Not implemented so far");
     }
 
     if(self::LOG_MAIL & self::$_handleType) {
