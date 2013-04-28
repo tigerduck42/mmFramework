@@ -21,16 +21,22 @@ class Log {
     }
 
     if(self::LOG_FILE & self::$_handleType) {
+      trigger_error(__METHOD__ . " - LOG_FILE: Not implemented so far");
+     /*
       $fp = fopen($logName, "a");
       fputs($fp, $logMsg . "\n");
       fclose($fp);
+    */
+    }
+
+    if(self::LOG_MAIL) {
+      trigger_error(__METHOD__ . " - LOG_MAIL: Not implemented so far");
     }
 
     if(self::LOG_MAIL & self::$_handleType) {
       self::_mail($logMsg);
     }
   }
-
 
   public static function mail($msg) {
     $logMsg = self::_build($msg);
