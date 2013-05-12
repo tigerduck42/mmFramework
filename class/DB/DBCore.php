@@ -124,6 +124,10 @@ abstract class DBCore {
 	private function _quoteValues($row) {
 		$quoted = array();
 		foreach($row as $key => $value) {
+
+			// Quote keys properly
+			$key = '`' . $key . '`';
+
 			if(is_string($value)) {
 				$quoted[$key] = "'" . $this->_escape($value) ."'";
 			}
