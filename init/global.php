@@ -18,7 +18,7 @@ spl_autoload_register('customAutoLoader');
 $config = Config::getInstance();
 date_default_timezone_set($config->timezone);
 
-$template = new MmOutputRendererSmarty();
+$template = new OutputRendererSmarty();
 
 $hostname = "Unknown host - " . HTTP::hostname();
 $template->assign("hostname", $hostname);
@@ -41,7 +41,13 @@ function customError($no, $string, $file, $line, $context) {
 
 	$config = Config::getInstance();
 	if($config->isDevServer) {
-		$hError = new ErrorHandler(ErrorHandler::WEB);
+		$api = php_sapi_name();
+		if($api == 'cli') {
+			$hError = new ErrorHandler(ErrorHandler::CLI);
+		}
+		else {
+			$hError = new ErrorHandler(ErrorHandler::WEB);
+		}
 	}
 	else {
 		$hError = new ErrorHandler(ErrorHandler::MAIL);

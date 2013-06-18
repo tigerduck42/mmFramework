@@ -2,23 +2,23 @@
 /**
  * The MIT License (MIT)
  * Copyright (c) 2013 Martin Mitterhauser
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy 
- * of this software and associated documentation files (the "Software"), to deal 
- * in the Software without restriction, including without limitation the rights 
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
- * copies of the Software, and to permit persons to whom the Software is 
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in 
+ *
+ * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *
  *
@@ -31,8 +31,9 @@
 
 class ErrorHandler {
 
-	const WEB = 1;
+	const WEB  = 1;
 	const MAIL = 2;
+	const CLI  = 4;
 
 	private $_scope = NULL;
 	private $_no = NULL;
@@ -80,6 +81,10 @@ class ErrorHandler {
 			echo $this->_outputWeb();
 		}
 
+		if($this->_scope & self::CLI) {
+			echo $this->_outputCli();
+		}
+
 		if($this->_scope & self::MAIL) {
 			$this->_outputMail();
 		}
@@ -90,10 +95,16 @@ class ErrorHandler {
 		echo $this->_buildMessageBox();
 	}
 
+	private function _outputCli() {
+		$msg = $this->_buildMessageBox();
+		$msg = preg_replace('{<br\/?\>}', "\n", $msg);
+		echo strip_tags($msg);
+	}
+
 	private function _buildMessageBox($addContext = FALSE) {
 		$html = '';
 		$html .= '<div style="float: left; clear: both; overflow: hidden; border: 1px solid; padding: 10px; font-family: Verdana,Arial,sans-serif; font-size: 12px;">';
-		$html .= '<b>Error:</b> ' . $this->_string . '<br />';
+		$html .= '<b>Error:</b> ' . $this->_string . '<br/>';
 		$html .= '<b>File:</b> ' . $this->_file  . ' (' . $this->_line  . ')<br/>';
 
 		$stackCore = array_reverse(debug_backtrace());
