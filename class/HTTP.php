@@ -134,14 +134,19 @@ class HTTP {
 
   static public function hostname() {
   	$hostname = "Unknown host";
-  	$servername = HTTP::server('SERVER_NAME');
-  	if(!is_null($servername)) {
-  		$hostname .= " - " . $servername;
-  	}
 
-		if(!is_null(HTTP::server('HTTP_HOST'))) {
-			$hostname = HTTP::server('HTTP_HOST');
-		}
+  	$tryStack = array(
+  		'HOSTNAME',
+  		'SERVER_NAME',
+  		'HTTP_HOST',
+  	);
+  	foreach($tryStack as $item) {
+  		$name = HTTP::server($item);
+  		if(!is_null($name)) {
+  			$hostname = " - " . $name;
+  			break;
+  		}
+  	}
 
 		return $hostname;
   }

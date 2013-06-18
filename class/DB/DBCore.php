@@ -29,8 +29,8 @@
  * @version 1.0
  */
 
-abstract class DBCore {
 
+abstract class DBCore {
 	protected $_link = NULL;
 	protected $_rows = NULL;
 	protected $_affectedRows = NULL;
@@ -75,13 +75,11 @@ abstract class DBCore {
 	abstract protected function _errorNo();
 	abstract protected function _errorMsg();
 
-
 	public function query($sql,$force=FALSE) {
 		$queryType = '';
 		if(preg_match('{\s*(\S+?)\s+}',$sql,$match)) {
 			$queryType = strtolower($match[1]);
 		}
-
 
 		if($force) {
 			return $this->_query($sql);
@@ -97,6 +95,7 @@ abstract class DBCore {
 			}
 		}
 	}
+
 
 	public function insert($table, $row) {
 		$quoted = $this->_quoteValues($row);
@@ -134,6 +133,10 @@ abstract class DBCore {
 	private function _quoteValues($row) {
 		$quoted = array();
 		foreach($row as $key => $value) {
+
+			// Quote keys properly
+			$key = '`' . $key . '`';
+
 			if(is_string($value)) {
 				$quoted[$key] = "'" . $this->_escape($value) ."'";
 			}
@@ -184,8 +187,8 @@ abstract class DBCore {
 
 			trigger_error('Query Failed<br/>
 								<b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
-								<b>URI:</b> ' . $_SERVER['REQUEST_URI'] . '<br/>
-								<b>Remote Address:</b> '  . $_SERVER["REMOTE_ADDR"] . '<br/>
+								<b>URI:</b> ' . HTTP::server('REQUEST_URI') . '<br/>
+								<b>Remote Address:</b> '  . HTTP::server("REMOTE_ADDR") . '<br/>
 								<b>SQL:</b> ' . $sql . '<br/>
 								<b>Total Time:</b> ' . $totaltime . '<br/>
 								<b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n" , E_USER_ERROR);
@@ -213,6 +216,7 @@ abstract class DBCore {
   public function close() {
      $this->_link->close();
   }
+
 
   /*
   private function _sendErrorEmail($subject, $message) {
