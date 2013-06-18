@@ -29,8 +29,8 @@
  * @version 1.0
  */
 
-abstract class DBCore {
 
+abstract class DBCore {
 	protected $_link = NULL;
 	protected $_rows = NULL;
 	protected $_affectedRows = NULL;
@@ -38,9 +38,9 @@ abstract class DBCore {
 	protected $_result = NULL;
 	protected $_insertId = NULL;
 
-	public function __construct() {
+	public function __construct($dbName=NULL) {
   		if(is_null($this->_link)) {
-			$this->_connect();
+			$this->_connect($dbName);
 		}
 	}
 
@@ -75,20 +75,24 @@ abstract class DBCore {
 	abstract protected function _errorNo();
 	abstract protected function _errorMsg();
 
-
-	public function query($sql) {
+	public function query($sql,$force=FALSE) {
 		$queryType = '';
 		if(preg_match('{\s*(\S+?)\s+}',$sql,$match)) {
 			$queryType = strtolower($match[1]);
 		}
 
-		switch($queryType) {
-			case 'select':
-				return $this->_query($sql);
-				break;
-			default:
-				trigger_error("Query: " . $queryType . " not allowed use proper warpper method!", E_USER_ERROR);
-				break;
+		if($force) {
+			return $this->_query($sql);
+		}
+		else {
+			switch($queryType) {
+				case 'select':
+					return $this->_query($sql);
+					break;
+				default:
+					trigger_error("Query: " . $queryType . " not allowed use proper wrapper method!", E_USER_ERROR);
+					break;
+			}
 		}
 	}
 
@@ -117,6 +121,11 @@ abstract class DBCore {
 
 		$sql .= " WHERE " . $table . "_id = " . $id;
 
+		$this->_query($sql);
+	}
+
+	public function delete($table, $id) {
+		$sql = "DELETE FROM " . $table . " WHERE " . $table . "_id = " . $id;
 		$this->_query($sql);
 	}
 
@@ -178,8 +187,8 @@ abstract class DBCore {
 
 			trigger_error('Query Failed<br/>
 								<b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
-								<b>URI:</b> ' . $_SERVER['REQUEST_URI'] . '<br/>
-								<b>Remote Address:</b> '  . $_SERVER["REMOTE_ADDR"] . '<br/>
+								<b>URI:</b> ' . HTTP::server('REQUEST_URI') . '<br/>
+								<b>Remote Address:</b> '  . HTTP::server("REMOTE_ADDR") . '<br/>
 								<b>SQL:</b> ' . $sql . '<br/>
 								<b>Total Time:</b> ' . $totaltime . '<br/>
 								<b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n" , E_USER_ERROR);

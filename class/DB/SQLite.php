@@ -31,24 +31,28 @@
 
 class SQLite extends DBCore {
 
-	protected function _connect() {
+	protected function _connect($dbName=NULL) {
 		$config = Config::getInstance();
-		$databaseDir = DIR_BASE . "/db/";
-		try {
+
+		if(is_null($dbName)) {
+			$databaseDir = DIR_BASE . "/db/";
 			if(!file_exists($databaseDir)) {
 				mkdir($databaseDir);
 			}
-			$this->_link = new SQLite3($databaseDir . $config->dbName);
+			$dbName = $databaseDir . $config->dbName;
+		}
+
+		try {
+			$this->_link = new SQLite3($dbName);
 		}
 		catch(exception $e) {
 			trigger_error('Connect Error ' . $e->getMessage(), E_USER_ERROR);
 		}
 	}
 
-
 	public function asfetch() {
 		if(!is_null($this->_resultHandle)) {
-			$this->_result = $this->_resultHandle->fetchArray();
+			$this->_result = $this->_resultHandle->fetchArray(SQLITE3_ASSOC);
 			return $this->_result;
 		} else {
 			return FALSE;

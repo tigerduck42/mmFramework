@@ -2,7 +2,14 @@
 error_reporting(E_ALL | E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 set_error_handler("customError");
 
-define("WEB_ROOT", $_SERVER['DOCUMENT_ROOT']);
+if(isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT'])) {
+	define("WEB_ROOT", $_SERVER['DOCUMENT_ROOT']);
+	echo "ll";
+}
+else {
+	$filePath = realpath(dirname(__FILE__) . "/../../html/");
+	define("WEB_ROOT", $filePath);
+}
 
 // Load classes
 spl_autoload_register('customAutoLoader');
@@ -11,7 +18,7 @@ spl_autoload_register('customAutoLoader');
 $config = Config::getInstance();
 date_default_timezone_set($config->timezone);
 
-$template = new OutputRendererSmarty();
+$template = new MmOutputRendererSmarty();
 
 $hostname = "Unknown host - " . HTTP::hostname();
 $template->assign("hostname", $hostname);
