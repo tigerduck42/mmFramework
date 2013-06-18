@@ -4,7 +4,6 @@ set_error_handler("customError");
 
 if(isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT'])) {
 	define("WEB_ROOT", $_SERVER['DOCUMENT_ROOT']);
-	echo "ll";
 }
 else {
 	$filePath = realpath(dirname(__FILE__) . "/../../html/");
