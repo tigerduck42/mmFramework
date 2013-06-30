@@ -35,6 +35,8 @@ class ErrorHandler {
 	const MAIL = 2;
 	const CLI  = 4;
 
+	public static $mask = 0;
+
 	private $_scope = NULL;
 	private $_no = NULL;
 	private $_string = NULL;
@@ -77,6 +79,12 @@ class ErrorHandler {
 
 
 	public function output() {
+
+		// Skip error/warning if falgging mask is set
+		if($this->_no & self::$mask) {
+			return;
+		}
+
 		if($this->_scope & self::WEB) {
 			echo $this->_outputWeb();
 		}
@@ -88,7 +96,6 @@ class ErrorHandler {
 		if($this->_scope & self::MAIL) {
 			$this->_outputMail();
 		}
-
 	}
 
 	private function _outputWeb() {
@@ -186,6 +193,17 @@ class ErrorHandler {
 		}
 	}
 
-}
+	public static function disable($mask) {
+		self::$mask = self::$mask | $mask;
+	}
 
+	public static function reenable($mask=NULL) {
+		if(is_null($mask)) {
+			self::$mask = 0;
+		}
+		else {
+			self::$mask = self::$mask & ~$mask;
+		}
+	}
+}
 ?>
