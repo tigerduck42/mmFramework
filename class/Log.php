@@ -70,7 +70,7 @@ class Log {
 
   public static function mail($msg) {
     $logMsg = self::_build($msg);
-    self::_mail($logMsg);
+    self::_mail($logMsg, 4);
   }
 
 
@@ -84,7 +84,7 @@ class Log {
     return $logMsg;
   }
 
-  private static function _mail($msg) {
+  private static function _mail($msg, $maxRetry=0) {
     $config = Config::getInstance();
 
     $mail = new MyMailer();
@@ -95,8 +95,12 @@ class Log {
     $mail->IsHTML();
     $mail->Body = "<p>" . $msg . "</p>";
 
-    if(!$mail->Send()) {
-      return $mail->ErrorInfo . "<br/>";
+    $successSent = FALSE;
+    $i = $maxRetry;
+    while(!$successSent && $i>=0) {
+      $successSent = $mail->Send();
+      sllep(2);
+      $i--;
     }
   }
 }
