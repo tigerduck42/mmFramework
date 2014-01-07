@@ -99,7 +99,7 @@ class Log {
     $i = $maxRetry;
     while(!$successSent && $i>=0) {
       $successSent = $mail->Send();
-      sllep(2);
+      sleep(2);
       $i--;
     }
   }
