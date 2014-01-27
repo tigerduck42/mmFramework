@@ -32,8 +32,10 @@
 class Navigation {
 
 	private $_list = array();
+	private $_level = NULL;
 
 	public function __construct() {
+		$this->_level = 0;
 	}
 
 	function __get($name) {
@@ -41,8 +43,11 @@ class Navigation {
 			case "list":
 				return $this->_list;
 				break;
+			case 'level':
+				return $this->_level;
+				break;
 			default:
-				throw new Exception("Property " . $name . " not defined!" , 2);
+				throw new Exception(__METHOD__ . " - Property " . $name . " not defined!" , 2);
 				break;
 		}
 	}
@@ -51,6 +56,7 @@ class Navigation {
 	public function addItem($name, $url, $class="") {
 		$node = new navigationItem($name, $url, $class);
 		$this->_list[] = $node;
+		$node->children->_level = $this->_level +1;
 		return $node->children;
 	}
 
@@ -87,7 +93,7 @@ class navigationItem {
 				return $this->_children;
 				break;
 			default:
-				throw new Exception("Property " . $name . " not defined!" , 2);
+				throw new Exception(__METHOD__ . " - Property " . $name . " not defined!" , 2);
 				break;
 		}
 	}
