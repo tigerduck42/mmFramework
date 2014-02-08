@@ -442,7 +442,9 @@ class DomWriteHelper {
     return NULL;
   }
 
-
+  public function schemaValidate($filename) {
+    return $this->_doc->schemaValidate($filename);
+  }
 
   /**
    * Parse $html.  Return a string describing the error, or NULL if
