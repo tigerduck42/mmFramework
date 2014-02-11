@@ -45,7 +45,7 @@ class Database {
 	  			return new MySQL($dbName);
 	  			break;
 	  		default:
-	  			throw new exception(__CLASS__ . " - Conncetrer not defined!");
+	  			throw new exception(__CLASS__ . " - Connector not defined!");
 	  			break;
 
   		}

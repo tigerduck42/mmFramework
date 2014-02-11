@@ -31,7 +31,7 @@
 
 class MySQL extends DBCore {
 
-	private function _connect($dbName=NULL) {
+	protected function _connect($dbName=NULL) {
 		$config = Config::getInstance();
 
 		if(is_null($dbName)) {
@@ -54,33 +54,46 @@ class MySQL extends DBCore {
 		}
 	}
 
-	private function _q($sql) {
+	protected function _q($sql) {
 		return $this->_link->query($sql,MYSQLI_STORE_RESULT);
 	}
 
-	private function _escape($value) {
+	protected function _escape($value) {
 		return $this->_link->real_escape_string($value);
 	}
 
-	private function _rows() {
+	protected function _rows() {
 		return $this->_resultHandle->num_rows;
 	}
 
-	private function _affectedRows(){
+	protected function _affectedRows(){
 		return $this->_link->affected_rows;
 	}
 
-	private function _insertId() {
+	protected function _insertId() {
 		return $this->_link->insert_id;
 	}
 
-	private function _errorNo() {
+	protected function _errorNo() {
 		return $this->_link->errno;
 	}
 
-	private function _errorMsg() {
+	protected function _errorMsg() {
 		return $this->_link->error;
 	}
+
+  public function startTransaction() {
+
+  }
+
+  public function commit() {
+
+  }
+
+  public function rollback() {
+
+  }
+
 }
 
 ?>

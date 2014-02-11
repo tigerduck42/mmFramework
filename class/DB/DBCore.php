@@ -58,6 +58,8 @@ abstract class DBCore {
 			case 'link':
 				return $this->_link;
 				break;
+			case 'threadId':
+				return $this->_link->thread_id;
 			default:
 				throw new exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
 				break;
@@ -74,6 +76,12 @@ abstract class DBCore {
 	abstract protected function _insertId();
 	abstract protected function _errorNo();
 	abstract protected function _errorMsg();
+
+	// Transaction support
+	abstract public function startTransaction();
+	abstract public function commit();
+	abstract public function rollback();
+	
 
 	public function query($sql,$force=FALSE) {
 		$queryType = '';
