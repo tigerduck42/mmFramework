@@ -82,16 +82,35 @@ class MySQL extends DBCore {
 		return $this->_link->error;
 	}
 
-  public function startTransaction() {
+  public function beginTransaction() {
+  	if ($this->_inTransaction) {
+  		throw new exception("Already in transaction!");
+  	}
 
+  	$this->_link->autocommit(FALSE);
+  	$this->_inTransaction = TRUE;
   }
 
   public function commit() {
-
+  	$this->_endTransaction('commit'); 
   }
 
   public function rollback() {
+  	$this->_endTransaction('rollback'); 
+  }
 
+  private function _endTransaction($type) {
+  	switch ($type) {
+  		case 'commit':
+  			$this->_link->commit();
+  			break;
+  		case 'rollback':
+  			$this->_link->rollback();
+  			break;
+  	}
+
+  	$this->_link->autocommit(TRUE);
+		$this->_inTransaction = FALSE;
   }
 
 }

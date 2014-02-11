@@ -37,6 +37,7 @@ abstract class DBCore {
 	protected $_resultHandle = NULL;
 	protected $_result = NULL;
 	protected $_insertId = NULL;
+	protected $_inTransaction = FALSE;
 
 	public function __construct($dbName=NULL) {
   		if(is_null($this->_link)) {
@@ -78,10 +79,10 @@ abstract class DBCore {
 	abstract protected function _errorMsg();
 
 	// Transaction support
-	abstract public function startTransaction();
+	abstract public function beginTransaction();
 	abstract public function commit();
 	abstract public function rollback();
-	
+
 
 	public function query($sql,$force=FALSE) {
 		$queryType = '';
