@@ -29,20 +29,23 @@
  * @version 1.0
  */
 
+namespace mmFramework\DB;
+use mmFramework as fw;
+
 require_once(DIR_FRAMEWORK . "/class/db/DBCore.php");
 
 class Database {
 
 	public static function getInstance($dbName=NULL) {
-  		$config = Config::getInstance();
+  		$config = fw\Config::getInstance();
   		switch(strtolower($config->dbConnector)) {
 	  		case 'sqllite':
 	  			require_once(DIR_FRAMEWORK . "/class/db/SQLite.php");
-	  			return new SQLite($dbName);
+	  			return new DB\SQLite($dbName);
 	  			break;
 	  		case 'mysql':
 	  			require_once(DIR_FRAMEWORK . "/class/db/MySQL.php");
-	  			return new MySQL($dbName);
+	  			return new DB\MySQL($dbName);
 	  			break;
 	  		default:
 	  			throw new exception(__CLASS__ . " - Connector not defined!");

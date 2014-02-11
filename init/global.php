@@ -1,6 +1,8 @@
 <?php
+namespace mmFramework;
+
 error_reporting(E_ALL | E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
-set_error_handler("customError");
+set_error_handler("mmFramework\customError");
 
 if(isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT'])) {
 	define("WEB_ROOT", $_SERVER['DOCUMENT_ROOT']);
@@ -11,7 +13,7 @@ else {
 }
 
 // Load classes
-spl_autoload_register('customAutoLoader');
+spl_autoload_register('mmFramework\customAutoLoader');
 
 // Set correct timezone
 $config = Config::getInstance();
@@ -37,6 +39,7 @@ $template->assign("me", $me);
  */
 
 function customError($no, $string, $file, $line, $context) {
+echo $string;
 
 	$config = Config::getInstance();
 	if($config->isDevServer) {
@@ -62,16 +65,22 @@ function customError($no, $string, $file, $line, $context) {
 }
 
 
-function customAutoLoader($className) {
+function customAutoLoader($fullClassName) {
+
+
+	$className = preg_replace('{^mmFramework\\\}', '', $fullClassName);
+
+
 	$locations = array(
 		DIR_FRAMEWORK . '/class/',
 		DIR_FRAMEWORK . '/class/Smarty3/',
 		DIR_BASE . "/class/"
 	);
 	$found = FALSE;
-	foreach($locations as $loc) {
+	foreach ($locations as $loc) {
 		$filePath = $loc . $className . ".php";
-		if(file_exists($filePath)){
+		if (file_exists($filePath)) {
+			
 			require $filePath;
 			$found = TRUE;
 			break;

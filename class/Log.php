@@ -29,6 +29,8 @@
  * @version 1.0
  */
 
+namespace mmFramework;
+
 class Log {
 
   const LOG_CONSOLE = 1;

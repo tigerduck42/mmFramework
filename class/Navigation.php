@@ -29,6 +29,8 @@
  * @version 1.0
  */
 
+namespace mmFramework;
+
 class Navigation {
 
 	private $_list = array();

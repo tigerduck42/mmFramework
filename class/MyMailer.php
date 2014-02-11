@@ -28,6 +28,8 @@
  * @package MmFramework
  * @version 1.0
  */
+
+namespace mmFramework;
  
 require_once(DIR_FRAMEWORK . "/thirdParty/PHPMailer/class.phpmailer.php");
 

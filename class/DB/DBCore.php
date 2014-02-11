@@ -28,7 +28,8 @@
  * @package MmFramework
  * @version 1.0
  */
-
+namespace mmFramework\DB;
+use  mmFramework as fw;
 
 abstract class DBCore {
 	protected $_link = NULL;
@@ -196,8 +197,8 @@ abstract class DBCore {
 
 			trigger_error('Query Failed<br/>
 								<b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
-								<b>URI:</b> ' . HTTP::server('REQUEST_URI') . '<br/>
-								<b>Remote Address:</b> '  . HTTP::server("REMOTE_ADDR") . '<br/>
+								<b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
+								<b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
 								<b>SQL:</b> ' . $sql . '<br/>
 								<b>Total Time:</b> ' . $totaltime . '<br/>
 								<b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n" , E_USER_ERROR);
