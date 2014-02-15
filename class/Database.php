@@ -29,15 +29,15 @@
  * @version 1.0
  */
 
-namespace mmFramework\DB;
-use mmFramework as fw;
+namespace mmFramework;
+
 
 require_once(DIR_FRAMEWORK . "/class/db/DBCore.php");
 
 class Database {
 
 	public static function getInstance($dbName=NULL) {
-  		$config = fw\Config::getInstance();
+  		$config = Config::getInstance();
   		switch(strtolower($config->dbConnector)) {
 	  		case 'sqllite':
 	  			require_once(DIR_FRAMEWORK . "/class/db/SQLite.php");
