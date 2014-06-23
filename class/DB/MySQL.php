@@ -29,16 +29,19 @@
  * @version 1.0
  */
 
+namespace mmFramework\DB;
+use mmFramework as fw;
+
 class MySQL extends DBCore {
 
-	private function _connect($dbName=NULL) {
-		$config = Config::getInstance();
+	protected function _connect($dbName=NULL) {
+		$config = fw\Config::getInstance();
 
 		if(is_null($dbName)) {
 			$dbName = $config->dbName;
 		}
 
-		$this->_link = new mysqli($config->dbHost, $config->dbUser, $config->dbPassword, $dbName, $config->dbPort);
+		$this->_link = new \mysqli($config->dbHost, $config->dbUser, $config->dbPassword, $dbName, $config->dbPort);
 
 		if ($this->_link->connect_error) {
 			trigger_error('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
@@ -54,33 +57,63 @@ class MySQL extends DBCore {
 		}
 	}
 
-	private function _q($sql) {
+	protected function _q($sql) {
 		return $this->_link->query($sql,MYSQLI_STORE_RESULT);
 	}
 
-	private function _escape($value) {
+	protected function _escape($value) {
 		return $this->_link->real_escape_string($value);
 	}
 
-	private function _rows() {
+	protected function _rows() {
 		return $this->_resultHandle->num_rows;
 	}
 
-	private function _affectedRows(){
+	protected function _affectedRows(){
 		return $this->_link->affected_rows;
 	}
 
-	private function _insertId() {
+	protected function _insertId() {
 		return $this->_link->insert_id;
 	}
 
-	private function _errorNo() {
+	protected function _errorNo() {
 		return $this->_link->errno;
 	}
 
-	private function _errorMsg() {
+	protected function _errorMsg() {
 		return $this->_link->error;
 	}
-}
 
+  public function beginTransaction() {
+  	if ($this->_inTransaction) {
+  		throw new exception("Already in transaction!");
+  	}
+
+  	$this->_link->autocommit(FALSE);
+  	$this->_inTransaction = TRUE;
+  }
+
+  public function commit() {
+  	$this->_endTransaction('commit'); 
+  }
+
+  public function rollback() {
+  	$this->_endTransaction('rollback'); 
+  }
+
+  private function _endTransaction($type) {
+  	switch ($type) {
+  		case 'commit':
+  			$this->_link->commit();
+  			break;
+  		case 'rollback':
+  			$this->_link->rollback();
+  			break;
+  	}
+
+  	$this->_link->autocommit(TRUE);
+		$this->_inTransaction = FALSE;
+  }
+}
 ?>

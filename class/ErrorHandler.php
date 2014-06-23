@@ -29,6 +29,8 @@
  * @version 1.0
  */
 
+namespace mmFramework;
+
 class ErrorHandler {
 
 	const WEB  = 1;

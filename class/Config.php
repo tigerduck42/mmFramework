@@ -29,6 +29,8 @@
  * @version 1.0
  */
 
+namespace mmFramework;
+
 class Config {
 
 	private static $_obj = NULL;

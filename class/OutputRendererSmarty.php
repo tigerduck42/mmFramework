@@ -29,6 +29,8 @@
  * @version 1.0
  */
 
+namespace mmFramework;
+
 require_once(DIR_FRAMEWORK . '/thirdParty/Smarty3/libs/Smarty.class.php');
 /**
  * {@link MmOutputRenderer} for Smarty.
@@ -61,7 +63,7 @@ class OutputRendererSmarty extends OutputRenderer
 			$templateCompileDir = DIR_BASE . '/template_c';
 		}
 
-		$this->_smarty = new Smarty();
+		$this->_smarty = new \Smarty();
 		$this->_smarty->compile_dir  = $templateCompileDir;
 		
 		if(is_null($forceRecompile)) {
