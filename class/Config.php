@@ -34,7 +34,7 @@ namespace mmFramework;
 class Config {
 
 	private static $_obj = NULL;
-	private $_configFile = NULL;
+	private $_configFileStack = array();
 	private $_timezone = NULL;
 	private $_enableGA = FALSE;
 	private $_gaCode = NULL;
@@ -58,37 +58,53 @@ class Config {
 
 
 	private function __construct() {
-		$this->_configFile = DIR_BASE . '/init/config.ini';
+		$this->_configFileStack = array(
+			DIR_BASE . '/../masterConfig.ini',
+			DIR_BASE . '/init/config.ini',
+			DIR_BASE . '/init/config_dev.ini',
+		);
 
 		// Can we find a dev config?
 		if(file_exists(DIR_BASE . '/init/config_dev.ini')) {
 			$this->_isDevServer = TRUE;
-			$this->_configFile = DIR_BASE . '/init/config_dev.ini';
 		}
 
-		$config = file_get_contents($this->_configFile);
-		$match = array();
-		if(preg_match_all('/(.+?)=(.+?)\n/', $config, $match, PREG_SET_ORDER)) {
-			foreach($match as $m) {
-				$key = trim($m[1]);
-				$value = trim($m[2]);
+		$this->_parseConfigs();
+	}
 
-				// Skip comments
-				if(preg_match('/^[^;]/',$key)) {
-					// Userdefinded settings
-					if(preg_match("{user_(.+)}", $key,$match2)) {
-						$key = $match2[1];
-						$this->_userDefined[$key] = $value;
-					}
-					else {
-						$key = '_' . $key;
-						$this->$key = $value;
+	private function _parseConfigs() {
+		$parsedFiles = 0;
+		foreach($this->_configFileStack as $configFile) {
+			if( !file_exists($configFile)) {
+				continue;
+			}
+
+			$parsedFiles++;
+			$config = file_get_contents($configFile);
+			$match = array();
+			if(preg_match_all('/(.+?)=(.+?)\n/', $config, $match, PREG_SET_ORDER)) {
+				foreach($match as $m) {
+					$key = trim($m[1]);
+					$value = trim($m[2]);
+
+					// Skip comments
+					if(preg_match('/^[^;]/',$key)) {
+						// Userdefinded settings
+						if(preg_match("{user_(.+)}", $key,$match2)) {
+							$key = $match2[1];
+							$this->_userDefined[$key] = $value;
+						}
+						else {
+							$key = '_' . $key;
+							$this->$key = $value;
+						}
 					}
 				}
 			}
 		}
-		else {
-			throw new exception("Can't read config file " . $this->_configFile);
+
+		if(0 == $parsedFiles) {
+			throw new \exception("Can't read any config file ('" . implode("', '", $this->_configFileStack) . "')");
 		}
 	}
 
