@@ -67,9 +67,7 @@ echo $string;
 
 function customAutoLoader($fullClassName) {
 
-
 	$className = preg_replace('{^mmFramework\\\}', '', $fullClassName);
-
 
 	$locations = array(
 		DIR_FRAMEWORK . '/class/',
