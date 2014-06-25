@@ -39,7 +39,6 @@ $template->assign("me", $me);
  */
 
 function customError($no, $string, $file, $line, $context) {
-echo $string;
 
 	$config = Config::getInstance();
 	if($config->isDevServer) {
