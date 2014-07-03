@@ -1,25 +1,23 @@
 <?php
 
-
 namespace mmFramework;
 
 /**
  * Error
  */
 
-function customError($no, $string, $file, $line, $context) {
+function customError($no, $string, $file, $line, $context)
+{
 
   $config = Config::getInstance();
-  if($config->isDevServer) {
+  if ($config->isDevServer) {
     $api = php_sapi_name();
-    if($api == 'cli') {
+    if ($api == 'cli') {
       $hError = new ErrorHandler(ErrorHandler::CLI);
-    }
-    else {
+    } else {
       $hError = new ErrorHandler(ErrorHandler::WEB);
     }
-  }
-  else {
+  } else {
     $hError = new ErrorHandler(ErrorHandler::MAIL);
   }
 
@@ -33,7 +31,8 @@ function customError($no, $string, $file, $line, $context) {
 }
 
 
-function customAutoLoader($fullClassName) {
+function customAutoLoader($fullClassName)
+{
 
   $className = preg_replace('{^mmFramework\\\}', '', $fullClassName);
 
@@ -45,15 +44,10 @@ function customAutoLoader($fullClassName) {
   $found = FALSE;
   foreach ($locations as $loc) {
     $filePath = $loc . $className . ".php";
-    if (file_exists($filePath)) {
-      
-      require $filePath;
+    if (!$found && file_exists($filePath)) {
+      require_once $filePath;
       $found = TRUE;
       break;
     }
   }
 }
-
-
-
-?>
