@@ -36,6 +36,8 @@ function customAutoLoader($fullClassName)
 
   $className = preg_replace('{^mmFramework\\\}', '', $fullClassName);
 
+  // convert string to path name
+  $classPath = preg_replace('{\\\}', '/', $className);
   $locations = array(
     DIR_FRAMEWORK . '/class/',
     DIR_FRAMEWORK . '/class/Smarty3/',
@@ -43,7 +45,7 @@ function customAutoLoader($fullClassName)
   );
   $found = FALSE;
   foreach ($locations as $loc) {
-    $filePath = $loc . $className . ".php";
+    $filePath = $loc . $classPath . ".php";
     if (!$found && file_exists($filePath)) {
       require_once $filePath;
       $found = TRUE;

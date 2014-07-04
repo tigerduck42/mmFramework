@@ -31,48 +31,46 @@
 
 namespace mmFramework;
 
+class Database
+{
+  public static function getInstance($dbName = NULL)
+  {
+    $config = Config::getInstance();
+    switch(strtolower($config->dbConnector)) {
+      case 'sqllite':
+        require_once(DIR_FRAMEWORK . "/class/db/SQLite.php");
+        return new DB\SQLite($dbName);
+        break;
+      case 'mysql':
+        require_once(DIR_FRAMEWORK . "/class/db/MySQL.php");
+        return new DB\MySQL($dbName);
+        break;
+      default:
+        throw new exception(__CLASS__ . " - Connector not defined!");
+        break;
 
-require_once(DIR_FRAMEWORK . "/class/db/DBCore.php");
-
-class Database {
-
-	public static function getInstance($dbName=NULL) {
-  		$config = Config::getInstance();
-  		switch(strtolower($config->dbConnector)) {
-	  		case 'sqllite':
-	  			require_once(DIR_FRAMEWORK . "/class/db/SQLite.php");
-	  			return new DB\SQLite($dbName);
-	  			break;
-	  		case 'mysql':
-	  			require_once(DIR_FRAMEWORK . "/class/db/MySQL.php");
-	  			return new DB\MySQL($dbName);
-	  			break;
-	  		default:
-	  			throw new exception(__CLASS__ . " - Connector not defined!");
-	  			break;
-
-  		}
-	}
+    }
+  }
 
 
-	public function __get($name) {
-    	switch($name) {
-			case 'insertId':
-				return $this->_insertId;
-				break;
-			case 'affectedRows':
-				return $this->_affectedRows;
-				break;
-			case 'rows':
-				return $this->_rows;
-				break;
-			case 'link':
-				return $this->_link;
-				break;
-			default:
-				throw new exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
-				break;
-		}
-	}
+  public function __get($name)
+  {
+    switch($name) {
+      case 'insertId':
+        return $this->_insertId;
+        break;
+      case 'affectedRows':
+        return $this->_affectedRows;
+        break;
+      case 'rows':
+        return $this->_rows;
+        break;
+      case 'link':
+        return $this->_link;
+        break;
+      default:
+        throw new exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
+        break;
+    }
+  }
 }
-?>
