@@ -47,6 +47,7 @@ class Config
   private $_dbName = NULL;
   private $_dbUser = NULL;
   private $_dbPassword = NULL;
+  private $_dbCharset = 'utf-8';
   private $_mailer = NULL;
   private $_mailHostName = NULL;
   private $_mailPort = NULL;
@@ -169,6 +170,9 @@ class Config
         break;
       case 'dbName':
         return $this->_dbName;
+        break;
+      case 'dbCharset':
+        return $this->_dbCharset;
         break;
       case 'mailer':
         return $this->_mailer;

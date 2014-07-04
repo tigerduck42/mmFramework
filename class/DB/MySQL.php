@@ -30,90 +30,106 @@
  */
 
 namespace mmFramework\DB;
+
 use mmFramework as fw;
 
-class MySQL extends DBCore {
+class MySQL extends DBCore
+{
 
-	protected function _connect($dbName=NULL) {
-		$config = fw\Config::getInstance();
+  protected function _connect($dbName = NULL)
+  {
+    $config = fw\Config::getInstance();
 
-		if(is_null($dbName)) {
-			$dbName = $config->dbName;
-		}
+    if (is_null($dbName)) {
+      $dbName = $config->dbName;
+    }
 
-		$this->_link = new \mysqli($config->dbHost, $config->dbUser, $config->dbPassword, $dbName, $config->dbPort);
+    $this->_link = new \mysqli($config->dbHost, $config->dbUser, $config->dbPassword, $dbName, $config->dbPort);
 
-		if ($this->_link->connect_error) {
-			trigger_error('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
-		}
-	}
+    if ($this->_link->connect_error) {
+      trigger_error('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
+    }
 
-	public function asfetch() {
-		if(!is_null($this->_resultHandle)) {
-			$this->_result = $this->_resultHandle->fetch_assoc();
-			return $this->_result;
-		} else {
-			return FALSE;
-		}
-	}
-
-	protected function _q($sql) {
-		return $this->_link->query($sql,MYSQLI_STORE_RESULT);
-	}
-
-	protected function _escape($value) {
-		return $this->_link->real_escape_string($value);
-	}
-
-	protected function _rows() {
-		return $this->_resultHandle->num_rows;
-	}
-
-	protected function _affectedRows(){
-		return $this->_link->affected_rows;
-	}
-
-	protected function _insertId() {
-		return $this->_link->insert_id;
-	}
-
-	protected function _errorNo() {
-		return $this->_link->errno;
-	}
-
-	protected function _errorMsg() {
-		return $this->_link->error;
-	}
-
-  public function beginTransaction() {
-  	if ($this->_inTransaction) {
-  		throw new exception("Already in transaction!");
-  	}
-
-  	$this->_link->autocommit(FALSE);
-  	$this->_inTransaction = TRUE;
+    $this->_link->set_charset($config->dbCharset);
   }
 
-  public function commit() {
-  	$this->_endTransaction('commit'); 
+  public function asfetch()
+  {
+    if (!is_null($this->_resultHandle)) {
+      $this->_result = $this->_resultHandle->fetch_assoc();
+      return $this->_result;
+    } else {
+      return FALSE;
+    }
   }
 
-  public function rollback() {
-  	$this->_endTransaction('rollback'); 
+  protected function _q($sql)
+  {
+    return $this->_link->query($sql, MYSQLI_STORE_RESULT);
   }
 
-  private function _endTransaction($type) {
-  	switch ($type) {
-  		case 'commit':
-  			$this->_link->commit();
-  			break;
-  		case 'rollback':
-  			$this->_link->rollback();
-  			break;
-  	}
+  protected function _escape($value)
+  {
+    return $this->_link->real_escape_string($value);
+  }
 
-  	$this->_link->autocommit(TRUE);
-		$this->_inTransaction = FALSE;
+  protected function _rows()
+  {
+    return $this->_resultHandle->num_rows;
+  }
+
+  protected function _affectedRows()
+  {
+    return $this->_link->affected_rows;
+  }
+
+  protected function _insertId()
+  {
+    return $this->_link->insert_id;
+  }
+
+  protected function _errorNo()
+  {
+    return $this->_link->errno;
+  }
+
+  protected function _errorMsg()
+  {
+    return $this->_link->error;
+  }
+
+  public function beginTransaction()
+  {
+    if ($this->_inTransaction) {
+      throw new exception("Already in transaction!");
+    }
+
+    $this->_link->autocommit(FALSE);
+    $this->_inTransaction = TRUE;
+  }
+
+  public function commit()
+  {
+    $this->_endTransaction('commit');
+  }
+
+  public function rollback()
+  {
+    $this->_endTransaction('rollback');
+  }
+
+  private function _endTransaction($type)
+  {
+    switch ($type) {
+      case 'commit':
+        $this->_link->commit();
+        break;
+      case 'rollback':
+        $this->_link->rollback();
+        break;
+    }
+
+    $this->_link->autocommit(TRUE);
+    $this->_inTransaction = FALSE;
   }
 }
-?>
