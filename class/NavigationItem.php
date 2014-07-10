@@ -32,6 +32,9 @@ class NavigationItem
       case 'children':
         return $this->_children;
         break;
+      case 'list':
+        return $this->_children->list;
+        break;
       default:
         throw new Exception(__METHOD__ . " - Property " . $name . " not defined!", 2);
         break;
