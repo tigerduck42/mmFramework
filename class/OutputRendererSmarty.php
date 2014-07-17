@@ -174,14 +174,19 @@ class OutputRendererSmarty extends OutputRenderer
   }
 
   /**
-   * Register a smarty modifier.
+   * Register a smarty template directory.
    *
-   * @param string $name The name of the modifier
-   * @param string/array $modifier The modifier specification
+   * @param string $path Path of the plugin dorectory
    */
-  public function registerModifier($name, $modifier)
+  public function registerPluginsDir($path)
   {
-    $this->_smarty->register_modifier($name, $modifier);
+    assert(is_string($path) && file_exists($path));
+    $currentDirs = $this->_smarty->getPluginsDir();
+
+    if (!in_array($path, $currentDirs)) {
+      $currentDirs[] = $path;
+      $this->_smarty->setPluginsDir($currentDirs);
+    }
   }
 
   /**
