@@ -8,3 +8,8 @@ function print_r_nice($data, $return = FALSE)
     echo '<pre>' . print_r($data, TRUE) . '</pre>';
   }
 }
+
+function echo_nice($data)
+{
+  echo '<pre>' . $data . '</pre>';
+}

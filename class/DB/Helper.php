@@ -30,10 +30,13 @@
  */
 namespace mmFramework\DB;
 
-//use mmFramework as fw;
-
 abstract class Helper
 {
+  protected $_isDirty = TRUE;
+
+  abstract protected function _load($id);
+  abstract protected function _loadByRow($row);
+
 
   protected function _assign($name, $value)
   {
