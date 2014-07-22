@@ -29,9 +29,11 @@
  * @version 1.0
  */
 namespace mmFramework\DB;
+
 use  mmFramework as fw;
 
-abstract class DBCore {
+abstract class DBCore
+{
   protected $_link = NULL;
   protected $_rows = NULL;
   protected $_affectedRows = NULL;
@@ -40,14 +42,16 @@ abstract class DBCore {
   protected $_insertId = NULL;
   protected $_inTransaction = FALSE;
 
-  public function __construct($dbName=NULL) {
-      if(is_null($this->_link)) {
+  public function __construct($dbName = NULL)
+  {
+    if (is_null($this->_link)) {
       $this->_connect($dbName);
     }
   }
 
-  public function __get($name) {
-      switch($name) {
+  public function __get($name)
+  {
+    switch($name) {
       case 'insertId':
         return $this->_insertId;
         break;
@@ -85,16 +89,16 @@ abstract class DBCore {
   abstract public function rollback();
 
 
-  public function query($sql,$force=FALSE) {
+  public function query($sql, $force = FALSE)
+  {
     $queryType = '';
-    if(preg_match('{\s*(\S+?)\s+}',$sql,$match)) {
+    if (preg_match('{\s*(\S+?)\s+}', $sql, $match)) {
       $queryType = strtolower($match[1]);
     }
 
-    if($force) {
+    if ($force) {
       return $this->_query($sql);
-    }
-    else {
+    } else {
       switch($queryType) {
         case 'select':
           return $this->_query($sql);
@@ -107,23 +111,25 @@ abstract class DBCore {
   }
 
 
-  public function insert($table, $row) {
+  public function insert($table, $row)
+  {
     $quoted = $this->_quoteValues($row);
 
     $sql = "INSERT INTO " . $table;
     $sql .= " (" . implode(array_keys($quoted), ', ') . ")";
-    $sql .= " VALUES (" . implode($quoted , ", ") . ")";
+    $sql .= " VALUES (" . implode($quoted, ", ") . ")";
     $this->_query($sql);
 
     return $this->insertId;
   }
 
 
-  public function update($table, $row, $id, $customIdName=NULL) {
+  public function update($table, $row, $id, $customIdName = NULL)
+  {
     $quoted = $this->_quoteValues($row);
 
     $sql = "UPDATE " . $table . " SET ";
-    foreach($quoted as $key => $value) {
+    foreach ($quoted as $key => $value) {
       $sql .= $key . " = " . $value . ", ";
     }
 
@@ -134,38 +140,38 @@ abstract class DBCore {
     } else {
       $sql .= " WHERE " . $customIdName . " = " . $id;
     }
-    
+
     $this->_query($sql);
   }
 
-  public function delete($table, $id) {
+  public function delete($table, $id)
+  {
     $sql = "DELETE FROM " . $table . " WHERE " . $table . "_id = " . $id;
     $this->_query($sql);
   }
 
 
-  private function _quoteValues($row) {
+  protected function _quoteValues($row)
+  {
     $quoted = array();
-    foreach($row as $key => $value) {
+    foreach ($row as $key => $value) {
 
       // Quote keys properly
       $key = '`' . $key . '`';
 
-      if(is_string($value)) {
+      if (is_string($value)) {
         $quoted[$key] = "'" . $this->_escape($value) ."'";
-      }
-      else if(is_bool($value)) {
-        if($value == TRUE) {
+      } else if (is_bool($value)) {
+        if ($value == TRUE) {
           $quoted[$key] = 1;
-        }
-        else {
+        } else {
           $quoted[$key] = 0;
         }
-      }
-      else if(is_numeric($key)) {
+      } else if (is_null($value)) {
+        $quoted[$key] = "NULL";
+      } else if (is_numeric($value)) {
         $quoted[$key] = $value;
-      }
-      else {
+      } else {
         $quoted[$key] = "'" . $value . "'";
       }
     }
@@ -174,7 +180,8 @@ abstract class DBCore {
   }
 
 
-  private function _query($sql) {
+  protected function _query($sql)
+  {
 
     $mtime = microtime();
     $mtime = explode(' ', $mtime);
@@ -182,7 +189,7 @@ abstract class DBCore {
     $starttime = $mtime;
 
     $queryType = '';
-    if(preg_match('{\s*(\S+?)\s+}',$sql,$match)) {
+    if (preg_match('{\s*(\S+?)\s+}', $sql, $match)) {
       $queryType = strtolower($match[1]);
     }
 
@@ -199,24 +206,26 @@ abstract class DBCore {
       $endtime = $mtime;
       $totaltime = ($endtime - $starttime);
 
-      trigger_error('Query Failed<br/>
-                <b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
-                <b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
-                <b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
-                <b>SQL:</b> ' . $sql . '<br/>
-                <b>Total Time:</b> ' . $totaltime . '<br/>
-                <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n" , E_USER_ERROR);
+      trigger_error(
+          'Query Failed<br/>
+          <b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
+          <b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
+          <b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
+          <b>SQL:</b> ' . $sql . '<br/>
+          <b>Total Time:</b> ' . $totaltime . '<br/>
+          <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n",
+          E_USER_ERROR
+      );
 
       $this->_resultHandle = NULL;
-    }
-    else {
+    } else {
       switch($queryType) {
         case 'select':
           $this->_rows = $this->_rows();
           break;
         case 'insert':
           $this->_insertId =  $this->_insertId();
-
+          break;
         case 'update':
         case 'delete':
           $this->_affectedRows = $this->_affectedRows();
@@ -227,12 +236,13 @@ abstract class DBCore {
     return $this->_resultHandle;
   }
 
-  public function thread_id() {
+  public function thread_id()
+  {
     return $this->_link->thread_id;
   }
 
-  public function close() {
+  public function close()
+  {
      $this->_link->close();
   }
 }
-?>
