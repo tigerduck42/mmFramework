@@ -33,23 +33,25 @@ function customError($no, $string, $file, $line, $context)
 
 function customAutoLoader($fullClassName)
 {
+  $filePath = NULL;
+  //
+  // mmFramework classes
+  //
+  if (preg_match('{^mmFramework\\\(.+)$}', $fullClassName, $m)) {
+    $className = $m[1];
+    $classPath = preg_replace('{\\\}', '/', $className);
+    $filePath = DIR_FRAMEWORK . '/class/' . $classPath . ".php";
+  }
 
-  $className = preg_replace('{^mmFramework\\\}', '', $fullClassName);
+  //
+  // Local app classes
+  if (preg_match('{^app\\\(.+)$}', $fullClassName, $m)) {
+    $className = $m[1];
+    $classPath = preg_replace('{\\\}', '/', $className);
+    $filePath = DIR_BASE . '/class/' . $classPath . ".php";
+  }
 
-  // convert string to path name
-  $classPath = preg_replace('{\\\}', '/', $className);
-  $locations = array(
-    DIR_FRAMEWORK . '/class/',
-    DIR_FRAMEWORK . '/class/Smarty3/',
-    DIR_BASE . "/class/"
-  );
-  $found = FALSE;
-  foreach ($locations as $loc) {
-    $filePath = $loc . $classPath . ".php";
-    if (!$found && file_exists($filePath)) {
-      require_once $filePath;
-      $found = TRUE;
-      break;
-    }
+  if (!is_null($filePath) && file_exists($filePath)) {
+    require_once $filePath;
   }
 }

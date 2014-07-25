@@ -1,7 +1,7 @@
 <?php
 /**
  * The MIT License (MIT)
- * Copyright (c) 2013 Martin Mitterhauser
+ * Copyright (c) 2013
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,55 +22,15 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *
- * @link https://github.com/tigerduck42/mmFramework
- * @copyright 2013 Martin Mitterhauser
+ * @link
+ * @copyright 2013
  * @author Martin Mitterhauser <martin.mitterhauser at gmail.com>
- * @package MmFramework
+ * @package
  * @version 1.0
  */
 
 namespace mmFramework;
 
-class Database
+class Exception extends \exception
 {
-  public static function getInstance($dbName = NULL)
-  {
-    $config = Config::getInstance();
-    switch(strtolower($config->dbConnector)) {
-      case 'sqllite':
-        require_once(DIR_FRAMEWORK . "/class/db/SQLite.php");
-        return new DB\SQLite($dbName);
-        break;
-      case 'mysql':
-        require_once(DIR_FRAMEWORK . "/class/db/MySQL.php");
-        return new DB\MySQL($dbName);
-        break;
-      default:
-        throw new Exception(__CLASS__ . " - Connector not defined!");
-        break;
-
-    }
-  }
-
-
-  public function __get($name)
-  {
-    switch($name) {
-      case 'insertId':
-        return $this->_insertId;
-        break;
-      case 'affectedRows':
-        return $this->_affectedRows;
-        break;
-      case 'rows':
-        return $this->_rows;
-        break;
-      case 'link':
-        return $this->_link;
-        break;
-      default:
-        throw new Exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
-        break;
-    }
-  }
 }
