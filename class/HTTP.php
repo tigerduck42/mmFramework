@@ -78,9 +78,9 @@ class HTTP
   /*
    * Cookie
    */
-  public static function setCookie($name, $value, $expire = 0)
+  public static function setCookie($name, $value, $expire = 0, $path = '/')
   {
-    if (!setcookie($name, $value, $expire)) {
+    if (!setcookie($name, $value, $expire, $path)) {
       trigger_error("Cookie " . $name . " could not be set!", E_USER_ERROR);
     }
   }
