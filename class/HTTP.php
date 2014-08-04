@@ -162,7 +162,7 @@ class HTTP
     foreach ($tryStack as $item) {
       $name = HTTP::server($item);
       if (!is_null($name)) {
-        $hostname = " - " . $name;
+        $hostname = $name;
         break;
       }
     }
