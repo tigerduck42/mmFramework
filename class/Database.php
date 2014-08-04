@@ -38,11 +38,11 @@ class Database
     $config = Config::getInstance();
     switch(strtolower($config->dbConnector)) {
       case 'sqllite':
-        require_once(DIR_FRAMEWORK . "/class/db/SQLite.php");
+        require_once(DIR_FRAMEWORK . "/class/DB/SQLite.php");
         return new DB\SQLite($dbName);
         break;
       case 'mysql':
-        require_once(DIR_FRAMEWORK . "/class/db/MySQL.php");
+        require_once(DIR_FRAMEWORK . "/class/DB/MySQL.php");
         return new DB\MySQL($dbName);
         break;
       default:
