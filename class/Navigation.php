@@ -60,7 +60,7 @@ class Navigation
 
   public function addItem($name, $url, $class = "")
   {
-    $node = new navigationItem($name, $url, $class);
+    $node = new NavigationItem($name, $url, $class);
     $this->_list[] = $node;
     $node->children->_level = $this->_level +1;
     return $node->children;
