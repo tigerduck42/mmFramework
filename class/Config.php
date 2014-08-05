@@ -199,7 +199,7 @@ class Config
       case 'hostName':
         return $this->_hostName;
         break;
-       case 'errorLog':
+      case 'errorLog':
         return $this->_errorLog;
         break;
       default:
