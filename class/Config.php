@@ -35,29 +35,32 @@ class Config
 {
 
   private static $_obj = NULL;
-  private $_configFileStack = array();
-  private $_timezone = NULL;
-  private $_enableGA = FALSE;
-  private $_gaCode = NULL;
-  private $_smartyForceRecompile = FALSE;
-  private $_isDevServer = FALSE;
-  private $_dbConnector = 'mysql';
-  private $_dbHost = 'localhost';
-  private $_dbPort = 3306;
-  private $_dbName = NULL;
-  private $_dbUser = NULL;
-  private $_dbPassword = NULL;
-  private $_dbCharset = 'utf-8';
-  private $_mailer = NULL;
-  private $_mailHostName = NULL;
-  private $_mailPort = NULL;
-  private $_mailSecure = NULL;
-  private $_mailUsername = NULL;
-  private $_mailPassword = NULL;
-  private $_mailSender = NULL;
-  private $_hostName = NULL;
-  private $_errorLog = NULL;
-  private $_userDefined = array();
+
+  private $_configFileStack       = array();
+  private $_timezone              = NULL;
+  private $_enableGA              = FALSE;
+  private $_gaCode                = NULL;
+  private $_smartyForceRecompile  = FALSE;
+  private $_isDevServer           = FALSE;
+
+  private $_dbConnector           = 'mysql';
+  private $_dbHost                = 'localhost';
+  private $_dbPort                = 3306;
+  private $_dbName                = NULL;
+  private $_dbUser                = NULL;
+  private $_dbPassword            = NULL;
+  private $_dbCharset             = 'utf-8';
+
+  private $_mailer                = NULL;
+  private $_mailHostName          = NULL;
+  private $_mailPort              = NULL;
+  private $_mailSecure            = NULL;
+  private $_mailUsername          = NULL;
+  private $_mailPassword          = NULL;
+  private $_mailSender            = NULL;
+  private $_errorLog              = NULL;
+  private $_errorEmail            = NULL;
+  private $_userDefined           = array();
 
 
   private function __construct()
@@ -197,10 +200,16 @@ class Config
         return $this->_mailSender;
         break;
       case 'hostName':
-        return $this->_hostName;
+        return HTTP::hostname();
         break;
       case 'errorLog':
         return $this->_errorLog;
+        break;
+      case 'errorEmail':
+        if (is_null($this->_errorEmail)) {
+          throw new Exception(__METHOD__ . " - Error email not defined!");
+        }
+        return $this->_errorEmail;
         break;
       default:
         if (isset($this->_userDefined[$name])) {

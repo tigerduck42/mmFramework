@@ -26,7 +26,7 @@ function customError($no, $string, $file, $line, $context)
   $hError->file = $file;
   $hError->line = $line;
   $hError->context = $context;
-  $hError->mailTo = ERROR_MAIL_TO;
+  $hError->mailTo = $config->errorEmail;
   $hError->output();
 }
 

@@ -51,8 +51,9 @@ class ErrorHandler
 
   public function __construct($scope = self::WEB)
   {
+    $config = Config::getInstance();
     $this->_scope = $scope;
-    $this->_mailTo = ERROR_MAIL_TO;
+    $this->_mailTo = $config->errorEmail;
   }
 
 
