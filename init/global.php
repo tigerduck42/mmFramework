@@ -1,11 +1,15 @@
 <?php
 namespace mmFramework;
 
+//ini_set('display_errors', 'on');
+//ini_set('display_startup_errors', 'on');
+
+error_reporting(E_ALL | E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+
 require_once(DIR_FRAMEWORK . '/utils/fwUtilities.php');
 require_once(DIR_FRAMEWORK . '/utils/utilities.php');
 
 
-error_reporting(E_ALL | E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 set_error_handler("mmFramework\customError");
 
 if (isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT'])) {

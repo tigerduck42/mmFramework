@@ -56,6 +56,7 @@ class Config
   private $_mailPassword = NULL;
   private $_mailSender = NULL;
   private $_hostName = NULL;
+  private $_errorLog = NULL;
   private $_userDefined = array();
 
 
@@ -197,6 +198,9 @@ class Config
         break;
       case 'hostName':
         return $this->_hostName;
+        break;
+       case 'errorLog':
+        return $this->_errorLog;
         break;
       default:
         if (isset($this->_userDefined[$name])) {
