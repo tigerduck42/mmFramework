@@ -146,6 +146,7 @@ class HTTP
 
   public static function redirect($url)
   {
+    ob_clean();
     header("Location: " . $url);
     exit;
   }
