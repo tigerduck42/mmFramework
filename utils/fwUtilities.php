@@ -8,7 +8,6 @@ namespace mmFramework;
 
 function customError($no, $string, $file, $line, $context)
 {
-
   $config = Config::getInstance();
   if ($config->isDevServer) {
     $api = php_sapi_name();
@@ -21,12 +20,12 @@ function customError($no, $string, $file, $line, $context)
     $hError = new ErrorHandler(ErrorHandler::MAIL);
   }
 
-  $hError->no = $no;
-  $hError->string = $string;
-  $hError->file = $file;
-  $hError->line = $line;
-  $hError->context = $context;
-  $hError->mailTo = $config->errorEmail;
+  $hError->no       = $no;
+  $hError->string   = $string;
+  $hError->file     = $file;
+  $hError->line     = $line;
+  $hError->context  = $context;
+  $hError->mailTo   = $config->errorEmail;
   $hError->output();
 }
 

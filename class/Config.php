@@ -37,6 +37,8 @@ class Config
   private static $_obj = NULL;
 
   private $_configFileStack       = array();
+  private $_reservedStack         = array();
+
   private $_timezone              = NULL;
   private $_enableGA              = FALSE;
   private $_gaCode                = NULL;
@@ -76,6 +78,17 @@ class Config
       $this->_isDevServer = TRUE;
     }
 
+    // get reserved keys
+    $attributes = array_keys(get_object_vars($this));
+
+    $reserved[] = "hostName";
+
+    foreach ($attributes as $attrib) {
+      $attrib = preg_replace('{^_*}', '', $attrib);
+      $reserved[] = $attrib;
+    }
+    $this->_reservedStack = $reserved;
+
     $this->_parseConfigs();
   }
 
@@ -98,9 +111,14 @@ class Config
           // Skip comments
           if (preg_match('/^[^;]/', $key)) {
             // Userdefinded settings
-            if (preg_match("{user_(.+)}", $key, $match2)) {
-              $key = $match2[1];
-              $this->_userDefined[$key] = $value;
+            if (preg_match("{user(_+)(.+)}", $key, $match2)) {
+              $key = $match2[2];
+
+              if (in_array($key, $this->_reservedStack)) {
+                trigger_error("User defined parameter '" . $key . "' is reserved", E_USER_WARNING);
+              } else {
+                $this->_userDefined[$key] = $value;
+              }
             } else {
               $key = '_' . $key;
               $this->$key = $value;
