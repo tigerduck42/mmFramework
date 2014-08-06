@@ -101,7 +101,7 @@ class Log
     $mail->AddAddress($config->otrUsername);
     $mail->Subject = $msg;
     $mail->IsHTML();
-    $mail->Body = "<p>" . $msg . "</p>";
+    $mail->setBody("<p>" . $msg . "</p>");
 
     $successSent = FALSE;
     $i = $maxRetry;

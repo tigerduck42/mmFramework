@@ -82,5 +82,8 @@ abstract class Helper
         $this->_logger->write(implode("\n", $old), implode("\n", $new));
       }
     }
+
+    // clear changeStack
+    $this->_changeStack = array();
   }
 }

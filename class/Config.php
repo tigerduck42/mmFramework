@@ -246,6 +246,22 @@ class Config
     }
   }
 
+  public function exists($name)
+  {
+    // Private attributes
+    if (property_exists($this, '_' . $name)) {
+      return TRUE;
+    }
+
+    // User defined attributes
+    if (isset($this->_userDefined[$name])) {
+      return TRUE;
+    }
+
+    // nothing found
+    return FALSE;
+  }
+
   public function __set($name, $value)
   {
     trigger_error(__CLASS__ . "::Setter - '" . $name . "' Please use config file!", E_USER_ERROR);

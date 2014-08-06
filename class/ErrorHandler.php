@@ -238,7 +238,7 @@ class ErrorHandler
     $mail->AddAddress($this->_mailTo, "WebAdmin");
     $mail->Subject = "Error on " . HTTP::hostname();
     $mail->IsHTML();
-    $mail->Body = $msg;
+    $mail->setBody($msg);
 
     if (!$mail->Send()) {
       return $mail->ErrorInfo . "<br/>";

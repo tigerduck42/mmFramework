@@ -36,7 +36,10 @@ require_once(DIR_FRAMEWORK . "/thirdParty/PHPMailer/class.phpmailer.php");
 class MyMailer extends \PHPMailer
 {
 
-  public function __construct($exceptions = false)
+  private $_preBody = '';
+  private $_overrideAddress = NULL;
+
+  public function __construct($exceptions = FALSE)
   {
     parent::__construct($exceptions);
 
@@ -67,6 +70,13 @@ class MyMailer extends \PHPMailer
 
     $this->CharSet = "utf-8";
 
+    if ($config->exists('mailOverRide')) {
+      if (self::ValidateAddress($config->mailOverRide)) {
+        $this->_overrideAddress = $config->mailOverRide;
+      } else {
+        trigger_error("No valid override address given!", E_USER_ERROR);
+      }
+    }
   }
 
   public function addRecipients($recipientArray)
@@ -98,6 +108,25 @@ class MyMailer extends \PHPMailer
     }
   }
 
+  protected function AddAnAddress($tag, $address, $name = "")
+  {
+    if (!is_null($this->_overrideAddress)) {
+      $this->_preBody .= "Override " . $address . " with " . $this->_overrideAddress . "\n";
+      $address = $this->_overrideAddress;
+    }
+
+    parent::AddAnAddress($tag, $address, $name);
+  }
+
+  public function setBody($body)
+  {
+    $this->Body = nl2br($this->_preBody) . $body;
+  }
+
+  public function setAltBody($body)
+  {
+    $this->AltBody = $this->_preBody . $body;
+  }
 
   public function send()
   {
