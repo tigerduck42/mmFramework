@@ -60,7 +60,7 @@ abstract class Helper
     }
   }
 
-  protected function _postSave()
+  protected function _postSave($row = NULL)
   {
     assert(is_object($this->_logger));
 
