@@ -51,6 +51,8 @@ class MySQL extends DBCore
     }
 
     $this->_link->set_charset($config->dbCharset);
+
+    $this->_checkError();
   }
 
   public function asfetch()
@@ -131,5 +133,12 @@ class MySQL extends DBCore
 
     $this->_link->autocommit(TRUE);
     $this->_inTransaction = FALSE;
+  }
+
+  private function _checkError()
+  {
+    foreach ($this->_link->error_list as $eRec) {
+      trigger_error('DB Error (' . $eRec['errno'] . ') ' . $eRec['error'], E_USER_ERROR);
+    }
   }
 }
