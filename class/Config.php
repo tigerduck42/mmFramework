@@ -51,7 +51,7 @@ class Config
   private $_dbName                = NULL;
   private $_dbUser                = NULL;
   private $_dbPassword            = NULL;
-  private $_dbCharset             = 'utf-8';
+  private $_dbCharset             = 'utf8';
 
   private $_mailer                = NULL;
   private $_mailHostName          = NULL;
