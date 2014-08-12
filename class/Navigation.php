@@ -58,9 +58,9 @@ class Navigation
   }
 
 
-  public function addItem($name, $url, $class = "")
+  public function addItem($name, $url, $class = "", $opt = array())
   {
-    $node = new NavigationItem($name, $url, $class);
+    $node = new NavigationItem($name, $url, $class, $opt);
     $this->_list[] = $node;
     $node->children->_level = $this->_level +1;
     return $node->children;
