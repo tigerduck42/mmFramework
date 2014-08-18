@@ -138,7 +138,14 @@ abstract class DBCore
     if (is_null($customIdName)) {
       $sql .= " WHERE " . $table . "_id = " . $id;
     } else {
-      $sql .= " WHERE " . $customIdName . " = " . $id;
+      $sql .= " WHERE " . $customIdName . " = ";
+
+      // proper wrapping if key is a string
+      if (is_string($id)) {
+        $sql .=  "'" . $id ."'";
+      } else {
+        $sql .=  $id;
+      }
     }
 
     $this->_query($sql);
