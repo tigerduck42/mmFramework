@@ -65,7 +65,7 @@ abstract class DBCore
         return $this->_link;
         break;
       case 'threadId':
-        return $this->_link->thread_id;
+        return $this->_threadId();
       default:
         throw new exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
         break;
@@ -243,9 +243,9 @@ abstract class DBCore
     return $this->_resultHandle;
   }
 
-  public function thread_id()
+  protected function _threadId()
   {
-    return $this->_link->thread_id;
+    throw new Exception(__METHOD__ . " - Can't get thread ID");
   }
 
   public function close()

@@ -120,6 +120,11 @@ class MySQL extends DBCore
     $this->_endTransaction('rollback');
   }
 
+  protected function _threadId()
+  {
+    return $this->_link->thread_id;
+  }
+
   private function _endTransaction($type)
   {
     switch ($type) {
