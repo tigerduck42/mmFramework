@@ -29,28 +29,33 @@
  * @version 1.0
  */
 
-class Log {
+namespace mmFramework;
+
+class Log
+{
 
   const LOG_CONSOLE = 1;
-  const LOG_FILE = 2;
-  const LOG_DB = 4;
-  const LOG_MAIL = 8;
+  const LOG_FILE    = 2;
+  const LOG_DB      = 4;
+  const LOG_MAIL    = 8;
 
   private static $_withTimestamp = FALSE;
   private static $_handleType = 1;
 
-  public function __construct($wTs){
+  public function __construct($wTs)
+  {
     self::$_withTimestamp = $wTs;
   }
 
-  public static function write($msg) {
+  public static function write($msg)
+  {
 
     $logMsg = self::_build($msg);
-    if(self::LOG_CONSOLE & self::$_handleType) {
+    if (self::LOG_CONSOLE & self::$_handleType) {
       echo $logMsg . "\n";
     }
 
-    if(self::LOG_FILE & self::$_handleType) {
+    if (self::LOG_FILE & self::$_handleType) {
       trigger_error(__METHOD__ . " - LOG_FILE: Not implemented so far");
      /*
       $fp = fopen($logName, "a");
@@ -59,24 +64,26 @@ class Log {
     */
     }
 
-    if(self::LOG_DB & self::$_handleType) {
+    if (self::LOG_DB & self::$_handleType) {
       trigger_error(__METHOD__ . " - LOG_DB: Not implemented so far");
     }
 
-    if(self::LOG_MAIL & self::$_handleType) {
+    if (self::LOG_MAIL & self::$_handleType) {
       self::_mail($logMsg);
     }
   }
 
-  public static function mail($msg) {
+  public static function mail($msg)
+  {
     $logMsg = self::_build($msg);
     self::_mail($logMsg, 4);
   }
 
 
-  private static function _build($msg) {
+  private static function _build($msg)
+  {
     $logMsg = '';
-    if(self::$_withTimestamp) {
+    if (self::$_withTimestamp) {
       $logMsg = '[' . date('r') . '] - ';
     }
 
@@ -84,7 +91,8 @@ class Log {
     return $logMsg;
   }
 
-  private static function _mail($msg, $maxRetry=0) {
+  private static function _mail($msg, $maxRetry = 0)
+  {
     $config = Config::getInstance();
 
     $mail = new MyMailer();
@@ -93,16 +101,14 @@ class Log {
     $mail->AddAddress($config->otrUsername);
     $mail->Subject = $msg;
     $mail->IsHTML();
-    $mail->Body = "<p>" . $msg . "</p>";
+    $mail->setBody("<p>" . $msg . "</p>");
 
     $successSent = FALSE;
     $i = $maxRetry;
-    while(!$successSent && $i>=0) {
+    while (!$successSent && $i>=0) {
       $successSent = $mail->Send();
       sleep(2);
       $i--;
     }
   }
 }
-
-?>

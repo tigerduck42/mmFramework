@@ -29,10 +29,13 @@
  * @version 1.0
  */
 
+namespace mmFramework\DB;
+use mmFramework as fw;
+
 class SQLite extends DBCore {
 
 	protected function _connect($dbName=NULL) {
-		$config = Config::getInstance();
+		$config = fw\Config::getInstance();
 
 		if(is_null($dbName)) {
 			$databaseDir = DIR_BASE . "/db/";

@@ -29,58 +29,121 @@
  * @version 1.0
  */
 
-class MySQL extends DBCore {
+namespace mmFramework\DB;
 
-	private function _connect($dbName=NULL) {
-		$config = Config::getInstance();
+use mmFramework as fw;
 
-		if(is_null($dbName)) {
-			$dbName = $config->dbName;
-		}
+class MySQL extends DBCore
+{
 
-		$this->_link = new mysqli($config->dbHost, $config->dbUser, $config->dbPassword, $dbName, $config->dbPort);
+  protected function _connect($dbName = NULL)
+  {
+    $config = fw\Config::getInstance();
 
-		if ($this->_link->connect_error) {
-			trigger_error('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
-		}
-	}
+    if (is_null($dbName)) {
+      $dbName = $config->dbName;
+    }
 
-	public function asfetch() {
-		if(!is_null($this->_resultHandle)) {
-			$this->_result = $this->_resultHandle->fetch_assoc();
-			return $this->_result;
-		} else {
-			return FALSE;
-		}
-	}
+    $this->_link = new \mysqli($config->dbHost, $config->dbUser, $config->dbPassword, $dbName, $config->dbPort);
 
-	private function _q($sql) {
-		return $this->_link->query($sql,MYSQLI_STORE_RESULT);
-	}
+    if ($this->_link->connect_error) {
+      trigger_error('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
+    }
 
-	private function _escape($value) {
-		return $this->_link->real_escape_string($value);
-	}
+    $this->_link->set_charset($config->dbCharset);
 
-	private function _rows() {
-		return $this->_resultHandle->num_rows;
-	}
+    $this->_checkError();
+  }
 
-	private function _affectedRows(){
-		return $this->_link->affected_rows;
-	}
+  public function asfetch()
+  {
+    if (!is_null($this->_resultHandle)) {
+      $this->_result = $this->_resultHandle->fetch_assoc();
+      return $this->_result;
+    } else {
+      return FALSE;
+    }
+  }
 
-	private function _insertId() {
-		return $this->_link->insert_id;
-	}
+  protected function _q($sql)
+  {
+    return $this->_link->query($sql, MYSQLI_STORE_RESULT);
+  }
 
-	private function _errorNo() {
-		return $this->_link->errno;
-	}
+  protected function _escape($value)
+  {
+    return $this->_link->real_escape_string($value);
+  }
 
-	private function _errorMsg() {
-		return $this->_link->error;
-	}
+  protected function _rows()
+  {
+    return $this->_resultHandle->num_rows;
+  }
+
+  protected function _affectedRows()
+  {
+    return $this->_link->affected_rows;
+  }
+
+  protected function _insertId()
+  {
+    return $this->_link->insert_id;
+  }
+
+  protected function _errorNo()
+  {
+    return $this->_link->errno;
+  }
+
+  protected function _errorMsg()
+  {
+    return $this->_link->error;
+  }
+
+  public function beginTransaction()
+  {
+    if ($this->_inTransaction) {
+      throw new exception("Already in transaction!");
+    }
+
+    $this->_link->autocommit(FALSE);
+    $this->_inTransaction = TRUE;
+  }
+
+  public function commit()
+  {
+    $this->_endTransaction('commit');
+  }
+
+  public function rollback()
+  {
+    $this->_endTransaction('rollback');
+  }
+
+  protected function _threadId()
+  {
+    return $this->_link->thread_id;
+  }
+
+  private function _endTransaction($type)
+  {
+    switch ($type) {
+      case 'commit':
+        $this->_link->commit();
+        break;
+      case 'rollback':
+        $this->_link->rollback();
+        break;
+    }
+
+    $this->_link->autocommit(TRUE);
+    $this->_inTransaction = FALSE;
+  }
+
+  private function _checkError()
+  {
+    foreach ($this->_link->error_list as $eRec) {
+      trigger_error('DB Error (' . $eRec['errno'] . ') ' . $eRec['error'], E_USER_ERROR);
+    }
+  }
 }
-
-?>

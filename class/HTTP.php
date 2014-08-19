@@ -29,127 +29,145 @@
  * @version 1.0
  */
 
-class HTTP {
+namespace mmFramework;
 
-	/*
-	 * GET
-	 */
+class HTTP
+{
 
-	static public function get($name) {
-		if(isset($_GET[$name])) {
-			return $_GET[$name];
-		}
-		else {
-			return NULL;
-		}
-	}
+  /*
+   * GET
+   */
 
-	/*
-	 * POST
-	 */
-
-	static public function post($name) {
-		if(isset($_POST[$name])) {
-			return $_POST[$name];
-		}
-		else {
-			return NULL;
-		}
-	}
-
-	/*
-	 * Server
-	 */
-
-	static public function server($name) {
-		if(isset($_SERVER[$name])) {
-			return $_SERVER[$name];
-		}
-		else {
-			return NULL;
-		}
-	}
-
-
-
-	/*
-	 * Cookie
-	 */
-	static public function setCookie($name, $value, $expire=0) {
-		if(!setcookie($name, $value, $expire)) {
-			trigger_error("Cookie " . $name . " could not be set!", E_USER_ERROR);
-		}
-	}
-
-	static public function getCookie($name) {
-		$cookie = NULL;
-		if(self::isCookieSet($name)) {
-			$cookie = $_COOKIE[$name];
-		}
-
-		return $cookie;
-	}
-
-	static public function deleteCookie($name) {
-		self::setCookie($name, "", time() - 3600);
-	}
-
-
-	static public function isCookieSet($name) {
-		return isset($_COOKIE[$name]);
-	}
-
-	/*
-	 * Session
-	 */
-	static public function getSession($name) {
-		$value = NULL;
-		if(self::isSessionSet($name)) {
-			$value = $_SESSION[$name];
-		}
-
-		return $value;
-	}
-
-	static public function isSessionSet($name) {
-		return isset($_SESSION[$name]);
-	}
-
-	/*
-	 * Misc
-	 */
-	static public function me() {
-  	return $_SERVER['SCRIPT_NAME'];
+  public static function get($name)
+  {
+    if (isset($_GET[$name])) {
+      return $_GET[$name];
+    } else {
+      return NULL;
+    }
   }
 
-	static public function refresh() {
-  	self::redirect(self::me());
-  	exit;
+  /*
+   * POST
+   */
+
+  public static function post($name)
+  {
+    if (isset($_POST[$name])) {
+      return $_POST[$name];
+    } else {
+      return NULL;
+    }
   }
 
-  static public function redirect($url) {
-  	header("Location: " . $url);
-  	exit;
+  /*
+   * Server
+   */
+
+  public static function server($name)
+  {
+    if (isset($_SERVER[$name])) {
+      return $_SERVER[$name];
+    } else {
+      return NULL;
+    }
   }
 
-  static public function hostname() {
-  	$hostname = "Unknown host";
 
-  	$tryStack = array(
-  		'HOSTNAME',
-  		'SERVER_NAME',
-  		'HTTP_HOST',
-  	);
-  	foreach($tryStack as $item) {
-  		$name = HTTP::server($item);
-  		if(!is_null($name)) {
-  			$hostname = " - " . $name;
-  			break;
-  		}
-  	}
 
-		return $hostname;
+  /*
+   * Cookie
+   */
+  public static function setCookie($name, $value, $expire = 0, $path = '/')
+  {
+    if (!setcookie($name, $value, $expire, $path)) {
+      trigger_error("Cookie '" . $name . "' could not be set!", E_USER_ERROR);
+    }
+  }
+
+  public static function getCookie($name)
+  {
+    $cookie = NULL;
+    if (self::isCookieSet($name)) {
+      $cookie = $_COOKIE[$name];
+    }
+
+    return $cookie;
+  }
+
+  public static function deleteCookie($name)
+  {
+    self::setCookie($name, "", time() - 3600);
+  }
+
+
+  public static function isCookieSet($name)
+  {
+    return isset($_COOKIE[$name]);
+  }
+
+  /*
+   * Session
+   */
+
+  public static function setSession($name, $value)
+  {
+    $_SESSION[$name] = $value;
+  }
+
+  public static function getSession($name)
+  {
+    $value = NULL;
+    if (self::isSessionSet($name)) {
+      $value = $_SESSION[$name];
+    }
+
+    return $value;
+  }
+
+  public static function isSessionSet($name)
+  {
+    return isset($_SESSION[$name]);
+  }
+
+  /*
+   * Misc
+   */
+  public static function me()
+  {
+    return $_SERVER['SCRIPT_NAME'];
+  }
+
+  public static function refresh()
+  {
+    self::redirect(self::me());
+    exit;
+  }
+
+  public static function redirect($url)
+  {
+    ob_clean();
+    header("Location: " . $url);
+    exit;
+  }
+
+  public static function hostname()
+  {
+    $hostname = "Unknown host";
+
+    $tryStack = array(
+      'HOSTNAME',
+      'SERVER_NAME',
+      'HTTP_HOST',
+    );
+    foreach ($tryStack as $item) {
+      $name = HTTP::server($item);
+      if (!is_null($name)) {
+        $hostname = $name;
+        break;
+      }
+    }
+
+    return $hostname;
   }
 }
-
-?>

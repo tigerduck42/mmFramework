@@ -104,7 +104,7 @@ class PHPMailer {
    * If HTML then run IsHTML(true).
    * @var string
    */
-  public $Body              = '';
+  protected $Body              = '';
 
   /**
    * Sets the text-only body of the message.  This automatically sets the
@@ -113,7 +113,7 @@ class PHPMailer {
    * that can read HTML will view the normal Body.
    * @var string
    */
-  public $AltBody           = '';
+  protected $AltBody           = '';
 
   /**
    * Stores the complete compiled MIME message body.
@@ -1643,7 +1643,7 @@ class PHPMailer {
         if (version_compare(PHP_VERSION, '5.3.0', '<')) {
           set_magic_quotes_runtime(0);
         } else {
-		  ini_set('magic_quotes_runtime', 0); 
+		  ini_set('magic_quotes_runtime', 0);
 		}
 	  }
       $file_buffer  = file_get_contents($path);
@@ -1652,7 +1652,7 @@ class PHPMailer {
         if (version_compare(PHP_VERSION, '5.3.0', '<')) {
           set_magic_quotes_runtime($magic_quotes);
         } else {
-		  ini_set('magic_quotes_runtime', $magic_quotes); 
+		  ini_set('magic_quotes_runtime', $magic_quotes);
 	    }
 	  }
       return $file_buffer;
