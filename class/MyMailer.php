@@ -111,7 +111,9 @@ class MyMailer extends \PHPMailer
   protected function AddAnAddress($tag, $address, $name = "")
   {
     if (!is_null($this->_overrideAddress)) {
-      $this->_preBody .= "Override " . $address . " with " . $this->_overrideAddress . "\n";
+      if (strcmp($address, $this->_overrideAddress) != 0) {
+        $this->_preBody .= "Override " . $address . " with " . $this->_overrideAddress . "\n";
+      }
       $address = $this->_overrideAddress;
     }
 
