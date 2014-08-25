@@ -61,13 +61,13 @@ abstract class DBCore
       case 'rows':
         return $this->_rows;
         break;
-      case 'link':
-        return $this->_link;
-        break;
+      //case 'link':
+      //  return $this->_link;
+      //  break;
       case 'threadId':
         return $this->_threadId();
       default:
-        throw new exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
+        throw new Exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
         break;
     }
   }
@@ -82,6 +82,8 @@ abstract class DBCore
   abstract protected function _insertId();
   abstract protected function _errorNo();
   abstract protected function _errorMsg();
+
+  abstract protected function _prepare($sql);
 
   // Transaction support
   abstract public function beginTransaction();
@@ -251,5 +253,10 @@ abstract class DBCore
   public function close()
   {
      $this->_link->close();
+  }
+
+  public function prepare($sql)
+  {
+    return $this->_prepare($sql);
   }
 }
