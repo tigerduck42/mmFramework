@@ -125,6 +125,15 @@ class MySQL extends DBCore
     return $this->_link->thread_id;
   }
 
+  protected function _prepare($sql)
+  {
+    $statement = $this->_link->prepare($sql);
+    if (!$statement) {
+      $this->_checkError();
+    }
+    return $statement;
+  }
+
   private function _endTransaction($type)
   {
     switch ($type) {
@@ -142,8 +151,14 @@ class MySQL extends DBCore
 
   private function _checkError()
   {
-    foreach ($this->_link->error_list as $eRec) {
-      trigger_error('DB Error (' . $eRec['errno'] . ') ' . $eRec['error'], E_USER_ERROR);
+    if (count($this->_link->error_list)) {
+      foreach ($this->_link->error_list as $eRec) {
+        trigger_error('DB Error (' . $eRec['errno'] . ') ' . $eRec['error'], E_USER_ERROR);
+      }
+    } else {
+      if ((0 < strlen($this->_link->error)) || ($this->_link->errno > 0)) {
+        trigger_error('DB Error (' . $this->_link->errno . ') ' . $this->_link->error, E_USER_ERROR);
+      }
     }
   }
 }
