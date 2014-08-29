@@ -8,6 +8,9 @@ error_reporting(E_ALL | E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 date_default_timezone_set("UTC");
 
 
+$dirBase = realpath(dirname(__FILE__) . "/..");
+define("DIR_FRAMEWORK", $dirBase);
+
 require_once(DIR_FRAMEWORK . '/utils/fwUtilities.php');
 require_once(DIR_FRAMEWORK . '/utils/utilities.php');
 
