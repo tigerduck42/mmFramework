@@ -32,9 +32,6 @@ namespace mmFramework\DB;
 
 abstract class Helper
 {
-  protected $_logger    = NULL;
-  protected $_changeStack = array();
-
   protected $_isDirty = TRUE;
 
   abstract protected function _load($id);
@@ -47,43 +44,13 @@ abstract class Helper
 
     if ($this->$privateName !== $value) {
 
-      // logging enabled .. register change
-      if (is_object($this->_logger)) {
-        $this->_changeStack[$name] = array(
-          'old' =>  $this->$privateName,
-          'new' => $value,
-        );
+      if (method_exists($this, "_logChange")) {
+        // The method _logChange need to be define in the class which extends this one
+        $this->_logChange($name, $this->$privateName, $value);
       }
 
       $this->$privateName = $value;
       $this->_isDirty = TRUE;
     }
-  }
-
-  protected function _postSave($row = NULL)
-  {
-    assert(is_object($this->_logger));
-
-    if (is_object($this->_logger)) {
-      // Fix logger action
-      if (is_null($this->_logger->action)) {
-        $this->_logger->action = get_class($this);
-      }
-
-      if (0 < count($this->_changeStack)) {
-        $old = array();
-        $new = array();
-
-        foreach ($this->_changeStack as $name => $rec) {
-          $old[] = $name . ": " . $rec['old'];
-          $new[] = $name . ": " . $rec['new'];
-        }
-
-        $this->_logger->write(implode("\n", $old), implode("\n", $new));
-      }
-    }
-
-    // clear changeStack
-    $this->_changeStack = array();
   }
 }

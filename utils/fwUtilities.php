@@ -53,6 +53,6 @@ function customAutoLoader($fullClassName)
   //echo $filePath . "<br/>";
 
   if (!is_null($filePath) && file_exists($filePath)) {
-    require_once $filePath;
+    require_once($filePath);
   }
 }
