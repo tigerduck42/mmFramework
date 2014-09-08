@@ -110,11 +110,16 @@ class MyMailer extends \PHPMailer
 
   protected function AddAnAddress($tag, $address, $name = "")
   {
-    if (!is_null($this->_overrideAddress)) {
-      if (strcmp($address, $this->_overrideAddress) != 0) {
-        $this->_preBody .= "Override " . $address . " with " . $this->_overrideAddress . "\n";
+    $config = Config::getInstance();
+
+    // Never override error email address
+    if (strcmp($address, $config->errorEmail) != 0) {
+      if (!is_null($this->_overrideAddress)) {
+        if (strcmp($address, $this->_overrideAddress) != 0) {
+          $this->_preBody .= "Override " . $address . " with " . $this->_overrideAddress . "\n";
+        }
+        $address = $this->_overrideAddress;
       }
-      $address = $this->_overrideAddress;
     }
 
     parent::AddAnAddress($tag, $address, $name);
