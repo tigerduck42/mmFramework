@@ -43,7 +43,20 @@ function customAutoLoader($fullClassName)
   }
 
   //
+  //  Smalot PDF Parser
+  //
+  if (preg_match('{^(Smalot\\\.+)$}', $fullClassName, $m)) {
+    $className = $m[1];
+    $classPath = preg_replace('{\\\}', '/', $className);
+    $filePath = DIR_FRAMEWORK . '/thirdParty/' . $classPath . ".php";
+
+    require_once(DIR_FRAMEWORK . '/thirdParty/tcpdf/tcpdf_autoconfig.php');
+    require_once(DIR_FRAMEWORK . '/thirdParty/tcpdf/tcpdf_parser.php');
+  }
+
+  //
   // Local app classes
+  //
   if (preg_match('{^app\\\(.+)$}', $fullClassName, $m)) {
     $className = $m[1];
     $classPath = preg_replace('{\\\}', '/', $className);
