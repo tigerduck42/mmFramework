@@ -76,6 +76,35 @@ class OutputRendererSmarty extends OutputRenderer
   }
 
   /**
+   * Magic getter
+   * @param  string $name Name of property
+   * @return void
+   */
+  public function __get($name)
+  {
+    switch($name) {
+      default:
+        return parent::__get($name);
+        break;
+    }
+  }
+
+  /**
+   * Magic setter
+   * @param  string $name Name of property
+   * @param  mixed $value Name of property
+   * @return mixed
+   */
+  public function __set($name, $value)
+  {
+    switch($name) {
+      default:
+        parent::__set($name, $value);
+        break;
+    }
+  }
+
+  /**
    * Set the template directory/directories.
    * @param string|array $templateDir A single template dir, or a set of directories to search in.
    */
