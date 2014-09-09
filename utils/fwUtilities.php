@@ -50,7 +50,7 @@ function customAutoLoader($fullClassName)
     $classPath = preg_replace('{\\\}', '/', $className);
     $filePath = DIR_FRAMEWORK . '/thirdParty/' . $classPath . ".php";
 
-    require_once(DIR_FRAMEWORK . '/thirdParty/tcpdf/tcpdf_autoconfig.php');
+    //require_once(DIR_FRAMEWORK . '/thirdParty/tcpdf/tcpdf_autoconfig.php');
     require_once(DIR_FRAMEWORK . '/thirdParty/tcpdf/tcpdf_parser.php');
   }
 
