@@ -36,17 +36,20 @@ use mmFramework as fw;
 class SQLite extends DBCore
 {
 
-  protected function _connect($dbName = NULL)
+  protected function _connect($dbConfig = 'default')
   {
     $config = fw\Config::getInstance();
 
-    if (is_null($dbName)) {
-      $databaseDir = DIR_BASE . "/db/";
-      if (!file_exists($databaseDir)) {
-        mkdir($databaseDir);
-      }
-      $dbName = $databaseDir . $config->dbName;
+    if (!isset($config->dbConfiguration[$dbConfig])) {
+      throw new Exception(__METHOD__ . " - No database config '" . $dbConfig . "' defined!");
     }
+
+    $conf = $config->dbConfiguration[$dbConfig];
+    $databaseDir = DIR_BASE . "/db/";
+    if (!file_exists($databaseDir)) {
+      mkdir($databaseDir);
+    }
+    $dbName = $databaseDir . $conf['dbName'];
 
     try {
       $this->_link = new SQLite3($dbName);
