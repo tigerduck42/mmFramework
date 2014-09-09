@@ -35,6 +35,11 @@ class Config
 {
 
   private static $_obj = NULL;
+  private static $_validSections = array(
+    'general',
+    'db',
+    'userdefined',
+  );
 
   private $_configFileStack       = array();
   private $_reservedStack         = array();
@@ -45,14 +50,6 @@ class Config
   private $_smartyForceRecompile  = FALSE;
   private $_isDevServer           = FALSE;
 
-  private $_dbConnector           = 'mysql';
-  private $_dbHost                = 'localhost';
-  private $_dbPort                = 3306;
-  private $_dbName                = NULL;
-  private $_dbUser                = NULL;
-  private $_dbPassword            = NULL;
-  private $_dbCharset             = 'utf8';
-
   private $_mailer                = NULL;
   private $_mailHostName          = NULL;
   private $_mailPort              = NULL;
@@ -60,9 +57,13 @@ class Config
   private $_mailUsername          = NULL;
   private $_mailPassword          = NULL;
   private $_mailSender            = NULL;
+
   private $_errorLog              = NULL;
   private $_errorEmail            = NULL;
+  private $_mailOverRide          = NULL;
+
   private $_userDefined           = array();
+  private $_databaseStack         = array();
 
 
   private function __construct()
@@ -82,12 +83,31 @@ class Config
     $attributes = array_keys(get_object_vars($this));
 
     $reserved[] = "hostName";
+    $reserved[] = "dbConnector";
+    $reserved[] = "dbHost";
+    $reserved[] = "dbPort";
+    $reserved[] = "dbName";
+    $reserved[] = "dbUser";
+    $reserved[] = "dbPassword";
+    $reserved[] = "dbCharset";
 
     foreach ($attributes as $attrib) {
       $attrib = preg_replace('{^_*}', '', $attrib);
       $reserved[] = $attrib;
     }
     $this->_reservedStack = $reserved;
+
+    // Init default db settings
+    $dbSetting =
+    $this->_databaseStack['default'] = array (
+      'dbConnector' => 'mysql',
+      'dbHost'      => 'localhost',
+      'dbPort'      => 3306,
+      'dbName'      => NULL,
+      'dbUser'      => NULL,
+      'dbPassword'  => NULL,
+      'dbCharset'   => 'utf8',
+    );
 
     $this->_parseConfigs();
   }
@@ -99,18 +119,82 @@ class Config
       if (!file_exists($configFile)) {
         continue;
       }
-
+      $section = NULL;
       $parsedFiles++;
       $config = file_get_contents($configFile);
       $match = array();
+
+      $lines = explode("\n", $config);
+
+      foreach ($lines as $line) {
+
+        if (preg_match('{\[([^:]+)\:?([^\]]+)?\]}', $line, $match)) {
+          // Get sections ...
+          $section = trim($match[1]);
+
+          $subsection = NULL;
+          if (isset($match[2])) {
+            $subsection = trim($match[2]);
+          }
+        } else if (preg_match('{(.+)=(.+)}', $line, $match)) {
+
+          // Check if we have a valid section
+          if (is_null($section)) {
+            throw new Exception(__METHOD__ . " - No config section found!");
+          }
+
+          if (!in_array($section, self::$_validSections)) {
+            throw new Exception(__METHOD__ . " - " . $section . " is not a valid section!");
+          }
+
+          // Get config ...
+          $key = trim($match[1]);
+          $value = trim($match[2]);
+
+          // Skip comments
+          if (preg_match('/^\s*;/', $key)) {
+            continue;
+          }
+
+          switch($section) {
+            case 'general':
+              $privateKey = '_' . $key;
+              $this->$privateKey = $value;
+              break;
+            case 'db':
+              if (!is_null($subsection)) {
+                if (!isset($this->_databaseStack[$subsection])) {
+                  $this->_databaseStack[$subsection] = $this->_databaseStack['default'];
+                }
+                $this->_databaseStack[$subsection][$key] =  $value;
+              } else {
+                $this->_databaseStack['default'][$key] =  $value;
+              }
+              break;
+            case 'userdefined':
+              if (in_array($key, $this->_reservedStack)) {
+                trigger_error("User defined parameter '" . $key . "' is reserved (" . $configFile . ")", E_USER_WARNING);
+              } else {
+                $this->_userDefined[$key] = $value;
+              }
+              break;
+          }
+
+
+
+        }
+      }
+
+      /*
       if (preg_match_all('/(.+?)=(.+?)\n/', $config, $match, PREG_SET_ORDER)) {
         foreach ($match as $m) {
           $key = trim($m[1]);
           $value = trim($m[2]);
 
+
           // Skip comments
           if (preg_match('/^[^;]/', $key)) {
-            // Userdefinded settings
+            // User defined settings
             if (preg_match("{user(_+)(.+)}", $key, $match2)) {
               $key = $match2[2];
 
@@ -126,6 +210,7 @@ class Config
           }
         }
       }
+      */
     }
 
     if (0 == $parsedFiles) {
@@ -175,27 +260,6 @@ class Config
       case "gaCode":
         return $this->_gaCode;
         break;
-      case 'dbConnector':
-        return $this->_dbConnector;
-        break;
-      case 'dbHost':
-        return $this->_dbHost;
-        break;
-      case 'dbPort':
-        return $this->_dbPort;
-        break;
-      case 'dbUser':
-        return $this->_dbUser;
-        break;
-      case 'dbPassword':
-        return $this->_dbPassword;
-        break;
-      case 'dbName':
-        return $this->_dbName;
-        break;
-      case 'dbCharset':
-        return $this->_dbCharset;
-        break;
       case 'mailer':
         return $this->_mailer;
         break;
@@ -228,6 +292,12 @@ class Config
           throw new Exception(__METHOD__ . " - Error email not defined!");
         }
         return $this->_errorEmail;
+        break;
+      case 'mailOverRide':
+        return $this->_mailOverRide;
+        break;
+      case 'dbConfiguration':
+        return $this->_databaseStack;
         break;
       default:
         if (isset($this->_userDefined[$name])) {

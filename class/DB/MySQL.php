@@ -36,21 +36,23 @@ use mmFramework as fw;
 class MySQL extends DBCore
 {
 
-  protected function _connect($dbName = NULL)
+  protected function _connect($dbConfig = 'default')
   {
     $config = fw\Config::getInstance();
 
-    if (is_null($dbName)) {
-      $dbName = $config->dbName;
+    if (!isset($config->dbConfiguration[$dbConfig])) {
+      throw new Exception(__METHOD__ . " - No database config '" . $dbConfig . "' defined!");
     }
 
-    $this->_link = new \mysqli($config->dbHost, $config->dbUser, $config->dbPassword, $dbName, $config->dbPort);
+    $conf = $config->dbConfiguration[$dbConfig];
+
+    $this->_link = new \mysqli($conf['dbHost'], $conf['dbUser'], $conf['dbPassword'], $conf['dbName'], $conf['dbPort']);
 
     if ($this->_link->connect_error) {
       trigger_error('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
     }
 
-    $this->_link->set_charset($config->dbCharset);
+    $this->_link->set_charset($conf['dbCharset']);
 
     $this->_checkError();
   }

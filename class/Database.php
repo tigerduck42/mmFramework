@@ -33,17 +33,22 @@ namespace mmFramework;
 
 class Database
 {
-  public static function getInstance($dbName = NULL)
+  public static function getInstance($dbConfig = 'default')
   {
     $config = Config::getInstance();
-    switch(strtolower($config->dbConnector)) {
+
+    if (!isset($config->dbConfiguration[$dbConfig])) {
+      throw new Exception(__METHOD__ . " - No database config '" . $dbConfig . "' defined!");
+    }
+
+    switch(strtolower($config->dbConfiguration[$dbConfig]['dbConnector'])) {
       case 'sqllite':
         require_once(DIR_FRAMEWORK . "/class/DB/SQLite.php");
-        return new DB\SQLite($dbName);
+        return new DB\SQLite($dbConfig);
         break;
       case 'mysql':
         require_once(DIR_FRAMEWORK . "/class/DB/MySQL.php");
-        return new DB\MySQL($dbName);
+        return new DB\MySQL($dbConfig);
         break;
       default:
         throw new Exception(__CLASS__ . " - Connector not defined!");
