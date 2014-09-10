@@ -77,7 +77,7 @@ class MyMailer extends \PHPMailer
 
     $this->CharSet = "utf-8";
 
-    if ($config->exists('mailOverRide')) {
+    if (!is_null($config->mailOverRide)) {
       if (self::ValidateAddress($config->mailOverRide)) {
         $this->_overrideAddress = $config->mailOverRide;
       } else {
