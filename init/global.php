@@ -7,6 +7,9 @@ namespace mmFramework;
 error_reporting(E_ALL | E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 date_default_timezone_set("UTC");
 
+if (!defined('DIR_BASE')) {
+  define("DIR_BASE", realpath(dirname(__FILE__) . "/../.."));  // The project's base directory
+}
 
 $dirBase = realpath(dirname(__FILE__) . "/..");
 define("DIR_FRAMEWORK", $dirBase);
