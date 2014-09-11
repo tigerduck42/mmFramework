@@ -31,6 +31,8 @@
 
 namespace mmFramework;
 
+use mmFramework as fw;
+
 class Config
 {
 
@@ -260,12 +262,15 @@ class Config
         return $this->_errorLog;
         break;
       case 'errorEmail':
-        if (is_null($this->_errorEmail)) {
+        if (is_null($this->_errorEmail) || !fw\MyMailer::ValidateAddress($this->_errorEmail)) {
           throw new Exception(__METHOD__ . " - Error email not defined!");
         }
         return $this->_errorEmail;
         break;
       case 'mailOverRide':
+        if (!is_null($this->_mailOverRide) && !fw\MyMailer::ValidateAddress($this->_errorEmail)) {
+          throw new Exception(__METHOD__ . " - Error email not defined!");
+        }
         return $this->_mailOverRide;
         break;
       case 'dbConfiguration':
