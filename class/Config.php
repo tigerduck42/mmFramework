@@ -35,7 +35,6 @@ use mmFramework as fw;
 
 class Config
 {
-
   private static $_obj = NULL;
   private static $_validSections = array(
     'general',
@@ -193,9 +192,6 @@ class Config
               }
               break;
           }
-
-
-
         }
       }
     }
