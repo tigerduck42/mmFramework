@@ -60,6 +60,7 @@ class Config
   private $_enableGA              = FALSE;
   private $_smartyForceRecompile  = FALSE;
   private $_isDevServer           = FALSE;
+  private $_forceAssetLoad        = FALSE;
   private $_assertActive          = FALSE;
 
   // Helper stacks
@@ -260,6 +261,9 @@ class Config
         break;
       case 'errorLog':
         return $this->_errorLog;
+        break;
+      case 'forceAssetLoad':
+        return $this->_forceAssetLoad;
         break;
       case 'errorEmail':
         if (is_null($this->_errorEmail) || !fw\MyMailer::ValidateAddress($this->_errorEmail)) {

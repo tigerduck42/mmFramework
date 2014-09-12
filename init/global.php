@@ -35,6 +35,8 @@ $config = Config::getInstance();
 date_default_timezone_set($config->timezone);
 
 $template = new OutputRendererSmarty();
+// Force asset loading
+$template->forceAssetLoad = $config->forceAssetLoad;
 
 $hostname = "Unknown host - " . HTTP::hostname();
 $template->assign("hostname", $hostname);

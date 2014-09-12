@@ -74,10 +74,16 @@ abstract class OutputRenderer
   protected $_links = array();
 
   /**
-   * Force to laod css files
-   * @var boolean $_forceCssLoad
+   * Force to load asset files
+   * @var boolean $_forceAssetLoad
    */
-  protected $_forceCssLoad = FALSE;
+  protected $_forceAssetLoad = FALSE;
+
+  /**
+   * Force to load asset files by this key
+   * @var boolean $_forceAssetLoadKey
+   */
+  protected $_forceAssetLoadKey = NULL;
 
   /**
    * Initialise the Renderer
@@ -114,8 +120,25 @@ abstract class OutputRenderer
   public function __set($name, $value)
   {
     switch($name) {
-      case 'forceCssLoad':
-        $this->_forceCssLoad = $value;
+      case 'forceAssetLoad':
+        $this->_forceAssetLoad = $value;
+
+        if ($value == TRUE) {
+          // look for asset key file
+          $assetKeyFile = DIR_BASE . "/assetKey";
+          if (file_exists($assetKeyFile) && is_readable($assetKeyFile)) {
+            $data = trim(file_get_contents($assetKeyFile));
+            $lines = explode("\n", $data);
+            assert(count($lines) == 2);
+
+            // fix line if md5sum is used
+            $line = preg_replace('{^(\S+).+$}', "$1", $lines[0]);
+            $this->_forceAssetLoadKey = $line;
+          } else {
+            $this->_forceAssetLoad = FALSE;
+            trigger_error("Can't read assertKey file '" . $assetKeyFile . "'", E_USER_WARNING);
+          }
+        }
         break;
       default:
         throw new Exception(__METHOD__ . " - Property " . $name . " not defined!");
@@ -171,6 +194,11 @@ abstract class OutputRenderer
     assert(is_string($javascriptUrl));
 
     if (FALSE == in_array($javascriptUrl, $this->_javascript)) {
+
+      if ($this->_forceAssetLoad) {
+        $javascriptUrl .= "?v=" . $this->_forceAssetLoadKey;
+      }
+
       $this->_javascript[] = $javascriptUrl;
     }
   }
@@ -207,8 +235,8 @@ abstract class OutputRenderer
       }
     }
 
-    if ($this->_forceCssLoad) {
-      $cssUrl .= "?v=" . time();
+    if ($this->_forceAssetLoad) {
+      $cssUrl .= "?v=" . $this->_forceAssetLoadKey;
     }
 
     $this->_links[] = $cssUrl;
