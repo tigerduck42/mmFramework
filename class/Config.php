@@ -31,9 +31,10 @@
 
 namespace mmFramework;
 
+use mmFramework as fw;
+
 class Config
 {
-
   private static $_obj = NULL;
   private static $_validSections = array(
     'general',
@@ -41,15 +42,8 @@ class Config
     'userdefined',
   );
 
-  private $_configFileStack       = array();
-  private $_reservedStack         = array();
-
   private $_timezone              = NULL;
-  private $_enableGA              = FALSE;
   private $_gaCode                = NULL;
-  private $_smartyForceRecompile  = FALSE;
-  private $_isDevServer           = FALSE;
-
   private $_mailer                = NULL;
   private $_mailHostName          = NULL;
   private $_mailPort              = NULL;
@@ -62,7 +56,16 @@ class Config
   private $_errorEmail            = NULL;
   private $_mailOverRide          = NULL;
 
-  private $_userDefined           = array();
+  private $_enableGA              = FALSE;
+  private $_smartyForceRecompile  = FALSE;
+  private $_isDevServer           = FALSE;
+  private $_forceAssetLoad        = FALSE;
+  private $_assertActive          = FALSE;
+
+  // Helper stacks
+  private $_configFileStack       = array();
+  private $_reservedStack         = array();
+  private $_userDefinedStack      = array();
   private $_databaseStack         = array();
 
 
@@ -110,6 +113,16 @@ class Config
     );
 
     $this->_parseConfigs();
+
+    //
+    // Set assert activity
+    //
+
+    if ($this->assertActive == TRUE) {
+      assert_options(ASSERT_ACTIVE, 1);
+    } else {
+      assert_options(ASSERT_ACTIVE, 0);
+    }
   }
 
   private function _parseConfigs()
@@ -175,42 +188,12 @@ class Config
               if (in_array($key, $this->_reservedStack)) {
                 trigger_error("User defined parameter '" . $key . "' is reserved (" . $configFile . ")", E_USER_WARNING);
               } else {
-                $this->_userDefined[$key] = $value;
+                $this->_userDefinedStack[$key] = $value;
               }
               break;
           }
-
-
-
         }
       }
-
-      /*
-      if (preg_match_all('/(.+?)=(.+?)\n/', $config, $match, PREG_SET_ORDER)) {
-        foreach ($match as $m) {
-          $key = trim($m[1]);
-          $value = trim($m[2]);
-
-
-          // Skip comments
-          if (preg_match('/^[^;]/', $key)) {
-            // User defined settings
-            if (preg_match("{user(_+)(.+)}", $key, $match2)) {
-              $key = $match2[2];
-
-              if (in_array($key, $this->_reservedStack)) {
-                trigger_error("User defined parameter '" . $key . "' is reserved", E_USER_WARNING);
-              } else {
-                $this->_userDefined[$key] = $value;
-              }
-            } else {
-              $key = '_' . $key;
-              $this->$key = $value;
-            }
-          }
-        }
-      }
-      */
     }
 
     if (0 == $parsedFiles) {
@@ -230,32 +213,20 @@ class Config
   public function __get($name)
   {
     switch($name) {
-      case 'isDevServer':
-        $check = $this->_isDevServer;
-        if (($check > 0) || (0 === strcasecmp($check, 'true'))) {
-          return TRUE;
-        } else {
-          return FALSE;
-        }
-        break;
       case 'timezone':
         return $this->_timezone;
         break;
+      case 'isDevServer':
+        return $this->_fixBoolean($this->_isDevServer);
+        break;
       case 'smartyForceRecompile':
-        $check = $this->_smartyForceRecompile;
-        if (($check > 0) || (0 === strcasecmp($check, 'true'))) {
-          return TRUE;
-        } else {
-          return FALSE;
-        }
+        return $this->_fixBoolean($this->_smartyForceRecompile);
         break;
       case "enableGA":
-        $check = $this->_enableGA;
-        if (($check > 0) || (0 === strcasecmp($check, 'true'))) {
-          return TRUE;
-        } else {
-          return FALSE;
-        }
+        return $this->_fixBoolean($this->_enableGA);
+        break;
+      case "assertActive":
+        return $this->_fixBoolean($this->_assertActive);
         break;
       case "gaCode":
         return $this->_gaCode;
@@ -287,21 +258,27 @@ class Config
       case 'errorLog':
         return $this->_errorLog;
         break;
+      case 'forceAssetLoad':
+        return $this->_forceAssetLoad;
+        break;
       case 'errorEmail':
-        if (is_null($this->_errorEmail)) {
+        if (is_null($this->_errorEmail) || !fw\MyMailer::ValidateAddress($this->_errorEmail)) {
           throw new Exception(__METHOD__ . " - Error email not defined!");
         }
         return $this->_errorEmail;
         break;
       case 'mailOverRide':
+        if (!is_null($this->_mailOverRide) && !fw\MyMailer::ValidateAddress($this->_errorEmail)) {
+          throw new Exception(__METHOD__ . " - Error email not defined!");
+        }
         return $this->_mailOverRide;
         break;
       case 'dbConfiguration':
         return $this->_databaseStack;
         break;
       default:
-        if (isset($this->_userDefined[$name])) {
-          $value = $this->_userDefined[$name];
+        if (isset($this->_userDefinedStack[$name])) {
+          $value = $this->_userDefinedStack[$name];
           if (0 === strcasecmp($value, 'true')) {
             return TRUE;
           } else if (0 === strcasecmp($value, 'false')) {
@@ -316,6 +293,15 @@ class Config
     }
   }
 
+  private function _fixBoolean ($check)
+  {
+    if (($check > 0) || (0 === strcasecmp($check, 'true'))) {
+      return TRUE;
+    } else {
+      return FALSE;
+    }
+  }
+
   public function exists($name)
   {
     // Private attributes
@@ -324,7 +310,7 @@ class Config
     }
 
     // User defined attributes
-    if (isset($this->_userDefined[$name])) {
+    if (isset($this->_userDefinedStack[$name])) {
       return TRUE;
     }
 
@@ -340,10 +326,5 @@ class Config
   public function __clone()
   {
     trigger_error('Clone is not allowed.', E_USER_ERROR);
-  }
-
-  public function __wakeup()
-  {
-    trigger_error('Unserializing is not allowed.', E_USER_ERROR);
   }
 }

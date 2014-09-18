@@ -34,148 +34,211 @@ namespace mmFramework;
 abstract class OutputRenderer
 {
 
-	/**
-	 * Whether we should attempt to detect the content type of output automatically.
-	 *
-	 * @var bool $_detectContentType
-	 */
-	private $_detectContentType = FALSE;
+  /**
+   * Whether we should attempt to detect the content type of output automatically.
+   *
+   * @var bool $_detectContentType
+   */
+  private $_detectContentType = FALSE;
 
-	/**
-	 * The content type of the output
-	 *
-	 * @var string $_contentType
-	 */
-	private $_contentType = 'text/html';
+  /**
+   * The content type of the output
+   *
+   * @var string $_contentType
+   */
+  private $_contentType = 'text/html';
 
-	/**
-	 * The actual output for this page
-	 *
-	 * @var string $_output
-	 */
-	protected $_output = '';
+  /**
+   * The actual output for this page
+   *
+   * @var string $_output
+   */
+  protected $_output = '';
 
-	/**
-	 * A list of javascript files to include.
-	 * @var array $_javascript
-	 */
-	protected $_javascript = array();
+  /**
+   * A list of javascript files to include.
+   * @var array $_javascript
+   */
+  protected $_javascript = array();
 
-	/**
-	 * A list of javascript files to include.
-	 * @var array $_javascriptCode
-	 */
-	protected $_javascriptCode = array();
+  /**
+   * A list of javascript files to include.
+   * @var array $_javascriptCode
+   */
+  protected $_javascriptCode = array();
 
-	/**
-	 * A list of MuHtmlRelationTag objects, containing items to become <link> tags.
-	 * @var array $_links
-	 */
-	protected $_links = array();
+  /**
+   * A list of RelationTag objects, containing items to become <link> tags.
+   * @var array $_links
+   */
+  protected $_links = array();
 
-	/**
-	 * Initialise the Renderer
-	 */
-	abstract public function init();
+  /**
+   * Force to load asset files
+   * @var boolean $_forceAssetLoad
+   */
+  protected $_forceAssetLoad = FALSE;
 
-	/**
-	 * Collect the output from the renderer.
-	 *
-	 * FIXME: this method is not correctly named
-	 */
-	abstract public function output();
+  /**
+   * Force to load asset files by this key
+   * @var boolean $_forceAssetLoadKey
+   */
+  protected $_forceAssetLoadKey = NULL;
 
-	/**
-	 * Get the content type of the output returned
-	 * @return string mime type of output
-	 */
-	public function contentType()
-	{
-		if( is_null($this->_contentType) )
-		{
-			$this->_contentType = $this->detectContentType($this->_output);
-		}
-		return $this->_contentType;
-	}
+  /**
+   * Initialise the Renderer
+   */
+  abstract public function init();
 
-	/**
-	 * Set the content type of this output.
-	 * @param string $type A valid Content-type e.g. text/html.
-	 */
-	public function setContentType( $type )
-	{
-		$this->_contentType = $type;
-	}
+  /**
+   * Collect the output from the renderer.
+   *
+   * FIXME: this method is not correctly named
+   */
+  abstract public function output();
 
-	/**
-	 * Detect the content type of the output
-	 *
-	 * Use the PHP fileinfo extension to automatically determine the content-type of the output. To use this
-	 * the output must of been generated
-	 *
-	 * @param string $string
-	 * @return string The mime type of the binary string
-	 */
-	public function detectContentType( $string )
-	{
-		if( extension_loaded('fileinfo') and class_exists('finfo') )
-		{
-			$magic = new finfo(FILEINFO_MIME);
-			return $magic->buffer($string);
-		}
-		// TODO: throw exception or use fallback if fileinfo not available?
-	}
+  /**
+   * Magic getter
+   * @param  string $name Name of property
+   * @return void
+   */
+  public function __get($name)
+  {
+    switch($name) {
+      default:
+        throw new Exception(__METHOD__ . " - Property " . $name . " not defined!");
+        break;
+    }
+  }
 
-	/**
-	 * Add a Javascript file to this page.
-	 * @param string $javascriptUrl The URL to the javascript file.
-	 */
-	public function addJavascript( $javascriptUrl )
-	{
-		assert(is_string($javascriptUrl));
+  /**
+   * Magic setter
+   * @param  string $name Name of property
+   * @param  mixed $value Name of property
+   * @return mixed
+   */
+  public function __set($name, $value)
+  {
+    switch($name) {
+      case 'forceAssetLoad':
+        $this->_forceAssetLoad = $value;
 
-		if( FALSE == in_array($javascriptUrl, $this->_javascript) )
-		{
-			$this->_javascript[] = $javascriptUrl;
-		}
-	}
+        if ($value == TRUE) {
+          // look for asset key file
+          $assetKeyFile = DIR_BASE . "/assetKey";
+          if (file_exists($assetKeyFile) && is_readable($assetKeyFile)) {
+            $data = trim(file_get_contents($assetKeyFile));
+            $lines = explode("\n", $data);
+            assert(count($lines) == 2);
 
-	/**
-	 * Add a Javascript code to this page.
-	 * @param string $javascriptCode.
-	 */
-	public function addJavascriptCode( $javascriptCode )
-	{
-		assert(is_string($javascriptCode));
-		$key = md5($javascriptCode);
+            // fix line if md5sum is used
+            $line = preg_replace('{^(\S+).+$}', "$1", $lines[0]);
+            $this->_forceAssetLoadKey = $line;
+          } else {
+            $this->_forceAssetLoad = FALSE;
+            trigger_error("Can't read assertKey file '" . $assetKeyFile . "'", E_USER_WARNING);
+          }
+        }
+        break;
+      default:
+        throw new Exception(__METHOD__ . " - Property " . $name . " not defined!");
+        break;
+    }
+  }
 
-		if( FALSE == in_array($key, array_keys($this->_javascriptCode)) )
-		{
-			$this->_javascriptCode[$key] = $javascriptCode;
-		}
-	}
+  /**
+   * Get the content type of the output returned
+   * @return string mime type of output
+   */
+  public function contentType()
+  {
+    if (is_null($this->_contentType)) {
+      $this->_contentType = $this->detectContentType($this->_output);
+    }
+    return $this->_contentType;
+  }
 
-	/**
-	 * Add a CSS file to this page.
-	 * @param string $cssUrl The URL to the CSS file.
-	 * @param string $media The media type, defaults to screen.
-	 * @return MuHtmlRelationTag The new tag, if you need to add extra attributes.
-	 */
-	public function addCss( $cssUrl, $media = "screen" )
-	{
-		assert(is_string($cssUrl));
-		assert(is_string($media));
+  /**
+   * Set the content type of this output.
+   * @param string $type A valid Content-type e.g. text/html.
+   */
+  public function setContentType($type)
+  {
+    $this->_contentType = $type;
+  }
 
-		foreach( $this->_links as $link )
-		{
-			if( $link == $cssUrl )
-			{
-				// This CSS url has already been added.
-				return TRUE;
-			}
-		}
-		$this->_links[] = $cssUrl;
-	}
+  /**
+   * Detect the content type of the output
+   *
+   * Use the PHP fileinfo extension to automatically determine the content-type of the output. To use this
+   * the output must of been generated
+   *
+   * @param string $string
+   * @return string The mime type of the binary string
+   */
+  public function detectContentType($string)
+  {
+    if (extension_loaded('fileinfo') and class_exists('finfo')) {
+      $magic = new finfo(FILEINFO_MIME);
+      return $magic->buffer($string);
+    }
+    // TODO: throw exception or use fallback if fileinfo not available?
+  }
+
+  /**
+   * Add a Javascript file to this page.
+   * @param string $javascriptUrl The URL to the javascript file.
+   */
+  public function addJavascript($javascriptUrl)
+  {
+    assert(is_string($javascriptUrl));
+
+    if (FALSE == in_array($javascriptUrl, $this->_javascript)) {
+
+      if ($this->_forceAssetLoad) {
+        $javascriptUrl .= "?v=" . $this->_forceAssetLoadKey;
+      }
+
+      $this->_javascript[] = $javascriptUrl;
+    }
+  }
+
+  /**
+   * Add a Javascript code to this page.
+   * @param string $javascriptCode.
+   */
+  public function addJavascriptCode($javascriptCode)
+  {
+    assert(is_string($javascriptCode));
+    $key = md5($javascriptCode);
+
+    if (FALSE == in_array($key, array_keys($this->_javascriptCode))) {
+      $this->_javascriptCode[$key] = $javascriptCode;
+    }
+  }
+
+  /**
+   * Add a CSS file to this page.
+   * @param string $cssUrl The URL to the CSS file.
+   * @param string $media The media type, defaults to screen.
+   * @return HtmlRelationTag The new tag, if you need to add extra attributes.
+   */
+  public function addCss($cssUrl, $media = "screen")
+  {
+    assert(is_string($cssUrl));
+    assert(is_string($media));
+
+    foreach ($this->_links as $link) {
+      if ($link == $cssUrl) {
+        // This CSS url has already been added.
+        return TRUE;
+      }
+    }
+
+    if ($this->_forceAssetLoad) {
+      $cssUrl .= "?v=" . $this->_forceAssetLoadKey;
+    }
+
+    $this->_links[] = $cssUrl;
+  }
 }
-
-?>

@@ -40,6 +40,7 @@ class ErrorHandler
   const LOG  = 8;
 
   public static $mask = 0;
+  private static $_errorCount = 0;
 
   private $_scope = NULL;
   private $_no = NULL;
@@ -54,6 +55,7 @@ class ErrorHandler
     $config = Config::getInstance();
     $this->_scope = $scope;
     $this->_mailTo = $config->errorEmail;
+    self::$_errorCount++;
   }
 
 
@@ -88,7 +90,7 @@ class ErrorHandler
   public function output()
   {
 
-    // Skip error/warning if falgging mask is set
+    // Skip error/warning if flagging mask is set
     if ($this->_no & self::$mask) {
       return;
     }
@@ -236,12 +238,18 @@ class ErrorHandler
     $mail->From = $this->_mailTo;
     $mail->FromName = "WEBError";
     $mail->AddAddress($this->_mailTo, "WebAdmin");
-    $mail->Subject = "Error on " . HTTP::hostname();
+    $mail->Subject = "";
+    if (self::$_errorCount == 10) {
+      $mail->Subject .= "[BLOCKED] ";
+    }
+    $mail->Subject .= "Error on " . HTTP::hostname();
     $mail->IsHTML();
     $mail->setBody($msg);
 
-    if (!$mail->Send()) {
-      return $mail->ErrorInfo . "<br/>";
+    if (self::$_errorCount <=  10) {
+      if (!$mail->Send()) {
+        return $mail->ErrorInfo . "<br/>";
+      }
     }
   }
 

@@ -44,24 +44,31 @@ class MyMailer extends \PHPMailer
     parent::__construct($exceptions);
 
     $config = Config::getInstance();
-    if ($config->mailer == "smtp") {
-      $this->IsSMTP();
-      $this->Host = $config->mailHostName;
-      if (strlen($config->mailPort)) {
-        $this->Port = $config->mailPort;
-      }
-      if (strlen($config->mailUsername) && strlen($config->mailPassword)) {
-        $this->SMTPAuth = TRUE;
-      } else {
-        $this->SMTPAuth = FALSE;
-      }
-      if (strlen($config->mailSecure)) {
-        $this->SMTPSecure = $config->mailSecure;
-      }
-      $this->Username = $config->mailUsername;
-      $this->Password = $config->mailPassword;
-    } else {
-      $this->IsMail();
+
+    switch ($config->mailer) {
+      case 'smtp':
+        $this->IsSMTP();
+        $this->Host = $config->mailHostName;
+        if (strlen($config->mailPort)) {
+          $this->Port = $config->mailPort;
+        }
+        if (strlen($config->mailUsername) && strlen($config->mailPassword)) {
+          $this->SMTPAuth = TRUE;
+        } else {
+          $this->SMTPAuth = FALSE;
+        }
+        if (strlen($config->mailSecure)) {
+          $this->SMTPSecure = $config->mailSecure;
+        }
+        $this->Username = $config->mailUsername;
+        $this->Password = $config->mailPassword;
+        break;
+      case 'sendmail':
+        $this->IsSendmail();
+        break;
+      default:
+        $this->IsMail();
+        break;
     }
 
     if (!is_null($config->mailSender) && self::ValidateAddress($config->mailSender)) {
@@ -70,7 +77,7 @@ class MyMailer extends \PHPMailer
 
     $this->CharSet = "utf-8";
 
-    if ($config->exists('mailOverRide')) {
+    if (!is_null($config->mailOverRide)) {
       if (self::ValidateAddress($config->mailOverRide)) {
         $this->_overrideAddress = $config->mailOverRide;
       } else {
