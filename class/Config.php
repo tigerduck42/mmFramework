@@ -293,7 +293,7 @@ class Config
     }
   }
 
-  private function _fixBoolean ($check)
+  private function _fixBoolean($check)
   {
     if (($check > 0) || (0 === strcasecmp($check, 'true'))) {
       return TRUE;
