@@ -170,4 +170,25 @@ class HTTP
 
     return $hostname;
   }
+
+  public static function file($name, $target, $filename = NULL)
+  {
+    if (isset($_FILES[$name])) {
+      $file = $_FILES[$name];
+      if ($file['error'] == 0) {
+        $target = rtrim($target, "/");
+        if (!is_writeable($target)) {
+          throw new Exception(__METHOD__ . " - " . $target . " is not writeable!");
+        }
+        if (is_null($filename)) {
+          $filename = $file["name"];
+        }
+        $file['filename'] = $filename;
+        move_uploaded_file($file["tmp_name"], $target . '/' . $filename);
+      }
+      return $file;
+    } else {
+      return NULL;
+    }
+  }
 }
