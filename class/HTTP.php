@@ -175,16 +175,28 @@ class HTTP
   {
     if (isset($_FILES[$name])) {
       $file = $_FILES[$name];
-      if ($file['error'] == 0) {
-        $target = rtrim($target, "/");
-        if (!is_writeable($target)) {
-          throw new Exception(__METHOD__ . " - " . $target . " is not writeable!");
-        }
-        if (is_null($filename)) {
-          $filename = $file["name"];
-        }
-        $file['filename'] = $filename;
-        move_uploaded_file($file["tmp_name"], $target . '/' . $filename);
+
+      switch ($file['error']) {
+        case UPLOAD_ERR_OK:
+          $target = rtrim($target, "/");
+          if (!is_writeable($target)) {
+            throw new Exception(__METHOD__ . " - " . $target . " is not writeable!");
+          }
+          if (is_null($filename)) {
+            $filename = $file["name"];
+          }
+          $file['filename'] = $filename;
+          move_uploaded_file($file["tmp_name"], $target . '/' . $filename);
+          break;
+
+        case UPLOAD_ERR_NO_FILE:
+          // still okay, no file uploaded
+          $file = NULL;
+          break;
+        default:
+          $errorKey = ErrorHandler::getErrorCode('UPLOAD_ERR', $file['error']);
+          trigger_error(__METHOD__ . " - Fileupload failed with error " . $errorKey);
+          break;
       }
       return $file;
     } else {

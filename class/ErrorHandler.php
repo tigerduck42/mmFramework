@@ -266,4 +266,21 @@ class ErrorHandler
       self::$mask = self::$mask & ~$mask;
     }
   }
+
+  public static function getErrorCode($prefix, $id)
+  {
+    $constants = get_defined_constants();
+    $reverse = array();
+    foreach ($constants as $key => $value) {
+      if (preg_match('{^' . $prefix . '}', $key)) {
+        $reverse[$value] = $key;
+      }
+    }
+
+    if (isset($reverse[$id])) {
+      return $reverse[$id];
+    } else {
+      return '_ERROR_UNKNOWN_';
+    }
+  }
 }

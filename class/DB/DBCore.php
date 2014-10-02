@@ -66,6 +66,10 @@ abstract class DBCore
       //  break;
       case 'threadId':
         return $this->_threadId();
+        break;
+      case 'success':
+        return !is_null($this->_resultHandle);
+        break;
       default:
         throw new Exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
         break;
