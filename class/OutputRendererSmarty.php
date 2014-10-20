@@ -249,6 +249,29 @@ class OutputRendererSmarty extends OutputRenderer
   }
 
   /**
+   * Output the smarty template.
+   * @return string
+   */
+  public function outputText($file = NULL)
+  {
+    if (FALSE == is_null($this->_template)) {
+      if (FALSE == is_null($this->_templateExtra)) {
+        foreach ($this->_templateExtra as $variable => $value) {
+          $this->assign($variable, $this->_smarty->fetch($value));
+        }
+      }
+
+      $this->_output = $this->_smarty->fetch($this->_template);
+    }
+
+    if (FALSE == is_null($file)) {
+      file_put_contents($file, $this->_output);
+    }
+
+    return $this->_output;
+  }
+
+  /**
    * Provide a compatible API to Smarty
    *
    * @return string
