@@ -159,8 +159,12 @@ abstract class DBCore
 
   public function delete($table, $id)
   {
-    $sql = "DELETE FROM " . $table . " WHERE " . $table . "_id = " . $id;
-    $this->_query($sql);
+    if (!is_null($id)) {
+      $sql = "DELETE FROM " . $table . " WHERE " . $table . "_id = " . $id;
+      $this->_query($sql);
+    } else {
+       throw new Exception(__METHOD__ . " - Can't delete empty record!");
+    }
   }
 
 
