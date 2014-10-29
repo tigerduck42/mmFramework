@@ -121,7 +121,7 @@ abstract class DBCore
   {
     $quoted = $this->_quoteValues($row);
 
-    $sql = "INSERT INTO " . $table;
+    $sql = "INSERT INTO `" . $table . "`";
     $sql .= " (" . implode(array_keys($quoted), ', ') . ")";
     $sql .= " VALUES (" . implode($quoted, ", ") . ")";
     $this->_query($sql);
@@ -134,7 +134,7 @@ abstract class DBCore
   {
     $quoted = $this->_quoteValues($row);
 
-    $sql = "UPDATE " . $table . " SET ";
+    $sql = "UPDATE `" . $table . "` SET ";
     foreach ($quoted as $key => $value) {
       $sql .= $key . " = " . $value . ", ";
     }
@@ -160,7 +160,7 @@ abstract class DBCore
   public function delete($table, $id)
   {
     if (!is_null($id)) {
-      $sql = "DELETE FROM " . $table . " WHERE " . $table . "_id = " . $id;
+      $sql = "DELETE FROM `" . $table . "` WHERE " . $table . "_id = " . $id;
       $this->_query($sql);
     } else {
        throw new Exception(__METHOD__ . " - Can't delete empty record!");
