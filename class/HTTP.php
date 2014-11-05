@@ -61,6 +61,31 @@ class HTTP
   }
 
   /*
+   * Combined
+   */
+
+  public static function postAndGet($name)
+  {
+    $value = self::post($name);
+    if (is_null($value)) {
+      return self::get($name);
+    } else {
+      return $value;
+    }
+  }
+
+  public static function getAndPost($name)
+  {
+    $value = self::get($name);
+    if (is_null($value)) {
+      return self::post($name);
+    } else {
+      return $value;
+    }
+  }
+
+
+  /*
    * Server
    */
 
