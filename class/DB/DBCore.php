@@ -153,7 +153,7 @@ abstract class DBCore
         $sql .=  $id;
       }
     }
-
+    //echo $sql;
     $this->_query($sql);
   }
 
