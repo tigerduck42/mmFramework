@@ -150,6 +150,13 @@ class HTTP
     return $value;
   }
 
+  public static function delSession($name)
+  {
+    if (self::isSessionSet($name)) {
+      unset($_SESSION[$name]);
+    }
+  }
+
   public static function isSessionSet($name)
   {
     return isset($_SESSION[$name]);
