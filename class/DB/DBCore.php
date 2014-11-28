@@ -142,9 +142,9 @@ abstract class DBCore
     $sql = rtrim($sql, ", ");
 
     if (is_null($customIdName)) {
-      $sql .= " WHERE " . $table . "_id = " . $id;
+      $sql .= " WHERE `" . $table . "_id` = " . $id;
     } else {
-      $sql .= " WHERE " . $customIdName . " = ";
+      $sql .= " WHERE `" . $customIdName . "` = ";
 
       // proper wrapping if key is a string
       if (is_string($id)) {
