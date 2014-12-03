@@ -219,6 +219,7 @@ class HTTP
           }
           $file['filename'] = $filename;
           move_uploaded_file($file["tmp_name"], $target . '/' . $filename);
+          $file['stored'] = $target . '/' . $filename;
           break;
 
         case UPLOAD_ERR_NO_FILE:
