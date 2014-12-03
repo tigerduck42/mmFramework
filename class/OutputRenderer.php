@@ -124,19 +124,25 @@ abstract class OutputRenderer
         $this->_forceAssetLoad = $value;
 
         if ($value == TRUE) {
-          // look for asset key file
-          $assetKeyFile = DIR_BASE . "/assetKey";
-          if (file_exists($assetKeyFile) && is_readable($assetKeyFile)) {
-            $data = trim(file_get_contents($assetKeyFile));
-            $lines = explode("\n", $data);
-            assert(count($lines) == 2);
-
-            // fix line if md5sum is used
-            $line = preg_replace('{^(\S+).+$}', "$1", $lines[0]);
-            $this->_forceAssetLoadKey = $line;
+          // Force fresh assert on each page load on the dev server
+          $config = Config::getInstance();
+          if ($config->isDevServer) {
+            $this->_forceAssetLoadKey = md5(time());
           } else {
-            $this->_forceAssetLoad = FALSE;
-            trigger_error("Can't read assertKey file '" . $assetKeyFile . "'", E_USER_WARNING);
+            // look for asset key file
+            $assetKeyFile = DIR_BASE . "/assetKey";
+            if (file_exists($assetKeyFile) && is_readable($assetKeyFile)) {
+              $data = trim(file_get_contents($assetKeyFile));
+              $lines = explode("\n", $data);
+              assert(count($lines) == 2);
+
+              // fix line if md5sum is used
+              $line = preg_replace('{^(\S+).+$}', "$1", $lines[0]);
+              $this->_forceAssetLoadKey = $line;
+            } else {
+              $this->_forceAssetLoad = FALSE;
+              trigger_error("Can't read assertKey file '" . $assetKeyFile . "'", E_USER_WARNING);
+            }
           }
         }
         break;
