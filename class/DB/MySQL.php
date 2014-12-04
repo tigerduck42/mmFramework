@@ -127,13 +127,24 @@ class MySQL extends DBCore
     return $this->_link->thread_id;
   }
 
+
+  //
+  //  Prepare /  Excute
+  //
+
   protected function _prepare($sql)
   {
-    $statement = $this->_link->prepare($sql);
-    if (!$statement) {
+    $this->_statement = $this->_link->prepare($sql);
+    if (!$this->_statement) {
       $this->_checkError();
     }
-    return $statement;
+  }
+
+  protected function _execute()
+  {
+    $this->_statement->execute();
+    $this->_resultHandle = $this->_statement->get_result();
+    $this->_checkError();
   }
 
   private function _endTransaction($type)
