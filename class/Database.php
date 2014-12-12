@@ -48,7 +48,7 @@ class Database
         break;
       case 'mysql':
         require_once(DIR_FRAMEWORK . "/class/DB/MySQL.php");
-        return new DB\MySQL($dbConfig);
+        return DB\MySQL::getInstance($dbConfig);
         break;
       default:
         throw new Exception(__CLASS__ . " - Connector not defined!");

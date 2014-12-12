@@ -40,7 +40,6 @@ abstract class DBCore
   protected $_resultHandle = NULL;
   protected $_result = NULL;
   protected $_insertId = NULL;
-  protected $_inTransaction = FALSE;
 
   protected $_statement = NULL;
 
