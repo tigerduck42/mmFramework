@@ -220,6 +220,11 @@ class HTTP
           $file['filename'] = $filename;
           move_uploaded_file($file["tmp_name"], $target . '/' . $filename);
           $file['stored'] = $target . '/' . $filename;
+
+          $info = pathinfo($file['name']);
+          if (isset($info['extension'])) {
+            $file['extension'] = $info['extension'];
+          }
           break;
 
         case UPLOAD_ERR_NO_FILE:
