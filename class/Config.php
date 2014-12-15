@@ -43,6 +43,7 @@ class Config
   );
 
   private $_timezone              = NULL;
+  private $_language              = 'en';
   private $_gaCode                = NULL;
   private $_mailer                = NULL;
   private $_mailHostName          = NULL;
@@ -215,6 +216,9 @@ class Config
     switch($name) {
       case 'timezone':
         return $this->_timezone;
+        break;
+      case 'language':
+        return $this->_language;
         break;
       case 'isDevServer':
         return $this->_fixBoolean($this->_isDevServer);
