@@ -40,7 +40,8 @@ abstract class DBCore
   protected $_resultHandle = NULL;
   protected $_result = NULL;
   protected $_insertId = NULL;
-  protected $_inTransaction = FALSE;
+
+  protected $_statement = NULL;
 
   public function __construct($dbName = NULL)
   {
@@ -64,6 +65,9 @@ abstract class DBCore
       //case 'link':
       //  return $this->_link;
       //  break;
+      case 'statement':
+        return $this->_statement;
+        break;
       case 'threadId':
         return $this->_threadId();
         break;
@@ -88,6 +92,7 @@ abstract class DBCore
   abstract protected function _errorMsg();
 
   abstract protected function _prepare($sql);
+  abstract protected function _execute();
 
   // Transaction support
   abstract public function beginTransaction();
@@ -266,5 +271,10 @@ abstract class DBCore
   public function prepare($sql)
   {
     return $this->_prepare($sql);
+  }
+
+  public function execute()
+  {
+    return $this->_execute();
   }
 }

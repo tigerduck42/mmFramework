@@ -35,6 +35,22 @@ use mmFramework as fw;
 
 class MySQL extends DBCore
 {
+  private static $_obj = NULL;
+  private static $_inTransaction = FALSE;
+
+  public static function getInstance($dbConfig = 'default')
+  {
+    if (self::$_inTransaction) {
+      if (is_null(self::$_obj)) {
+        throw new Exception('No Object given for transaction.');
+      }
+      return self::$_obj;
+    } else {
+      $obj = new self($dbConfig);
+      self::$_obj =& $obj;
+      return $obj;
+    }
+  }
 
   protected function _connect($dbConfig = 'default')
   {
@@ -104,12 +120,12 @@ class MySQL extends DBCore
 
   public function beginTransaction()
   {
-    if ($this->_inTransaction) {
+    if (self::$_inTransaction) {
       throw new exception("Already in transaction!");
     }
 
     $this->_link->autocommit(FALSE);
-    $this->_inTransaction = TRUE;
+    self::$_inTransaction = TRUE;
   }
 
   public function commit()
@@ -127,13 +143,24 @@ class MySQL extends DBCore
     return $this->_link->thread_id;
   }
 
+
+  //
+  //  Prepare /  Excute
+  //
+
   protected function _prepare($sql)
   {
-    $statement = $this->_link->prepare($sql);
-    if (!$statement) {
+    $this->_statement = $this->_link->prepare($sql);
+    if (!$this->_statement) {
       $this->_checkError();
     }
-    return $statement;
+  }
+
+  protected function _execute()
+  {
+    $this->_statement->execute();
+    $this->_resultHandle = $this->_statement->get_result();
+    $this->_checkError();
   }
 
   private function _endTransaction($type)
@@ -148,7 +175,7 @@ class MySQL extends DBCore
     }
 
     $this->_link->autocommit(TRUE);
-    $this->_inTransaction = FALSE;
+    self::$_inTransaction = FALSE;
   }
 
   private function _checkError()
