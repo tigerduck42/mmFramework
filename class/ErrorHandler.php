@@ -205,10 +205,10 @@ class ErrorHandler
       $html .= $btHtml;
     }
 
-    if ($addContext && count($stack)) {
-      $html .= '<br/><b>Stack</b>';
-      $html .= '<pre>' . print_r($stack, TRUE) . '</pre>';
-    }
+    //if ($addContext && count($stack)) {
+    //  $html .= '<br/><b>Stack</b>';
+    //  $html .= '<pre>' . print_r($stack, TRUE) . '</pre>';
+    //}
 
     if ($addContext && count($this->_context)) {
       $html .= '<br/><b>Context</b>';

@@ -33,7 +33,33 @@ function customError($no, $string, $file, $line, $context)
   $hError->output();
 }
 
+/**
+ * Custom Exception handling
+ * @param  exception $ex the thrown exception
+ */
+function customException($ex)
+{
+  //ini_set('memory_limit', '-1');
+  $errorString  = ": Uncaught " . $ex->__toString();
+  $errorString .= " thrown in <b>" . $ex->getFile() . "</b> on line <b>" . $ex->getLine() . "</b><br/>";
 
+  $traceStack = $ex->getTrace();
+  $reducedStack = array();
+  foreach ($traceStack as $node) {
+    if (isset($node['args'])) {
+      unset($node['args']);
+    }
+    $reducedStack[] = $node;
+  }
+
+  customError(0, nl2br($errorString), $ex->getFile(), $ex->getLine(), $reducedStack);
+}
+
+
+/**
+ * Custom autoloader
+ * @param  string $fullClassName Class name
+ */
 function customAutoLoader($fullClassName)
 {
   $filePath = NULL;
