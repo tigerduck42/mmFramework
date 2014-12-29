@@ -178,7 +178,10 @@ class HTTP
 
   public static function redirect($url)
   {
-    ob_clean();
+    if (ob_get_length()) {
+      ob_end_clean();
+    }
+
     header("Location: " . $url);
     exit;
   }
