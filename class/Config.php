@@ -154,7 +154,7 @@ class Config
 
           // Check if we have a valid section
           if (is_null($section)) {
-            throw new Exception(__METHOD__ . " - No config section found!");
+            throw new Exception(__METHOD__ . " - No config section found in " . $configFile);
           }
 
           if (!in_array($section, self::$_validSections)) {
