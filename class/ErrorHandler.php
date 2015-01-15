@@ -41,6 +41,7 @@ class ErrorHandler
 
   public static $mask = 0;
   private static $_errorCount = 0;
+  private static $_stylesInjected = FALSE;
 
   private $_scope = NULL;
   private $_no = NULL;
@@ -161,7 +162,28 @@ class ErrorHandler
   private function _buildMessageBox($addContext = FALSE)
   {
     $html = '';
-    $html .= '<div style="float: left; clear: both; overflow: hidden; border: 1px solid; padding: 10px; font-family: Verdana,Arial,sans-serif; font-size: 12px;">';
+
+    if (!self::$_stylesInjected) {
+      $html .= '
+      <style type="text/css">
+        .__error__ {
+          margin: 20px 20px;
+          clear: both;
+          overflow: hidden;
+          border: 1px solid;
+          padding: 10px;
+          background-color: #ff6666;
+          color: #000000;
+          font-size: 12px;
+          z-index: 1000000;
+          position: relative;
+        }
+      </style>
+      ';
+      self::$_stylesInjected = TRUE;
+    }
+
+    $html .= '<div class="__error__">';
     $html .= '<b>Error:</b> ' . $this->_string . '<br/>';
     $html .= '<b>File:</b> ' . $this->_file  . ' (' . $this->_line  . ')<br/>';
 
