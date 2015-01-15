@@ -9,8 +9,9 @@ namespace mmFramework;
 function customError($no, $string, $file, $line, $context)
 {
   $config = Config::getInstance();
+  $api = php_sapi_name();
+
   if ($config->isDevServer) {
-    $api = php_sapi_name();
     if ($api == 'cli') {
       $hError = new ErrorHandler(ErrorHandler::CLI);
     } else {
