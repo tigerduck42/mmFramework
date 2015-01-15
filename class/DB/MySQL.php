@@ -73,10 +73,20 @@ class MySQL extends DBCore
     $this->_checkError();
   }
 
-  public function asfetch()
+  public function asFetch()
   {
     if (!is_null($this->_resultHandle)) {
       $this->_result = $this->_resultHandle->fetch_assoc();
+      return $this->_result;
+    } else {
+      return FALSE;
+    }
+  }
+
+  public function asFetchAll()
+  {
+    if (!is_null($this->_resultHandle)) {
+      $this->_result = $this->_resultHandle->fetch_all(MYSQLI_ASSOC);
       return $this->_result;
     } else {
       return FALSE;

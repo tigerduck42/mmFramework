@@ -58,7 +58,7 @@ class SQLite extends DBCore
     }
   }
 
-  public function asfetch()
+  public function asFetch()
   {
     if (!is_null($this->_resultHandle)) {
       $this->_result = $this->_resultHandle->fetchArray(SQLITE3_ASSOC);
@@ -66,6 +66,17 @@ class SQLite extends DBCore
     } else {
       return FALSE;
     }
+  }
+
+  public function asFetchAll()
+  {
+    $theList + array();
+
+    while ($row = $this->asFtech()) {
+      $theList[] = $row;
+    }
+
+    return $theList;
   }
 
   protected function _q($sql)

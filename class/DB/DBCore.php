@@ -30,7 +30,7 @@
  */
 namespace mmFramework\DB;
 
-use  mmFramework as fw;
+use mmFramework as fw;
 
 abstract class DBCore
 {
@@ -80,7 +80,8 @@ abstract class DBCore
     }
   }
 
-  abstract public function asfetch();
+  abstract public function asFetch();
+  abstract public function asFetchAll();
 
   abstract protected function _connect();
   abstract protected function _q($sql);
@@ -162,10 +163,23 @@ abstract class DBCore
     $this->_query($sql);
   }
 
-  public function delete($table, $id)
+  public function delete($table, $id, $customIdName = NULL)
   {
     if (!is_null($id)) {
-      $sql = "DELETE FROM `" . $table . "` WHERE " . $table . "_id = " . $id;
+      $sql = "DELETE FROM `" . $table . "` ";
+
+      if (is_null($customIdName)) {
+        $sql .= " WHERE `" . $table . "_id` = " . $id;
+      } else {
+        $sql .= " WHERE `" . $customIdName . "` = ";
+
+        // proper wrapping if key is a string
+        if (is_string($id)) {
+          $sql .=  "'" . $id ."'";
+        } else {
+          $sql .=  $id;
+        }
+      }
       $this->_query($sql);
     } else {
        throw new Exception(__METHOD__ . " - Can't delete empty record!");
@@ -177,7 +191,6 @@ abstract class DBCore
   {
     $quoted = array();
     foreach ($row as $key => $value) {
-
       // Quote keys properly
       $key = '`' . $key . '`';
 
