@@ -35,19 +35,19 @@ use mmFramework as fw;
 
 class MySQL extends DBCore
 {
-  private static $_obj = NULL;
-  private static $_inTransaction = FALSE;
+  private static $_obj = array();
+
+  private $_inTransaction = FALSE;
 
   public static function getInstance($dbConfig = 'default')
   {
-    if (self::$_inTransaction) {
-      if (is_null(self::$_obj)) {
-        throw new Exception('No Object given for transaction.');
+    if (isset(self::$_obj[$dbConfig])) {
+      if (self::$_obj[$dbConfig]->_inTransaction) {
+        return self::$_obj[$dbConfig];
       }
-      return self::$_obj;
     } else {
       $obj = new self($dbConfig);
-      self::$_obj =& $obj;
+      self::$_obj[$dbConfig] =& $obj;
       return $obj;
     }
   }
@@ -120,12 +120,12 @@ class MySQL extends DBCore
 
   public function beginTransaction()
   {
-    if (self::$_inTransaction) {
+    if ($this->_inTransaction) {
       throw new exception("Already in transaction!");
     }
 
     $this->_link->autocommit(FALSE);
-    self::$_inTransaction = TRUE;
+    $this->_inTransaction = TRUE;
   }
 
   public function commit()
@@ -175,7 +175,7 @@ class MySQL extends DBCore
     }
 
     $this->_link->autocommit(TRUE);
-    self::$_inTransaction = FALSE;
+    $this->_inTransaction = FALSE;
   }
 
   private function _checkError()
