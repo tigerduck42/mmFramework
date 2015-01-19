@@ -120,7 +120,7 @@ class ErrorHandler
 
   private function _outputCli()
   {
-    $msg = $this->_buildMessageBox();
+    $msg = $this->_buildMessageBox(FALSE, FALSE);
     $msg = preg_replace('{<br\/?\>}', "\n", $msg);
     echo strip_tags($msg);
   }
@@ -159,11 +159,11 @@ class ErrorHandler
     }
   }
 
-  private function _buildMessageBox($addContext = FALSE)
+  private function _buildMessageBox($addContext = FALSE, $injectStyles = TRUE)
   {
     $html = '';
 
-    if (!self::$_stylesInjected) {
+    if ($injectStyles && !self::$_stylesInjected) {
       $html .= '
       <style type="text/css">
         .__error__ {
