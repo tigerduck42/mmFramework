@@ -41,10 +41,8 @@ class MySQL extends DBCore
 
   public static function getInstance($dbConfig = 'default')
   {
-    if (isset(self::$_obj[$dbConfig])) {
-      if (self::$_obj[$dbConfig]->_inTransaction) {
-        return self::$_obj[$dbConfig];
-      }
+    if (isset(self::$_obj[$dbConfig]) && self::$_obj[$dbConfig]->_inTransaction) {
+      return self::$_obj[$dbConfig];
     } else {
       $obj = new self($dbConfig);
       self::$_obj[$dbConfig] =& $obj;
