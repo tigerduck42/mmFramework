@@ -232,7 +232,7 @@ abstract class DBCore
       $this->_connect();
     }
 
-    $this->_insertId = 0;
+    $this->_insertId = NULL;
     $this->_rows = 0;
     if (!($this->_resultHandle = $this->_q($sql))) {
       $mtime = microtime();
