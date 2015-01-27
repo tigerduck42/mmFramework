@@ -37,8 +37,6 @@ class MySQL extends DBCore
 {
   private static $_obj = array();
 
-  private $_inTransaction = FALSE;
-
   public static function getInstance($dbConfig = 'default')
   {
     if (isset(self::$_obj[$dbConfig]) && self::$_obj[$dbConfig]->_inTransaction) {
