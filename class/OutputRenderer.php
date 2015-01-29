@@ -199,12 +199,11 @@ abstract class OutputRenderer
   {
     assert(is_string($javascriptUrl));
 
+    if ($this->_forceAssetLoad) {
+      $javascriptUrl .= "?v=" . $this->_forceAssetLoadKey;
+    }
+
     if (FALSE == in_array($javascriptUrl, $this->_javascript)) {
-
-      if ($this->_forceAssetLoad) {
-        $javascriptUrl .= "?v=" . $this->_forceAssetLoadKey;
-      }
-
       $this->_javascript[] = $javascriptUrl;
     }
   }
@@ -234,17 +233,12 @@ abstract class OutputRenderer
     assert(is_string($cssUrl));
     assert(is_string($media));
 
-    foreach ($this->_links as $link) {
-      if ($link == $cssUrl) {
-        // This CSS url has already been added.
-        return TRUE;
-      }
-    }
-
     if ($this->_forceAssetLoad) {
       $cssUrl .= "?v=" . $this->_forceAssetLoadKey;
     }
 
-    $this->_links[] = $cssUrl;
+    if (FALSE == in_array($cssUrl, $this->_links)) {
+      $this->_links[] = $cssUrl;
+    }
   }
 }
