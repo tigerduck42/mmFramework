@@ -237,8 +237,13 @@ abstract class OutputRenderer
       $cssUrl .= "?v=" . $this->_forceAssetLoadKey;
     }
 
-    if (FALSE == in_array($cssUrl, $this->_links)) {
-      $this->_links[] = $cssUrl;
+    $cacheKey = md5($cssUrl . "|" . $media);
+
+    if (FALSE == in_array($cacheKey, array_keys($this->_links))) {
+      $node = new \StdClass();
+      $node->url = $cssUrl;
+      $node->media = $media;
+      $this->_links[$cacheKey] = $node;
     }
   }
 }
