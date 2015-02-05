@@ -41,16 +41,19 @@ abstract class Helper
   protected function _assign($name, $value)
   {
     $privateName = "_" . $name;
+    $hasChanged = FALSE;
 
     if ($this->$privateName !== $value) {
-
       if (method_exists($this, "_logChange")) {
         // The method _logChange need to be define in the class which extends this one
         $this->_logChange($name, $this->$privateName, $value);
       }
 
       $this->$privateName = $value;
-      $this->_isDirty = TRUE;
+      $this->_isDirty     = TRUE;
+      $hasChanged         = TRUE;
     }
+
+    return $hasChanged;
   }
 }
