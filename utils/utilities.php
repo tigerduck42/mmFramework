@@ -24,7 +24,6 @@ function echo_nice($data, $return = FALSE)
   }
 }
 
-
 function waitForMe()
 {
   echo_nice("Press Key to continue.");

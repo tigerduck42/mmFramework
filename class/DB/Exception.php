@@ -1,7 +1,7 @@
 <?php
 /**
  * The MIT License (MIT)
- * Copyright (c) 2013
+ * Copyright (c) 2015
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +22,11 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *
- * @link
- * @copyright 2013
- * @author Martin Mitterhauser <martin.mitterhauser at gmail.com>
- * @package
- * @version 1.0
+ * @link https://github.com/tigerduck42/mmFramework
+ * @copyright 2015 Martin Mitterhauser
+ * @author Martin Mitterhauser <martin.mitterhauser (at) gmail.com>
+ * @package MmFramework
+ * @version 2.0
  */
 
 namespace mmFramework\DB;
