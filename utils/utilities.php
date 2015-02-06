@@ -3,13 +3,31 @@
 function print_r_nice($data, $return = FALSE)
 {
   if (TRUE == $return) {
-    return '<pre>' . print_r($data, TRUE) . '</pre>';
+    return echo_nice(print_r($data, TRUE));
   } else {
-    echo '<pre>' . print_r($data, TRUE) . '</pre>';
+    echo echo_nice(print_r($data, TRUE));
   }
 }
 
-function echo_nice($data)
+function echo_nice($data, $return = FALSE)
 {
-  echo '<pre>' . $data . '</pre>';
+  $api = php_sapi_name();
+  if (preg_match('{cli}', $api)) {
+    $data .= "\n";
+  } else {
+    $data = '<pre>' . $data . '</pre>';
+  }
+  if ($return) {
+    return $data;
+  } else {
+    echo $data;
+  }
+}
+
+
+function waitForMe()
+{
+  echo_nice("Press Key to continue.");
+  $handle = fopen("php://stdin", "r");
+  $line = fgets($handle);
 }

@@ -33,9 +33,9 @@ namespace mmFramework;
 
 class Json
 {
-  public static function decode($data)
+  public static function decode($data, $forceArray = FALSE)
   {
-    $obj = json_decode($data);
+    $obj = json_decode($data, $forceArray);
 
     $jsonErrCode = json_last_error();
     if ($jsonErrCode > 0) {
@@ -45,7 +45,6 @@ class Json
 
     return $obj;
   }
-
 
   public static function encode($value)
   {
