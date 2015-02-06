@@ -34,6 +34,7 @@ class FilterItem
 {
   private static $_opStack = array(
     'eq' => '=',
+    'ne' => '!=',
     'gt' => '>',
     'ge' => '>=',
     'lt' => '<',
@@ -60,7 +61,7 @@ class FilterItem
         return $this->_operator;
         break;
       case 'value':
-        return $this->_fixValue();
+        return $this->_value;
         break;
       default:
         throw new Exception(get_class($this) . "::__get() - Property " . $name . " not defined!");
@@ -75,7 +76,7 @@ class FilterItem
         $this->_key = $value;
         break;
       case 'value':
-        $this->_value = $value;
+        $this->_fixValue($value);
         break;
       case 'operator':
         if (in_array($value, array_keys(self::$_opStack))) {
@@ -90,16 +91,25 @@ class FilterItem
     }
   }
 
-  private function _fixValue()
+  private function _fixValue($value)
   {
-    $value = $this->_value;
     if (is_null($value)) {
-      $this->_operator = 'is NULL';
+      switch($this->_operator) {
+        case '=':
+          $this->_operator = 'IS NULL';
+          break;
+        case '!=':
+          $this->_operator = 'IS NOT NULL';
+          break;
+        default:
+          throw new Exception(__CLASS__ . " - Operator '" . $this->_operator . "' cannot be used with NULL value.");
+      }
+
       $value = '';
     } else if (!is_numeric($value)) {
       $value = "'" . $value . "'";
     }
 
-    return $value;
+    $this->_value = $value;
   }
 }

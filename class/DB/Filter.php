@@ -63,10 +63,11 @@ class Filter
   {
     $item = new FilterItem();
     $item->key = $key;
-    $item->value = $value;
+    // Operator may be changed bases on value (eg. value is NULL)
     if (!is_null($operator)) {
       $item->operator = $operator;
     }
+    $item->value = $value;
 
     if (!is_null($tag)) {
       if (isset($this->_filterStack[$tag])) {
