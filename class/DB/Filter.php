@@ -85,12 +85,19 @@ class Filter
     }
   }
 
-  public function buildQuery()
+  public function buildQuery($inclWhereClause = FALSE)
   {
     $sql = "";
 
+    $whereSent = FALSE;
     foreach ($this->_filterStack as $filter) {
-      $sql .= " AND " . $filter->key . " " . $filter->operator . " " . $filter->value;
+      if ($inclWhereClause && !$whereSent) {
+        $sql .= " WHERE ";
+        $whereSent = TRUE;
+      } else {
+        $sql .= " AND ";
+      }
+      $sql .= $filter->key . " " . $filter->operator . " " . $filter->value;
     }
 
     return $sql;
