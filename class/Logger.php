@@ -55,9 +55,10 @@ class Logger
   public function __construct($type = self::LOG_CONSOLE)
   {
     $this->_handleType = $type;
+  }
 
-    // Set defaults for Mail
-    if (self::LOG_MAIL & $this->_handleType) {
+  private function _setupMail() {
+    if (is_null($this->_toAddress)) {
       $config = Config::getInstance();
       $this->_toAddress   = $config->errorEmail;
       $this->_fromAddress = $config->errorEmail;
@@ -95,10 +96,10 @@ class Logger
     $oldType       = $this->_handleType;
     $oldTSHandling = $this->_withTimestamp;
 
-    $this->_handleType    = self::TYPE_MAIL;
+    $this->_handleType    = self::LOG_MAIL;
     $this->_withTimestamp = FALSE;
 
-    $this->_write($msg);
+    $this->write($msg);
 
     $this->_handleType    = $oldType;
     $this->_withTimestamp = $oldTSHandling;
@@ -145,6 +146,8 @@ class Logger
 
   private function _mail($msg)
   {
+    $this->_setupMail();
+
     $mail = new MyMailer();
     $mail->From = $this->_fromAddress;
     $mail->FromName = $this->_fromName;
