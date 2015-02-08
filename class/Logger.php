@@ -91,6 +91,19 @@ class Logger
     }
   }
 
+  public function mail($msg) {
+    $oldType       = $this->_handleType;
+    $oldTSHandling = $this->_withTimestamp;
+
+    $this->_handleType    = self::TYPE_MAIL;
+    $this->_withTimestamp = FALSE;
+
+    $this->_write($msg);
+
+    $this->_handleType    = $oldType;
+    $this->_withTimestamp = $oldTSHandling;
+  }
+
   public function write($msg)
   {
 
