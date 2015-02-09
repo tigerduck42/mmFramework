@@ -36,7 +36,6 @@ use mmFramework as fw;
 class MySQL extends DBCore
 {
   private static $_obj = NULL;
-  private static $_inTransaction = FALSE;
 
   public static function getInstance($dbConfig = 'default')
   {

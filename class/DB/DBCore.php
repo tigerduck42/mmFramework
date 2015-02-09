@@ -30,7 +30,7 @@
  */
 namespace mmFramework\DB;
 
-use  mmFramework as fw;
+use mmFramework as fw;
 
 abstract class DBCore
 {
@@ -42,6 +42,8 @@ abstract class DBCore
   protected $_insertId = NULL;
 
   protected $_statement = NULL;
+
+  protected static $_inTransaction = FALSE;
 
   public function __construct($dbName = NULL)
   {
@@ -177,7 +179,6 @@ abstract class DBCore
   {
     $quoted = array();
     foreach ($row as $key => $value) {
-
       // Quote keys properly
       $key = '`' . $key . '`';
 
@@ -228,16 +229,21 @@ abstract class DBCore
       $endtime = $mtime;
       $totaltime = ($endtime - $starttime);
 
-      trigger_error(
-          'Query Failed<br/>
-          <b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
-          <b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
-          <b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
-          <b>SQL:</b> ' . $sql . '<br/>
-          <b>Total Time:</b> ' . $totaltime . '<br/>
-          <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n",
-          E_USER_ERROR
-      );
+
+      $errorMessage =
+        'Query Failed<br/>
+        <b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
+        <b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
+        <b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
+        <b>SQL:</b> ' . $sql . '<br/>
+        <b>Total Time:</b> ' . $totaltime . '<br/>
+        <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n";
+
+      if (self::$_inTransaction) {
+        throw new Exception($errorMessage);
+      } else {
+        trigger_error($errorMessage, E_USER_ERROR);
+      }
 
       $this->_resultHandle = NULL;
     } else {
