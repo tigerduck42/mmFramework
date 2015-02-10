@@ -115,6 +115,13 @@ class HTTP
     $_SESSION[$name] = $value;
   }
 
+  public static function delSession($name)
+  {
+    if (self::isSessionSet($name)) {
+      unset($_SESSION[$name]);
+    }
+  }
+
   public static function getSession($name)
   {
     $value = NULL;
