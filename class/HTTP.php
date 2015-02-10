@@ -61,6 +61,31 @@ class HTTP
   }
 
   /*
+   * Combined
+   */
+
+  public static function postAndGet($name)
+  {
+    $value = self::post($name);
+    if (is_null($value)) {
+      return self::get($name);
+    } else {
+      return $value;
+    }
+  }
+
+  public static function getAndPost($name)
+  {
+    $value = self::get($name);
+    if (is_null($value)) {
+      return self::post($name);
+    } else {
+      return $value;
+    }
+  }
+
+
+  /*
    * Server
    */
 
@@ -115,13 +140,6 @@ class HTTP
     $_SESSION[$name] = $value;
   }
 
-  public static function delSession($name)
-  {
-    if (self::isSessionSet($name)) {
-      unset($_SESSION[$name]);
-    }
-  }
-
   public static function getSession($name)
   {
     $value = NULL;
@@ -130,6 +148,13 @@ class HTTP
     }
 
     return $value;
+  }
+
+  public static function delSession($name)
+  {
+    if (self::isSessionSet($name)) {
+      unset($_SESSION[$name]);
+    }
   }
 
   public static function isSessionSet($name)
@@ -153,7 +178,10 @@ class HTTP
 
   public static function redirect($url)
   {
-    ob_clean();
+    if (ob_get_length()) {
+      ob_end_clean();
+    }
+
     header("Location: " . $url);
     exit;
   }
@@ -176,5 +204,44 @@ class HTTP
     }
 
     return $hostname;
+  }
+
+  public static function file($name, $target, $filename = NULL)
+  {
+    if (isset($_FILES[$name])) {
+      $file = $_FILES[$name];
+
+      switch ($file['error']) {
+        case UPLOAD_ERR_OK:
+          $target = rtrim($target, "/");
+          if (!is_writeable($target)) {
+            throw new Exception(__METHOD__ . " - " . $target . " is not writeable!");
+          }
+          if (is_null($filename)) {
+            $filename = $file["name"];
+          }
+          $file['filename'] = $filename;
+          move_uploaded_file($file["tmp_name"], $target . '/' . $filename);
+          $file['stored'] = $target . '/' . $filename;
+
+          $info = pathinfo($file['name']);
+          if (isset($info['extension'])) {
+            $file['extension'] = $info['extension'];
+          }
+          break;
+
+        case UPLOAD_ERR_NO_FILE:
+          // still okay, no file uploaded
+          $file = NULL;
+          break;
+        default:
+          $errorKey = ErrorHandler::getErrorCode('UPLOAD_ERR', $file['error']);
+          trigger_error(__METHOD__ . " - Fileupload failed with error " . $errorKey);
+          break;
+      }
+      return $file;
+    } else {
+      return NULL;
+    }
   }
 }

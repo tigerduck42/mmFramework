@@ -17,8 +17,11 @@ define("DIR_FRAMEWORK", $dirBase);
 require_once(DIR_FRAMEWORK . '/utils/fwUtilities.php');
 require_once(DIR_FRAMEWORK . '/utils/utilities.php');
 
+// Load classes
+spl_autoload_register('mmFramework\customAutoLoader');
 
 set_error_handler("mmFramework\customError");
+set_exception_handler("mmFramework\customException");
 
 if (isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT'])) {
   define("WEB_ROOT", $_SERVER['DOCUMENT_ROOT']);
@@ -26,9 +29,6 @@ if (isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT'])) {
   $filePath = realpath(dirname(__FILE__) . "/../../html/");
   define("WEB_ROOT", $filePath);
 }
-
-// Load classes
-spl_autoload_register('mmFramework\customAutoLoader');
 
 // Set correct timezone
 $config = Config::getInstance();

@@ -229,7 +229,15 @@ class OutputRendererSmarty extends OutputRenderer
         // Store in the javascript/css tags.
         $this->assign("__javascript", $this->_javascript);
         $this->assign("__javascriptCode", $this->_javascriptCode);
-        $this->assign("__links", $this->_links);
+
+        // Legacy code
+        $theUrls = array();
+        foreach ($this->_links as $linkObj) {
+          $theUrls[] = $linkObj->url;
+        }
+        $this->assign("__links", $theUrls);
+
+        $this->assign("__linksObj", $this->_links);
 
         foreach ($this->_templateExtra as $variable => $value) {
           $this->assign($variable, $this->_smarty->fetch($value));
@@ -245,6 +253,29 @@ class OutputRendererSmarty extends OutputRenderer
     }
 
     header('Content-type: ' . $this->contentType());
+    return $this->_output;
+  }
+
+  /**
+   * Output the smarty template.
+   * @return string
+   */
+  public function outputText($file = NULL)
+  {
+    if (FALSE == is_null($this->_template)) {
+      if (FALSE == is_null($this->_templateExtra)) {
+        foreach ($this->_templateExtra as $variable => $value) {
+          $this->assign($variable, $this->_smarty->fetch($value));
+        }
+      }
+
+      $this->_output = $this->_smarty->fetch($this->_template);
+    }
+
+    if (FALSE == is_null($file)) {
+      file_put_contents($file, $this->_output);
+    }
+
     return $this->_output;
   }
 

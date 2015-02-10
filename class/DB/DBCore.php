@@ -30,7 +30,7 @@
  */
 namespace mmFramework\DB;
 
-use  mmFramework as fw;
+use mmFramework as fw;
 
 abstract class DBCore
 {
@@ -40,7 +40,10 @@ abstract class DBCore
   protected $_resultHandle = NULL;
   protected $_result = NULL;
   protected $_insertId = NULL;
-  protected $_inTransaction = FALSE;
+
+  protected $_statement = NULL;
+
+  protected static $_inTransaction = FALSE;
 
   public function __construct($dbName = NULL)
   {
@@ -64,8 +67,15 @@ abstract class DBCore
       //case 'link':
       //  return $this->_link;
       //  break;
+      case 'statement':
+        return $this->_statement;
+        break;
       case 'threadId':
         return $this->_threadId();
+        break;
+      case 'success':
+        return !is_null($this->_resultHandle);
+        break;
       default:
         throw new Exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
         break;
@@ -84,6 +94,7 @@ abstract class DBCore
   abstract protected function _errorMsg();
 
   abstract protected function _prepare($sql);
+  abstract protected function _execute();
 
   // Transaction support
   abstract public function beginTransaction();
@@ -117,7 +128,7 @@ abstract class DBCore
   {
     $quoted = $this->_quoteValues($row);
 
-    $sql = "INSERT INTO " . $table;
+    $sql = "INSERT INTO `" . $table . "`";
     $sql .= " (" . implode(array_keys($quoted), ', ') . ")";
     $sql .= " VALUES (" . implode($quoted, ", ") . ")";
     $this->_query($sql);
@@ -130,7 +141,7 @@ abstract class DBCore
   {
     $quoted = $this->_quoteValues($row);
 
-    $sql = "UPDATE " . $table . " SET ";
+    $sql = "UPDATE `" . $table . "` SET ";
     foreach ($quoted as $key => $value) {
       $sql .= $key . " = " . $value . ", ";
     }
@@ -138,9 +149,9 @@ abstract class DBCore
     $sql = rtrim($sql, ", ");
 
     if (is_null($customIdName)) {
-      $sql .= " WHERE " . $table . "_id = " . $id;
+      $sql .= " WHERE `" . $table . "_id` = " . $id;
     } else {
-      $sql .= " WHERE " . $customIdName . " = ";
+      $sql .= " WHERE `" . $customIdName . "` = ";
 
       // proper wrapping if key is a string
       if (is_string($id)) {
@@ -149,14 +160,18 @@ abstract class DBCore
         $sql .=  $id;
       }
     }
-
+    //echo $sql;
     $this->_query($sql);
   }
 
   public function delete($table, $id)
   {
-    $sql = "DELETE FROM " . $table . " WHERE " . $table . "_id = " . $id;
-    $this->_query($sql);
+    if (!is_null($id)) {
+      $sql = "DELETE FROM `" . $table . "` WHERE " . $table . "_id = " . $id;
+      $this->_query($sql);
+    } else {
+       throw new Exception(__METHOD__ . " - Can't delete empty record!");
+    }
   }
 
 
@@ -164,7 +179,6 @@ abstract class DBCore
   {
     $quoted = array();
     foreach ($row as $key => $value) {
-
       // Quote keys properly
       $key = '`' . $key . '`';
 
@@ -215,16 +229,21 @@ abstract class DBCore
       $endtime = $mtime;
       $totaltime = ($endtime - $starttime);
 
-      trigger_error(
-          'Query Failed<br/>
-          <b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
-          <b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
-          <b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
-          <b>SQL:</b> ' . $sql . '<br/>
-          <b>Total Time:</b> ' . $totaltime . '<br/>
-          <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n",
-          E_USER_ERROR
-      );
+
+      $errorMessage =
+        'Query Failed<br/>
+        <b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
+        <b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
+        <b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
+        <b>SQL:</b> ' . $sql . '<br/>
+        <b>Total Time:</b> ' . $totaltime . '<br/>
+        <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n";
+
+      if (self::$_inTransaction) {
+        throw new Exception($errorMessage);
+      } else {
+        trigger_error($errorMessage, E_USER_ERROR);
+      }
 
       $this->_resultHandle = NULL;
     } else {
@@ -258,5 +277,10 @@ abstract class DBCore
   public function prepare($sql)
   {
     return $this->_prepare($sql);
+  }
+
+  public function execute()
+  {
+    return $this->_execute();
   }
 }

@@ -31,51 +31,32 @@
 
 namespace mmFramework;
 
-class Database
+class Json
 {
-  public static function getInstance($dbConfig = 'default')
+  public static function decode($data)
   {
-    $config = Config::getInstance();
+    $obj = json_decode($data);
 
-    if (!isset($config->dbConfiguration[$dbConfig])) {
-      throw new Exception(__METHOD__ . " - No database config '" . $dbConfig . "' defined!");
+    $jsonErrCode = json_last_error();
+    if ($jsonErrCode > 0) {
+      throw new Exception(__METHOD__ . " - Json Error: " .  ErrorHandler::getErrorCode('JSON_ERR', $jsonErrCode));
+      exit;
     }
 
-    switch(strtolower($config->dbConfiguration[$dbConfig]['dbConnector'])) {
-      case 'sqllite':
-        require_once(DIR_FRAMEWORK . "/class/DB/SQLite.php");
-        return new DB\SQLite($dbConfig);
-        break;
-      case 'mysql':
-        require_once(DIR_FRAMEWORK . "/class/DB/MySQL.php");
-        return DB\MySQL::getInstance($dbConfig);
-        break;
-      default:
-        throw new Exception(__CLASS__ . " - Connector not defined!");
-        break;
-
-    }
+    return $obj;
   }
 
 
-  public function __get($name)
+  public static function encode($value)
   {
-    switch($name) {
-      case 'insertId':
-        return $this->_insertId;
-        break;
-      case 'affectedRows':
-        return $this->_affectedRows;
-        break;
-      case 'rows':
-        return $this->_rows;
-        break;
-      case 'link':
-        return $this->_link;
-        break;
-      default:
-        throw new Exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
-        break;
+    $jsonData = json_encode($value);
+
+    $jsonErrCode = json_last_error();
+    if ($jsonErrCode > 0) {
+      throw new Exception(__METHOD__ . " - Json Error: " .  ErrorHandler::getErrorCode('JSON_ERR', $jsonErrCode));
+      exit;
     }
+
+    return $jsonData;
   }
 }
