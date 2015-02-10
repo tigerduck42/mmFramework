@@ -619,7 +619,7 @@ class PHPMailer {
       $this->MIMEBody = $this->CreateBody();
 
       // To capture the complete message when using mail(), create
-	  // an extra header list which CreateHeader() doesn't fold in
+	    // an extra header list which CreateHeader() doesn't fold in
       if ($this->Mailer == 'mail') {
         if (count($this->to) > 0) {
           $mailHeader .= $this->AddrAppend("To", $this->to);
