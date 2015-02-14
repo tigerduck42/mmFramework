@@ -34,6 +34,7 @@ namespace mmFramework\DB;
 class Filter
 {
   private $_filterStack = array();
+  private $_queryStack = array();
 
   public function __construct()
   {
@@ -80,6 +81,18 @@ class Filter
     }
   }
 
+  public function addQuery($sql, $tag = NULL)
+  {
+    if (!is_null($tag)) {
+      if (isset($this->_filterStack[$tag])) {
+        throw new Exception(get_class($this) . ":: - Tag " . $tag . " already used!");
+      }
+      $this->_queryStack[$tag] = $sql;
+    } else {
+      $this->_queryStack[] = $sql;
+    }
+  }
+
   public function remove($tag)
   {
     if (isset($this->_filterStack[$tag])) {
@@ -92,6 +105,7 @@ class Filter
     $sql = "";
 
     $whereSent = FALSE;
+    // Add fiter values
     foreach ($this->_filterStack as $filter) {
       if ($inclWhereClause && !$whereSent) {
         $sql .= " WHERE ";
@@ -100,6 +114,17 @@ class Filter
         $sql .= " AND ";
       }
       $sql .= $filter->key . " " . $filter->operator . " " . $filter->value;
+    }
+
+    // Add queries
+    foreach ($this->_queryStack as $query) {
+      if ($inclWhereClause && !$whereSent) {
+        $sql .= " WHERE ";
+        $whereSent = TRUE;
+      } else {
+        $sql .= " AND ";
+      }
+      $sql .= $query;
     }
 
     return $sql;
