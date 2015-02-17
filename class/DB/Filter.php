@@ -142,7 +142,7 @@ class Filter
       foreach ($this->_orderStack as $order) {
         $sql .= $order->name . ' ' . $order->sort . ', ';
       }
-      $sql = trim($sql, ", ");
+      $sql = rtrim($sql, ", ");
     }
 
     return $sql;
