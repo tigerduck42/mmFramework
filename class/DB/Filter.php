@@ -35,6 +35,7 @@ class Filter
 {
   private $_filterStack = array();
   private $_queryStack = array();
+  private $_orderStack = array();
 
   public function __construct()
   {
@@ -93,6 +94,15 @@ class Filter
     }
   }
 
+  public function addOrder($name, $sort = "ASC")
+  {
+    $item = new \StdClass();
+    $item->name = $name;
+    $item->sort = $sort;
+
+    $this->_orderStack[] = $item;
+  }
+
   public function remove($tag)
   {
     if (isset($this->_filterStack[$tag])) {
@@ -125,6 +135,14 @@ class Filter
         $sql .= " AND ";
       }
       $sql .= $query;
+    }
+
+    if (count($this->_orderStack) > 0) {
+      $sql .= " ORDER BY ";
+      foreach ($this->_orderStack as $order) {
+        $sql .= $order->name . ' ' . $order->sort . ', ';
+      }
+      $sql = trim($sql, ", ");
     }
 
     return $sql;
