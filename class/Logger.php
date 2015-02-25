@@ -55,9 +55,10 @@ class Logger
   private $_styleStack = array(
     'reset' => "\e[0m",
 
-    'red' => "\e[91m",
+    'red'   => "\e[91m",
+    'green' => "\e[92m",
 
-    'bold' => "\e[1m",
+    'bold'  => "\e[1m",
   );
 
 
