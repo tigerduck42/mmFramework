@@ -51,7 +51,16 @@ class Lock
   {
     switch($name) {
       case "isRunning":
-        return file_exists($this->_lockFile);
+        $check = FALSE;
+        if (file_exists($this->_lockFile)) {
+          $oldPid = file_get_contents($this->_lockFile);
+          $processStack = $this->_getProcessStack();
+          if ((0 < count($processStack)) && (in_array($oldPid, $processStack))) {
+            $check = TRUE;
+          }
+        }
+        return $check;
+        break;
       default:
         throw new Exception(__METHOD__ . " - Property " . $name . " not defined!");
         break;
@@ -74,10 +83,7 @@ class Lock
       // No lock file found
       $success = $this->_writeLock();
     } else {
-      $oldPid = file_get_contents($this->_lockFile);
-      $processStack = $this->_getProcessStack();
-      if ((0 < count($processStack)) && (!in_array($oldPid, $processStack))) {
-        // not running
+      if (!$this->isRunning) {
         $success = $this->_writeLock();
       }
     }
