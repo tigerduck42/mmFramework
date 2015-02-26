@@ -1,7 +1,7 @@
 <?php
 /**
  * The MIT License (MIT)
- * Copyright (c) 2013 Martin Mitterhauser
+ * Copyright (c) 2015
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,10 @@
  *
  *
  * @link https://github.com/tigerduck42/mmFramework
- * @copyright 2013 Martin Mitterhauser
- * @author Martin Mitterhauser <martin.mitterhauser at gmail.com>
+ * @copyright 2015 Martin Mitterhauser
+ * @author Martin Mitterhauser <martin.mitterhauser (at) gmail.com>
  * @package MmFramework
- * @version 1.0
+ * @version 2.0
  */
 
 namespace mmFramework;
@@ -66,9 +66,11 @@ class Logger
   public function __construct($type = self::LOG_CONSOLE)
   {
     $this->_handleType = $type;
+  }
 
-    // Set defaults for Mail
-    if (self::LOG_MAIL & $this->_handleType) {
+  private function _setupMail()
+  {
+    if (is_null($this->_toAddress)) {
       $config = Config::getInstance();
       $this->_toAddress   = $config->errorEmail;
       $this->_fromAddress = $config->errorEmail;
@@ -100,6 +102,21 @@ class Logger
         throw new Exception(__METHOD__ . " - Property " . $name . " not defined!", 2);
         break;
     }
+  }
+
+
+  public function mail($msg)
+  {
+    $oldType       = $this->_handleType;
+    $oldTSHandling = $this->_withTimestamp;
+
+    $this->_handleType    = self::LOG_MAIL;
+    $this->_withTimestamp = FALSE;
+
+    $this->write($msg);
+
+    $this->_handleType    = $oldType;
+    $this->_withTimestamp = $oldTSHandling;
   }
 
   public function write($msg, $format = NULL)
@@ -160,6 +177,8 @@ class Logger
 
   private function _mail($msg)
   {
+    $this->_setupMail();
+
     $mail = new MyMailer();
     $mail->From = $this->_fromAddress;
     $mail->FromName = $this->_fromName;
