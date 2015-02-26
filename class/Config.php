@@ -141,7 +141,6 @@ class Config
       $lines = explode("\n", $config);
 
       foreach ($lines as $line) {
-
         if (preg_match('{\[([^:]+)\:?([^\]]+)?\]}', $line, $match)) {
           // Get sections ...
           $section = trim($match[1]);
@@ -151,7 +150,6 @@ class Config
             $subsection = trim($match[2]);
           }
         } else if (preg_match('{(.+)=(.+)}', $line, $match)) {
-
           // Check if we have a valid section
           if (is_null($section)) {
             throw new Exception(__METHOD__ . " - No config section found!");
