@@ -31,7 +31,6 @@
 
 namespace mmFramework;
 
-
 class Navigation
 {
   private $_list = array();

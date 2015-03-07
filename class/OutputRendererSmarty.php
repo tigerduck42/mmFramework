@@ -153,6 +153,25 @@ class OutputRendererSmarty extends OutputRenderer
   }
 
   /**
+   * Smarty add a assign to a variable.
+   *
+   * @param string $templateVariable
+   * @param mixed $value
+   */
+  public function assignAdd($templateVariable, $value)
+  {
+    assert(is_string($templateVariable));
+    assert(strlen($templateVariable) > 0);
+
+    if (isset($this->_smarty->tpl_vars[$templateVariable])) {
+      $smartyVar =& $this->_smarty->tpl_vars[$templateVariable];
+      $smartyVar->value .= $value;
+    } else {
+      $this->_smarty->assign($templateVariable, trim($value));
+    }
+  }
+
+  /**
    * Set the main layout template.
    *
    * @param string $template

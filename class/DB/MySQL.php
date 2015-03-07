@@ -61,7 +61,7 @@ class MySQL extends DBCore
     $this->_link = new \mysqli($conf['dbHost'], $conf['dbUser'], $conf['dbPassword'], $conf['dbName'], $conf['dbPort']);
 
     if ($this->_link->connect_error) {
-      trigger_error('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
+      throw new Exception('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
     }
 
     $this->_link->set_charset($conf['dbCharset']);

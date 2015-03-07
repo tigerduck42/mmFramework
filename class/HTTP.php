@@ -214,6 +214,11 @@ class HTTP
       switch ($file['error']) {
         case UPLOAD_ERR_OK:
           $target = rtrim($target, "/");
+
+          if (!file_exists($target)) {
+            mkdir($target);
+          }
+
           if (!is_writeable($target)) {
             throw new Exception(__METHOD__ . " - " . $target . " is not writeable!");
           }
