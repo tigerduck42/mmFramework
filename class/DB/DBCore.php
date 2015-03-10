@@ -298,4 +298,9 @@ abstract class DBCore
   {
     return $this->_execute();
   }
+
+  public function escape($value)
+  {
+    return $this->_escape($value);
+  }
 }

@@ -31,6 +31,8 @@
 
 namespace mmFramework\DB;
 
+use mmFramework as fw;
+
 class FilterItem
 {
   private static $_opStack = array(
@@ -42,14 +44,15 @@ class FilterItem
     'le' => '<='
   );
 
-
+  private $_dbConfig      = NULL;
   private $_key      = NULL;
   private $_value    = NULL;
   private $_operator = NULL;
 
-  public function __construct()
+  public function __construct($dbConfig = 'default')
   {
     $this->_operator = '=';
+    $this->_dbConfig = $dbConfig;
   }
 
   public function __get($name)
@@ -107,8 +110,13 @@ class FilterItem
       }
 
       $value = '';
-    } else if (!is_numeric($value)) {
-      $value = "'" . $value . "'";
+    } else if (is_numeric($value)) {
+      // do nothing
+    } else if (is_string($value)) {
+      $db = fw\Database::getInstance();
+      $value = "'" . $db->escape($value) . "'";
+    } else {
+      trigger_error(__METHOD__ . " - Unknown type!");
     }
 
     $this->_value = $value;

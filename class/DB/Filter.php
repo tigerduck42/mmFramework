@@ -34,10 +34,11 @@ namespace mmFramework\DB;
 class Filter
 {
   private $_filterStack = array();
+  private $_dbConfig = NULL;
 
-  public function __construct()
+  public function __construct($dbConfig = 'default')
   {
-
+    $this->_dbConfig = $dbConfig;
   }
 
   public function __get($name)
@@ -62,7 +63,7 @@ class Filter
 
   public function add($key, $value, $operator = NULL, $tag = NULL)
   {
-    $item = new FilterItem();
+    $item = new FilterItem($this->_dbConfig);
     $item->key = $key;
     // Operator may be changed bases on value (eg. value is NULL)
     if (!is_null($operator)) {
