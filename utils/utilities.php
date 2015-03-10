@@ -24,6 +24,14 @@ function echo_nice($data, $return = FALSE)
   }
 }
 
+function intNice($value)
+{
+  if (!is_null($value)) {
+    return (int)$value;
+  }
+  return $value;
+}
+
 function waitForMe()
 {
   echo_nice("Press Key to continue.");
