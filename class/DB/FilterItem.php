@@ -41,7 +41,8 @@ class FilterItem
     'gt' => '>',
     'ge' => '>=',
     'lt' => '<',
-    'le' => '<='
+    'le' => '<=',
+    'bitSet' => '&',
   );
 
   private $_dbConfig      = NULL;
