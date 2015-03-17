@@ -166,7 +166,8 @@ class MySQL extends DBCore
   {
     $this->_statement->execute();
     $this->_resultHandle = $this->_statement->get_result();
-    $this->_rows = $this->_rows();
+    $this->_rows         = $this->_statement->num_rows;
+    $this->_affectedRows = $this->_statement->affected_rows;
     $this->_checkError();
   }
 
