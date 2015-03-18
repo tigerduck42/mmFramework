@@ -44,6 +44,7 @@ class FilterItem
     'le'     => '<=',
     'bitSet' => '&',
     'like'   => 'LIKE',
+    'regexp' => 'REGEXP',
   );
 
   private $_dbConfig = NULL;
@@ -61,7 +62,7 @@ class FilterItem
   {
     switch($name) {
       case 'key':
-        return '`' . $this->_key .'`';
+        return $this->_fixedKey();
         break;
       case 'operator':
         return $this->_operator;
@@ -107,20 +108,55 @@ class FilterItem
         case '!=':
           $this->_operator = 'IS NOT NULL';
           break;
+        case 'LIKE':
+        case 'REGEXP':
+          $value = (string)$value;
+          break;
         default:
           throw new Exception(__CLASS__ . " - Operator '" . $this->_operator . "' cannot be used with NULL value.");
       }
 
       $value = '';
-    } else if (is_numeric($value)) {
-      // do nothing
-    } else if (is_string($value)) {
-      $db = fw\Database::getInstance();
-      $value = "'" . $db->escape($value) . "'";
     } else {
-      trigger_error(__METHOD__ . " - Unknown type!");
+      $knownType = FALSE;
+
+      if (is_numeric($value)) {
+        $knownType = TRUE;
+        switch($this->_operator) {
+          case 'REGEXP':
+          case 'LIKE':
+            $value = (string)$value;
+            break;
+        }
+      }
+
+      if (is_string($value)) {
+        $knownType = TRUE;
+
+        if (preg_match('{^literal::(.+)$}', $value, $match)) {
+          $value = $match[1];
+        } else {
+          $db = fw\Database::getInstance();
+          $value = "'" . $db->escape($value) . "'";
+        }
+      }
+
+      if (!$knownType) {
+        trigger_error(__METHOD__ . " - Unknown type!");
+      }
     }
 
     $this->_value = $value;
+  }
+
+  private function _fixedKey()
+  {
+    $key = $this->_key;
+    if (preg_match('{^literal::(.+)$}', $key, $match)) {
+      $key = "'" . $match[1] . "'";
+    } else {
+      $key = '`' . $key .'`';
+    }
+    return $key;
   }
 }
