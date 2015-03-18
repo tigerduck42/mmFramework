@@ -38,3 +38,10 @@ function waitForMe()
   $handle = fopen("php://stdin", "r");
   $line = fgets($handle);
 }
+
+function substrAdv($str, &$start, $len)
+{
+  $subString = trim(substr($str, $start, $len));
+  $start += $len;
+  return $subString;
+}

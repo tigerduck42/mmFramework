@@ -35,14 +35,14 @@ use mmFramework as fw;
 
 abstract class DBCore
 {
-  protected $_link = NULL;
-  protected $_rows = NULL;
-  protected $_affectedRows = NULL;
-  protected $_resultHandle = NULL;
-  protected $_result = NULL;
-  protected $_insertId = NULL;
+  protected $_link          = NULL;
+  protected $_rows          = NULL;
+  protected $_affectedRows  = NULL;
+  protected $_resultHandle  = NULL;
+  protected $_result        = NULL;
+  protected $_insertId      = NULL;
 
-  protected $_statement = NULL;
+  protected $_statement     = NULL;
 
   protected $_inTransaction = FALSE;
 
