@@ -36,16 +36,17 @@ use mmFramework as fw;
 class FilterItem
 {
   private static $_opStack = array(
-    'eq' => '=',
-    'ne' => '!=',
-    'gt' => '>',
-    'ge' => '>=',
-    'lt' => '<',
-    'le' => '<=',
+    'eq'     => '=',
+    'ne'     => '!=',
+    'gt'     => '>',
+    'ge'     => '>=',
+    'lt'     => '<',
+    'le'     => '<=',
     'bitSet' => '&',
+    'like'   => 'LIKE',
   );
 
-  private $_dbConfig      = NULL;
+  private $_dbConfig = NULL;
   private $_key      = NULL;
   private $_value    = NULL;
   private $_operator = NULL;
