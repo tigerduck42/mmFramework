@@ -1,7 +1,7 @@
 <?php
 /**
  * The MIT License (MIT)
- * Copyright (c) 2013 Martin Mitterhauser
+ * Copyright (c) 2015
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,10 @@
  *
  *
  * @link https://github.com/tigerduck42/mmFramework
- * @copyright 2013 Martin Mitterhauser
- * @author Martin Mitterhauser <martin.mitterhauser at gmail.com>
+ * @copyright 2015 Martin Mitterhauser
+ * @author Martin Mitterhauser <martin.mitterhauser (at) gmail.com>
  * @package MmFramework
- * @version 1.0
+ * @version 2.0
  */
 
 namespace mmFramework;
@@ -150,6 +150,25 @@ class OutputRendererSmarty extends OutputRenderer
     assert(strlen($templateVariable) > 0);
 
     $this->_smarty->assign($templateVariable, $value);
+  }
+
+  /**
+   * Smarty add a assign to a variable.
+   *
+   * @param string $templateVariable
+   * @param mixed $value
+   */
+  public function assignAdd($templateVariable, $value)
+  {
+    assert(is_string($templateVariable));
+    assert(strlen($templateVariable) > 0);
+
+    if (isset($this->_smarty->tpl_vars[$templateVariable])) {
+      $smartyVar =& $this->_smarty->tpl_vars[$templateVariable];
+      $smartyVar->value .= $value;
+    } else {
+      $this->_smarty->assign($templateVariable, trim($value));
+    }
   }
 
   /**

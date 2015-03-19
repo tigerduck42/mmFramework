@@ -1,7 +1,7 @@
 <?php
 /**
  * The MIT License (MIT)
- * Copyright (c) 2013 Martin Mitterhauser
+ * Copyright (c) 2015
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,10 @@
  *
  *
  * @link https://github.com/tigerduck42/mmFramework
- * @copyright 2013 Martin Mitterhauser
- * @author Martin Mitterhauser <martin.mitterhauser at gmail.com>
+ * @copyright 2015 Martin Mitterhauser
+ * @author Martin Mitterhauser <martin.mitterhauser (at) gmail.com>
  * @package MmFramework
- * @version 1.0
+ * @version 2.0
  */
 
 namespace mmFramework\DB;
@@ -35,18 +35,15 @@ use mmFramework as fw;
 
 class MySQL extends DBCore
 {
-  private static $_obj = NULL;
+  private static $_obj = array();
 
   public static function getInstance($dbConfig = 'default')
   {
-    if (self::$_inTransaction) {
-      if (is_null(self::$_obj)) {
-        throw new Exception('No Object given for transaction.');
-      }
-      return self::$_obj;
+    if (isset(self::$_obj[$dbConfig]) && self::$_obj[$dbConfig]->_inTransaction) {
+      return self::$_obj[$dbConfig];
     } else {
       $obj = new self($dbConfig);
-      self::$_obj =& $obj;
+      self::$_obj[$dbConfig] =& $obj;
       return $obj;
     }
   }
@@ -64,7 +61,7 @@ class MySQL extends DBCore
     $this->_link = new \mysqli($conf['dbHost'], $conf['dbUser'], $conf['dbPassword'], $conf['dbName'], $conf['dbPort']);
 
     if ($this->_link->connect_error) {
-      trigger_error('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
+      throw new Exception('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
     }
 
     $this->_link->set_charset($conf['dbCharset']);
@@ -72,10 +69,20 @@ class MySQL extends DBCore
     $this->_checkError();
   }
 
-  public function asfetch()
+  public function asFetch()
   {
     if (!is_null($this->_resultHandle)) {
       $this->_result = $this->_resultHandle->fetch_assoc();
+      return $this->_result;
+    } else {
+      return FALSE;
+    }
+  }
+
+  public function asFetchAll()
+  {
+    if (!is_null($this->_resultHandle)) {
+      $this->_result = $this->_resultHandle->fetch_all(MYSQLI_ASSOC);
       return $this->_result;
     } else {
       return FALSE;
@@ -119,12 +126,12 @@ class MySQL extends DBCore
 
   public function beginTransaction()
   {
-    if (self::$_inTransaction) {
+    if ($this->_inTransaction) {
       throw new exception("Already in transaction!");
     }
 
     $this->_link->autocommit(FALSE);
-    self::$_inTransaction = TRUE;
+    $this->_inTransaction = TRUE;
   }
 
   public function commit()
@@ -159,6 +166,8 @@ class MySQL extends DBCore
   {
     $this->_statement->execute();
     $this->_resultHandle = $this->_statement->get_result();
+    $this->_rows         = $this->_statement->num_rows;
+    $this->_affectedRows = $this->_statement->affected_rows;
     $this->_checkError();
   }
 
@@ -174,7 +183,7 @@ class MySQL extends DBCore
     }
 
     $this->_link->autocommit(TRUE);
-    self::$_inTransaction = FALSE;
+    $this->_inTransaction = FALSE;
   }
 
   private function _checkError()

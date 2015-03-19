@@ -1,7 +1,7 @@
 <?php
 /**
  * The MIT License (MIT)
- * Copyright (c) 2013 Martin Mitterhauser
+ * Copyright (c) 2015
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +23,28 @@
  *
  *
  * @link https://github.com/tigerduck42/mmFramework
- * @copyright 2013 Martin Mitterhauser
- * @author Martin Mitterhauser <martin.mitterhauser at gmail.com>
+ * @copyright 2015 Martin Mitterhauser
+ * @author Martin Mitterhauser <martin.mitterhauser (at) gmail.com>
  * @package MmFramework
- * @version 1.0
+ * @version 2.0
  */
+
 namespace mmFramework\DB;
 
 use mmFramework as fw;
 
 abstract class DBCore
 {
-  protected $_link = NULL;
-  protected $_rows = NULL;
-  protected $_affectedRows = NULL;
-  protected $_resultHandle = NULL;
-  protected $_result = NULL;
-  protected $_insertId = NULL;
+  protected $_link          = NULL;
+  protected $_rows          = NULL;
+  protected $_affectedRows  = NULL;
+  protected $_resultHandle  = NULL;
+  protected $_result        = NULL;
+  protected $_insertId      = NULL;
 
-  protected $_statement = NULL;
+  protected $_statement     = NULL;
 
-  protected static $_inTransaction = FALSE;
+  protected $_inTransaction = FALSE;
 
   public function __construct($dbName = NULL)
   {
@@ -82,7 +83,8 @@ abstract class DBCore
     }
   }
 
-  abstract public function asfetch();
+  abstract public function asFetch();
+  abstract public function asFetchAll();
 
   abstract protected function _connect();
   abstract protected function _q($sql);
@@ -164,10 +166,23 @@ abstract class DBCore
     $this->_query($sql);
   }
 
-  public function delete($table, $id)
+  public function delete($table, $id, $customIdName = NULL)
   {
     if (!is_null($id)) {
-      $sql = "DELETE FROM `" . $table . "` WHERE " . $table . "_id = " . $id;
+      $sql = "DELETE FROM `" . $table . "` ";
+
+      if (is_null($customIdName)) {
+        $sql .= " WHERE `" . $table . "_id` = " . $id;
+      } else {
+        $sql .= " WHERE `" . $customIdName . "` = ";
+
+        // proper wrapping if key is a string
+        if (is_string($id)) {
+          $sql .=  "'" . $id ."'";
+        } else {
+          $sql .=  $id;
+        }
+      }
       $this->_query($sql);
     } else {
        throw new Exception(__METHOD__ . " - Can't delete empty record!");
@@ -220,7 +235,7 @@ abstract class DBCore
       $this->_connect();
     }
 
-    $this->_insertId = 0;
+    $this->_insertId = NULL;
     $this->_rows = 0;
     if (!($this->_resultHandle = $this->_q($sql))) {
       $mtime = microtime();
@@ -239,7 +254,7 @@ abstract class DBCore
         <b>Total Time:</b> ' . $totaltime . '<br/>
         <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n";
 
-      if (self::$_inTransaction) {
+      if ($this->_inTransaction) {
         throw new Exception($errorMessage);
       } else {
         trigger_error($errorMessage, E_USER_ERROR);
@@ -282,5 +297,10 @@ abstract class DBCore
   public function execute()
   {
     return $this->_execute();
+  }
+
+  public function escape($value)
+  {
+    return $this->_escape($value);
   }
 }

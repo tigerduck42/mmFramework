@@ -1,7 +1,7 @@
 <?php
 /**
  * The MIT License (MIT)
- * Copyright (c) 2013 Martin Mitterhauser
+ * Copyright (c) 2015
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,12 @@
  *
  *
  * @link https://github.com/tigerduck42/mmFramework
- * @copyright 2013 Martin Mitterhauser
- * @author Martin Mitterhauser <martin.mitterhauser at gmail.com>
+ * @copyright 2015 Martin Mitterhauser
+ * @author Martin Mitterhauser <martin.mitterhauser (at) gmail.com>
  * @package MmFramework
- * @version 1.0
+ * @version 2.0
  */
+
 namespace mmFramework\DB;
 
 abstract class Helper
@@ -41,16 +42,19 @@ abstract class Helper
   protected function _assign($name, $value)
   {
     $privateName = "_" . $name;
+    $hasChanged = FALSE;
 
     if ($this->$privateName !== $value) {
-
       if (method_exists($this, "_logChange")) {
         // The method _logChange need to be define in the class which extends this one
         $this->_logChange($name, $this->$privateName, $value);
       }
 
       $this->$privateName = $value;
-      $this->_isDirty = TRUE;
+      $this->_isDirty     = TRUE;
+      $hasChanged         = TRUE;
     }
+
+    return $hasChanged;
   }
 }

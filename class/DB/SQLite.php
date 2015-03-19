@@ -1,7 +1,7 @@
 <?php
 /**
  * The MIT License (MIT)
- * Copyright (c) 2013 Martin Mitterhauser
+ * Copyright (c) 2015
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,10 @@
  *
  *
  * @link https://github.com/tigerduck42/mmFramework
- * @copyright 2013 Martin Mitterhauser
- * @author Martin Mitterhauser <martin.mitterhauser at gmail.com>
+ * @copyright 2015 Martin Mitterhauser
+ * @author Martin Mitterhauser <martin.mitterhauser (at) gmail.com>
  * @package MmFramework
- * @version 1.0
+ * @version 2.0
  */
 
 namespace mmFramework\DB;
@@ -58,7 +58,7 @@ class SQLite extends DBCore
     }
   }
 
-  public function asfetch()
+  public function asFetch()
   {
     if (!is_null($this->_resultHandle)) {
       $this->_result = $this->_resultHandle->fetchArray(SQLITE3_ASSOC);
@@ -66,6 +66,17 @@ class SQLite extends DBCore
     } else {
       return FALSE;
     }
+  }
+
+  public function asFetchAll()
+  {
+    $theList + array();
+
+    while ($row = $this->asFtech()) {
+      $theList[] = $row;
+    }
+
+    return $theList;
   }
 
   protected function _q($sql)

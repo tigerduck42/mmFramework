@@ -29,8 +29,61 @@
  * @version 2.0
  */
 
-namespace mmFramework\DB;
+namespace mmFramework;
 
-class Exception extends \exception
+class Page
 {
+
+  private $_query    = NULL;
+  private $_fullName = NULL;
+  private $_parts    = NULL;
+
+  public function __construct()
+  {
+    $this->_query    = HTTP::server('QUERY_STRING');
+    $this->_fullName = HTTP::server('SCRIPT_NAME');
+  }
+
+  public function __get($name)
+  {
+    switch($name) {
+      case "url":
+        return $this->_fullName;
+        break;
+      case "directory":
+        if (is_null($this->_parts)) {
+          $this->_parts = $this->_split();
+        }
+        return trim($this->_parts['dirname'], '/');
+        break;
+      case "name":
+        if (is_null($this->_parts)) {
+          $this->_parts = $this->_split();
+        }
+        return $this->_parts['basename'];
+        break;
+      case "qStack":
+        parse_str($this->_query, $stack);
+        return $stack;
+        break;
+      default:
+        throw new Exception(__METHOD__ . " - Property " . $name . " not defined!");
+        break;
+    }
+  }
+
+  public function __set($name, $value)
+  {
+    switch($name) {
+      default:
+        throw new Exception(__METHOD__ . " - Property " . $name . " not defined!");
+        break;
+    }
+  }
+
+  private function _split()
+  {
+    $parts = pathinfo($this->_fullName);
+    return $parts;
+  }
 }

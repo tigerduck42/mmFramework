@@ -1,7 +1,7 @@
 <?php
 /**
  * The MIT License (MIT)
- * Copyright (c) 2013 Martin Mitterhauser
+ * Copyright (c) 2015
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,10 @@
  *
  *
  * @link https://github.com/tigerduck42/mmFramework
- * @copyright 2013 Martin Mitterhauser
- * @author Martin Mitterhauser <martin.mitterhauser at gmail.com>
+ * @copyright 2015 Martin Mitterhauser
+ * @author Martin Mitterhauser <martin.mitterhauser (at) gmail.com>
  * @package MmFramework
- * @version 1.0
+ * @version 2.0
  */
 
 namespace mmFramework;
@@ -38,6 +38,7 @@ class Logger
   const LOG_FILE    = 2;
   const LOG_DB      = 4;
   const LOG_MAIL    = 8;
+  const LOG_RETURN  = 16;
 
   private $_withTimestamp  = FALSE;
   private $_handleType     = 1;
@@ -51,13 +52,25 @@ class Logger
   // File settings
   private $_fileName       = NULL;
 
+  private $_styleStack = array(
+    'reset' => "\e[0m",
+
+    'red'   => "\e[91m",
+    'green' => "\e[92m",
+
+    'bold'  => "\e[1m",
+  );
+
+
 
   public function __construct($type = self::LOG_CONSOLE)
   {
     $this->_handleType = $type;
+  }
 
-    // Set defaults for Mail
-    if (self::LOG_MAIL & $this->_handleType) {
+  private function _setupMail()
+  {
+    if (is_null($this->_toAddress)) {
       $config = Config::getInstance();
       $this->_toAddress   = $config->errorEmail;
       $this->_fromAddress = $config->errorEmail;
@@ -91,10 +104,25 @@ class Logger
     }
   }
 
-  public function write($msg)
+
+  public function mail($msg)
+  {
+    $oldType       = $this->_handleType;
+    $oldTSHandling = $this->_withTimestamp;
+
+    $this->_handleType    = self::LOG_MAIL;
+    $this->_withTimestamp = FALSE;
+
+    $this->write($msg);
+
+    $this->_handleType    = $oldType;
+    $this->_withTimestamp = $oldTSHandling;
+  }
+
+  public function write($msg, $format = NULL)
   {
 
-    $logMsg = $this->_build($msg);
+    $logMsg = $this->_build($msg, $format);
 
     if (self::LOG_CONSOLE & $this->_handleType) {
       echo $logMsg . "\n";
@@ -119,10 +147,27 @@ class Logger
     if (self::LOG_MAIL & $this->_handleType) {
       self::_mail($logMsg);
     }
+
+    if (self::LOG_RETURN & $this->_handleType) {
+      return $logMsg;
+    }
   }
 
-  private function _build($msg)
+  private function _build($msg, $format = NULL)
   {
+    if (!is_null($format)) {
+      $parts = explode("|", $format);
+      $styledMsg = '';
+      foreach ($parts as $style) {
+        if (isset($this->_styleStack[$style])) {
+          $styledMsg .= $this->_styleStack[$style];
+        }
+      }
+      $styledMsg .= $msg;
+      $styledMsg .= $this->_styleStack['reset'];
+      $msg = $styledMsg;
+    }
+
     if ($this->_withTimestamp) {
       $msg = '[' . date('r') . '] - ' . $msg;
     }
@@ -132,6 +177,8 @@ class Logger
 
   private function _mail($msg)
   {
+    $this->_setupMail();
+
     $mail = new MyMailer();
     $mail->From = $this->_fromAddress;
     $mail->FromName = $this->_fromName;
