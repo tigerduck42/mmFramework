@@ -74,7 +74,7 @@ class GetOpt
   public function activate()
   {
     if (!isset($this->_optStack['help'])) {
-      $this->add('Show this usage screen', '?', 'help');
+      $this->add('Show this usage screen', 'h', 'help');
     }
 
     $optionString = "";
@@ -115,6 +115,10 @@ class GetOpt
       } else {
         $this->_theStack[$opt['name']] = FALSE;
       }
+    }
+
+    if (isset($this->_theStack['help']) && (1 == $this->_theStack['help'])) {
+      $this->_usage();
     }
   }
 
