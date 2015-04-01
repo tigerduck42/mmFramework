@@ -35,6 +35,8 @@ class Filter
 {
   private $_filterStack = array();
   private $_dbConfig = NULL;
+  private $_queryStack = array();
+  private $_orderStack = array();
 
   public function __construct($dbConfig = 'default')
   {
@@ -81,6 +83,27 @@ class Filter
     }
   }
 
+  public function addQuery($sql, $tag = NULL)
+  {
+    if (!is_null($tag)) {
+      if (isset($this->_filterStack[$tag])) {
+        throw new Exception(get_class($this) . ":: - Tag " . $tag . " already used!");
+      }
+      $this->_queryStack[$tag] = $sql;
+    } else {
+      $this->_queryStack[] = $sql;
+    }
+  }
+
+  public function addOrder($name, $sort = "ASC")
+  {
+    $item = new \StdClass();
+    $item->name = $name;
+    $item->sort = $sort;
+
+    $this->_orderStack[] = $item;
+  }
+
   public function remove($tag)
   {
     if (isset($this->_filterStack[$tag])) {
@@ -93,6 +116,7 @@ class Filter
     $sql = "";
 
     $whereSent = FALSE;
+    // Add filter values
     foreach ($this->_filterStack as $filter) {
       if ($inclWhereClause && !$whereSent) {
         $sql .= " WHERE ";
@@ -101,6 +125,25 @@ class Filter
         $sql .= " AND ";
       }
       $sql .= $filter->key . " " . $filter->operator . " " . $filter->value;
+    }
+
+    // Add queries
+    foreach ($this->_queryStack as $query) {
+      if ($inclWhereClause && !$whereSent) {
+        $sql .= " WHERE ";
+        $whereSent = TRUE;
+      } else {
+        $sql .= " AND ";
+      }
+      $sql .= $query;
+    }
+
+    if (count($this->_orderStack) > 0) {
+      $sql .= " ORDER BY ";
+      foreach ($this->_orderStack as $order) {
+        $sql .= $order->name . ' ' . $order->sort . ', ';
+      }
+      $sql = rtrim($sql, ", ");
     }
 
     return $sql;
