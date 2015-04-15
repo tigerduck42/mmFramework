@@ -135,7 +135,7 @@ class Filter
       } else {
         $sql .= " AND ";
       }
-      $sql .= $query;
+      $sql .= "(" . $query . ")";
     }
 
     if (count($this->_orderStack) > 0) {
