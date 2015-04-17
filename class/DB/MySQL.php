@@ -71,7 +71,7 @@ class MySQL extends DBCore
 
   public function asFetch()
   {
-    if (!is_null($this->_resultHandle)) {
+    if (FALSE !== $this->_resultHandle) {
       $this->_result = $this->_resultHandle->fetch_assoc();
       return $this->_result;
     } else {
@@ -81,7 +81,7 @@ class MySQL extends DBCore
 
   public function asFetchAll()
   {
-    if (!is_null($this->_resultHandle)) {
+    if (FALSE !== $this->_resultHandle) {
       $this->_result = $this->_resultHandle->fetch_all(MYSQLI_ASSOC);
       return $this->_result;
     } else {

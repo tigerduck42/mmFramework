@@ -75,7 +75,7 @@ abstract class DBCore
         return $this->_threadId();
         break;
       case 'success':
-        return !is_null($this->_resultHandle);
+        return (is_object($this->_resultHandle) || (TRUE === $this->_resultHandle));
         break;
       default:
         throw new Exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
@@ -260,7 +260,7 @@ abstract class DBCore
         trigger_error($errorMessage, E_USER_ERROR);
       }
 
-      $this->_resultHandle = NULL;
+      $this->_resultHandle = FALSE;
     } else {
       switch($queryType) {
         case 'select':
