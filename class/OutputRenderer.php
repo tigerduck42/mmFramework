@@ -185,8 +185,10 @@ abstract class OutputRenderer
   public function detectContentType($string)
   {
     if (extension_loaded('fileinfo') and class_exists('finfo')) {
-      $magic = new finfo(FILEINFO_MIME);
+      $magic = new \finfo(FILEINFO_MIME);
       return $magic->buffer($string);
+    } else {
+      trigger_error("No Content type set", E_USER_ERROR);
     }
     // TODO: throw exception or use fallback if fileinfo not available?
   }
