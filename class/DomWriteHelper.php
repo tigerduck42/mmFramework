@@ -185,9 +185,9 @@ class DomWriteHelper
   private function _top()
   {
     if (empty($this->_docStack)) {
-      $top =& $this->_doc;
+      $top = $this->_doc;
     } else {
-      $top =& end($this->_docStack);
+      $top = end($this->_docStack);
     }
     return $top;
   }
@@ -220,7 +220,7 @@ class DomWriteHelper
     if (!$this->_doc) {
       bomb("Attempted write to NULL document");
     }
-    $node =& $this->_doc->createElement($tag);
+    $node = $this->_doc->createElement($tag);
     $top = $this->_top();
     array_push($this->_docStack, $node);
     array_push($this->_nsStack, end($this->_nsStack));
@@ -248,9 +248,9 @@ class DomWriteHelper
       $node = $this->_doc->createElementNs($nsuri, $tag);
     }
     if (empty($this->_docStack)) {
-      $top =& $this->_doc;
+      $top = $this->_doc;
     } else {
-      $top =& end($this->_docStack);
+      $top = end($this->_docStack);
     }
     array_push($this->_docStack, $node);
     $ns[$prefix] = $nsuri;
@@ -317,8 +317,8 @@ class DomWriteHelper
   {
     //$sanitise = utf8_encode(htmlspecialchars($content)); // changed by andrew 20080903
     $sanitise = $this->encodeToUtf8($content);
-    $node =& $this->_doc->createTextNode((string)$sanitise);
-    $top =& end($this->_docStack);
+    $node = $this->_doc->createTextNode((string)$sanitise);
+    $top = end($this->_docStack);
     if ($top) {
       $top->appendChild($node);
     }
@@ -326,8 +326,8 @@ class DomWriteHelper
 
   public function cdata($content)
   {
-    $node =& $this->_doc->createCDATASection($content);
-    $top =& end($this->_docStack);
+    $node = $this->_doc->createCDATASection($content);
+    $top = end($this->_docStack);
     if ($top) {
       $top->appendChild($node);
     }
@@ -336,8 +336,8 @@ class DomWriteHelper
   public function commentNode($content)
   {
     $sanitise = $this->encodeToUtf8($content);
-    $node =& $this->_doc->createComment((string)$sanitise);
-    $top =& end($this->_docStack);
+    $node = $this->_doc->createComment((string)$sanitise);
+    $top = end($this->_docStack);
     if ($top) {
       $top->appendChild($node);
     } else {
@@ -354,7 +354,7 @@ class DomWriteHelper
 
   public function removeAttribute($name)
   {
-    $top =& end($this->_docStack);
+    $top = end($this->_docStack);
     return $top->removeAttribute($name);
   }
 
@@ -365,7 +365,7 @@ class DomWriteHelper
     if (empty($this->_docStack)) {
       return FALSE;
     } else {
-      $top =& end($this->_docStack);
+      $top = end($this->_docStack);
       return TRUE;
     }
   }
