@@ -34,9 +34,9 @@ namespace mmFramework;
 class Page
 {
 
-  private $_query    = NULL;
-  private $_fullName = NULL;
-  private $_parts    = NULL;
+  protected $_query    = NULL;
+  protected $_fullName = NULL;
+  protected $_parts    = NULL;
 
   public function __construct()
   {
@@ -81,7 +81,7 @@ class Page
     }
   }
 
-  private function _split()
+  protected function _split()
   {
     $parts = pathinfo($this->_fullName);
     return $parts;
