@@ -188,7 +188,11 @@ class HTTP
 
   public static function hostname()
   {
-    $hostname = "Unknown host";
+    $hostname = gethostname();
+
+    if (0 == strlen($hostname)) {
+      $hostname = "Unknown host";
+    }
 
     $tryStack = array(
       'HOSTNAME',
