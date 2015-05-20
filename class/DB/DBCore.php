@@ -134,7 +134,7 @@ abstract class DBCore
     $sql .= " (" . implode(array_keys($quoted), ', ') . ")";
     $sql .= " VALUES (" . implode($quoted, ", ") . ")";
     $this->_query($sql);
-
+    //echo_nice($sql);
     return $this->insertId;
   }
 
@@ -162,7 +162,7 @@ abstract class DBCore
         $sql .=  $id;
       }
     }
-    //echo $sql;
+    //echo_nice($sql);
     $this->_query($sql);
   }
 
