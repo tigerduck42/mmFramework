@@ -135,6 +135,8 @@ class FilterItem
 
         if (preg_match('{^literal::(.+)$}', $value, $match)) {
           $value = $match[1];
+        } else if (preg_match('{^field::(.+)$}', $value, $match)) {
+          $value = '`' . $match[1] . '`';
         } else {
           $db = fw\Database::getInstance();
           $value = "'" . $db->escape($value) . "'";
