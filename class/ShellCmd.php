@@ -33,14 +33,17 @@ namespace mmFramework;
 
 class ShellCmd
 {
-
-  public static function execute($cmd)
+  public static function execute($cmd, $returnLines = FALSE)
   {
     $lines = array();
     $exitStatus = 0;
     $lastLine = exec($cmd, $lines, $exitStatus);
-    foreach ($lines as $line) {
-      trigger_error($line, E_USER_ERROR);
+    if ($returnLines) {
+      return $lines;
+    } else {
+      foreach ($lines as $line) {
+        trigger_error($line, E_USER_ERROR);
+      }
     }
   }
 }
