@@ -29,9 +29,7 @@
  * @version 2.0
  */
 
-namespace appFramework;
-
-use mmFramework as fw;
+namespace mmFramework;
 
 class ShellCmd
 {
