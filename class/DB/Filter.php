@@ -145,7 +145,7 @@ class Filter
     if (count($this->_orderStack) > 0) {
       $sql .= " ORDER BY ";
       foreach ($this->_orderStack as $order) {
-        $sql .= $order->name . ' ' . $order->sort . ', ';
+        $sql .= '`' . $order->name . '` ' . $order->sort . ', ';
       }
       $sql = rtrim($sql, ", ");
     }
