@@ -85,6 +85,7 @@ abstract class DBCore
 
   abstract public function asFetch();
   abstract public function asFetchAll();
+  abstract public function objFetch();
 
   abstract protected function _connect();
   abstract protected function _q($sql);
