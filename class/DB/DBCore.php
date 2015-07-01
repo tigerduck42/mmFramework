@@ -85,6 +85,7 @@ abstract class DBCore
 
   abstract public function asFetch();
   abstract public function asFetchAll();
+  abstract public function objFetch();
 
   abstract protected function _connect();
   abstract protected function _q($sql);
@@ -134,7 +135,7 @@ abstract class DBCore
     $sql .= " (" . implode(array_keys($quoted), ', ') . ")";
     $sql .= " VALUES (" . implode($quoted, ", ") . ")";
     $this->_query($sql);
-
+    //echo_nice($sql);
     return $this->insertId;
   }
 
@@ -162,7 +163,7 @@ abstract class DBCore
         $sql .=  $id;
       }
     }
-    //echo $sql;
+    //echo_nice($sql);
     $this->_query($sql);
   }
 

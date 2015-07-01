@@ -40,10 +40,10 @@ require_once(DIR_FRAMEWORK . '/thirdParty/Smarty3/libs/Smarty.class.php');
  */
 class OutputRendererSmarty extends OutputRenderer
 {
-  private $_template = NULL;
-  private $_templateDirs = NULL;
+  private $_template      = NULL;
+  private $_templateDirs  = NULL;
   private $_templateExtra = NULL;
-  private $_smarty = NULL;
+  private $_smarty        = NULL;
 
   //
   // --------------------------------------------------------------
@@ -113,13 +113,13 @@ class OutputRendererSmarty extends OutputRenderer
     if (TRUE == is_null($templateDir)) {
       $this->_templateDirs = array(DIR_BASE . '/template');
     } else if (is_string($templateDir)) {
-      $this->_templateDirs = array($templateDir);
+      $this->_templateDirs[] = $templateDir;
     } else if (is_array($templateDir)) {
       $this->_templateDirs = $templateDir;
     }
 
     // Set the template directory to be the first entry.
-    $this->_smarty->template_dir = $this->_templateDirs[0];
+    $this->_smarty->template_dir = $this->_templateDirs;
   }
 
   /**

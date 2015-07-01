@@ -68,6 +68,20 @@ class SQLite extends DBCore
     }
   }
 
+  public function obFetch()
+  {
+    $row = $this->asFetch();
+    if (!is_null($row)) {
+      $obj = new \StdClass();
+      foreach ($row as $name => $value) {
+        $obj->$name = $value;
+      }
+      return $obj;
+    } else {
+      return NULL;
+    }
+  }
+
   public function asFetchAll()
   {
     $theList + array();

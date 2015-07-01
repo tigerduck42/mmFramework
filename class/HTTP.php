@@ -220,7 +220,7 @@ class HTTP
           $target = rtrim($target, "/");
 
           if (!file_exists($target)) {
-            mkdir($target);
+            mkdir($target, 0777, TRUE);
           }
 
           if (!is_writeable($target)) {

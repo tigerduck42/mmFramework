@@ -131,7 +131,11 @@ class GetOpt
     $usageString .= "Usage: " . $argv[0] . " [ options ]\n";
     $usageString .= "Options:\n";
     foreach ($this->_optStack as $opt) {
-      $usageString .= "\t" . str_pad("-" . $opt['opt'] . "  --" . $opt['name'], 20) . $opt['text'] . "\n";
+      $param = '';
+      if ($opt['forceValue']) {
+        $param = ' <' . $opt['name'] . '>';
+      }
+      $usageString .= "\t" . str_pad("-" . $opt['opt'] . "  --" . $opt['name'] . $param, 30) . $opt['text'] . "\n";
     }
 
     echo $usageString . "\n";

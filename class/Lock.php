@@ -36,15 +36,12 @@ class Lock
 
   private $_lockPath = '/tmp';
   private $_lockFile = NULL;
+  private $_fileName = NULL;
 
-  public function __construct($key)
+  public function __construct($fileName)
   {
-    $lockFile = $this->_lockPath . "/" . $key . ".lock";
-    if (!is_writable($this->_lockPath)) {
-      throw new Exception(__METHOD__ . ' - Lock file ' . $lockFile . " is not writable!");
-    }
-
-    $this->_lockFile = $lockFile;
+    $this->_fileName = $fileName;
+    $this->_setLockFile();
   }
 
   public function __get($name)
@@ -70,6 +67,18 @@ class Lock
   public function __set($name, $value)
   {
     switch($name) {
+      case 'lockPath':
+        if (file_exists($value)) {
+          $this->_lockPath = $value;
+          $this->_setLockFile();
+        } else {
+          trigger_error('Directory ' . $value . ' can\'t be found!');
+        }
+        break;
+      case 'fileName':
+        $this->_fileName = $value;
+        $this->_setLockFile();
+        break;
       default:
         throw new Exception(__METHOD__ . " - Property " . $name . " not defined!");
         break;
@@ -95,6 +104,16 @@ class Lock
     if ($this->isRunning) {
       unlink($this->_lockFile);
     }
+  }
+
+  private function _setLockFile()
+  {
+    $lockFile = $this->_lockPath . "/" . $this->_fileName . ".lock";
+    if (!is_writable($this->_lockPath)) {
+      throw new Exception(__METHOD__ . ' - Lock file ' . $lockFile . " is not writable!");
+    }
+
+    $this->_lockFile = $lockFile;
   }
 
   private function _writeLock()

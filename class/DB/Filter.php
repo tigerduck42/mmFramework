@@ -34,9 +34,10 @@ namespace mmFramework\DB;
 class Filter
 {
   private $_filterStack = array();
-  private $_dbConfig = NULL;
-  private $_queryStack = array();
-  private $_orderStack = array();
+  private $_dbConfig    = NULL;
+  private $_queryStack  = array();
+  private $_orderStack  = array();
+  private $_limit       = NULL;
 
   public function __construct($dbConfig = 'default')
   {
@@ -56,6 +57,9 @@ class Filter
   public function __set($name, $value)
   {
     switch($name) {
+      case 'limit':
+        $this->_limit = $value;
+        break;
       default:
         throw new Exception(get_class($this) . "::__set() - Property " . $name . " not defined!");
         break;
@@ -141,9 +145,13 @@ class Filter
     if (count($this->_orderStack) > 0) {
       $sql .= " ORDER BY ";
       foreach ($this->_orderStack as $order) {
-        $sql .= $order->name . ' ' . $order->sort . ', ';
+        $sql .= '`' . $order->name . '` ' . $order->sort . ', ';
       }
       $sql = rtrim($sql, ", ");
+    }
+
+    if (!is_null($this->_limit) && $this->_limit > 0) {
+      $sql .= " LIMIT " . $this->_limit;
     }
 
     return $sql;
