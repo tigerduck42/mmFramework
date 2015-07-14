@@ -79,6 +79,16 @@ class MySQL extends DBCore
     }
   }
 
+  public function objFetch()
+  {
+    if (FALSE !== $this->_resultHandle) {
+      $this->_result = $this->_resultHandle->fetch_object();
+      return $this->_result;
+    } else {
+      return FALSE;
+    }
+  }
+
   public function asFetchAll()
   {
     if (FALSE !== $this->_resultHandle) {
