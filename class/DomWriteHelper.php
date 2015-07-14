@@ -484,6 +484,7 @@ class DomWriteHelper
 
     $this->_doc = new \DOMDocument('1.0', $this->_encoding);
     $this->_doc->preserveWhiteSpace = FALSE;
+    libxml_clear_errors();
     libxml_use_internal_errors(TRUE);
     if (defined(LIBXML_COMPACT)) {
       $this->_doc->loadXML($xml, LIBXML_COMPACT);
