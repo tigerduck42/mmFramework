@@ -50,6 +50,10 @@ class Database
         require_once(DIR_FRAMEWORK . "/class/DB/MySQL.php");
         return DB\MySQL::getInstance($dbConfig);
         break;
+      case 'mssql':
+        require_once(DIR_FRAMEWORK . "/class/DB/MsSQL.php");
+        return DB\MsSQL::getInstance($dbConfig);
+        break;
       default:
         throw new Exception(__CLASS__ . " - Connector not defined!");
         break;
