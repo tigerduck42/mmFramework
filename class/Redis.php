@@ -31,23 +31,28 @@
 
 namespace mmFramework;
 
+use mmFramework as fw;
+
 class Redis extends \Redis
 {
-  private $_useRedis = TRUE;
+
+  private static $_useRedis = TRUE;
 
   public function __construct()
   {
     $config = Config::getInstance();
 
-    try {
-      parent::__construct();
-      $success = $this->connect($config->redisHost);
-      if (!$success) {
-        throw new \RedisException("Can't connect to Redis server " . $config->redisHost);
+    if (self::$_useRedis) {
+      try {
+        parent::__construct();
+        $success = $this->pconnect($config->redisHost);
+        if (!$success) {
+          throw new \RedisException("Can't connect to Redis server " . $config->redisHost);
+        }
+      } catch (\RedisException $ex) {
+        self::$_useRedis = FALSE;
+        trigger_error($ex->getMessage(), E_USER_ERROR);
       }
-    } catch (\RedisException $ex) {
-      $this->_useRedis = FALSE;
-      trigger_error($ex->getMessage(), E_USER_ERROR);
     }
   }
 
@@ -55,11 +60,78 @@ class Redis extends \Redis
   {
     switch($name) {
       case "useRedis":
-        return $this->_useRedis;
+        return self::$_useRedis;
         break;
       default:
         throw new Exception(__METHOD__ . " - Parameter " . $name . " not defined!");
         break;
     }
+  }
+
+
+  public function get($key)
+  {
+    if (!self::$_useRedis || !parent::exists($key)) {
+      return FALSE;
+    }
+
+    $type = parent::hget($key, 'type');
+    $data = parent::hget($key, 'data');
+
+    if ((FALSE === $type) || (FALSE === $data)) {
+      echo_nice("DELLLLLLLL");
+      parent::del($key);
+      return FALSE;
+    }
+
+    switch($type) {
+      case 'serialize|object':
+      case 'serialize|array':
+        $data = unserialize($data);
+        break;
+      case 'json|object':
+        $data = fw\Json::decode($data);
+        break;
+      case 'json|array':
+        $data = fw\Json::decode($data, TRUE);
+        break;
+    }
+
+    return $data;
+  }
+
+  public function set($key, $data)
+  {
+    if (!self::$_useRedis) {
+      return FALSE;
+    }
+
+    $type = 'string';
+    switch(TRUE) {
+      case is_array($data):
+        $data = fw\Json::encode($data);
+        $type = 'json|array';
+        break;
+      case is_object($data):
+        $data = serialize($data);
+        $type = 'serialize|object';
+        break;
+    }
+
+    $success1 =  parent::hset($key, 'data', $data);
+    $success2 = parent::hset($key, 'type', $type);
+    $success = (FALSE !== $success1) & (FALSE !== $success2);
+    if (!$success) {
+      parent::del($key);
+    }
+    return (bool)$success;
+  }
+
+  public function del($key)
+  {
+    if (self::$_useRedis) {
+      return parent::del($key);
+    }
+    return 0;
   }
 }
