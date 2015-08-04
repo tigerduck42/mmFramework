@@ -79,7 +79,7 @@ class Redis extends \Redis
     $data = parent::hget($key, 'data');
 
     if ((FALSE === $type) || (FALSE === $data)) {
-      echo_nice("DELLLLLLLL");
+      //echo_nice("DELLLLLLLL");
       parent::del($key);
       return FALSE;
     }
