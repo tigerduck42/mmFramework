@@ -38,10 +38,18 @@ class Page
   protected $_fullName = NULL;
   protected $_parts    = NULL;
 
-  public function __construct()
+  public function __construct($url = NULL)
   {
-    $this->_query    = HTTP::server('QUERY_STRING');
-    $this->_fullName = HTTP::server('SCRIPT_NAME');
+    if (is_null($url)) {
+      $this->_query    = HTTP::server('QUERY_STRING');
+      $this->_fullName = HTTP::server('SCRIPT_NAME');
+    } else {
+      $parts = explode('?', $url);
+      $this->_fullName = $parts[0];
+      if (isset($parts[1])) {
+        $this->_query = $parts[1];
+      }
+    }
   }
 
   public function __get($name)
