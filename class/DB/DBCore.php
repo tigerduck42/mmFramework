@@ -139,6 +139,19 @@ abstract class DBCore
     return $this->insertId;
   }
 
+  public function insertMutex($table, $row, $uKey, $uValue)
+  {
+    $quoted = $this->_quoteValues($row);
+
+    $sql = "INSERT INTO `" . $table . "`";
+    $sql .= " (" . implode(array_keys($quoted), ', ') . ")";
+    $sql .= " VALUES (" . implode($quoted, ", ") . ")";
+    $sql .= " ON DUPLICATE KEY UPDATE `" . $uKey ."` = '" . $uValue . "'";
+    $this->_query($sql);
+    //echo_nice($sql);
+    return $this->insertId;
+  }
+
 
   public function update($table, $row, $id, $customIdName = NULL)
   {
@@ -303,5 +316,14 @@ abstract class DBCore
   public function escape($value)
   {
     return $this->_escape($value);
+  }
+
+  public function info()
+  {
+    $info = array();
+    $info['threadId'] = $this->threadId;
+    $info['inTransaction'] = $this->_inTransaction;
+
+    return $info;
   }
 }
