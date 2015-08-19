@@ -68,7 +68,7 @@ class Config
   private $_reservedStack         = array();
   private $_userDefinedStack      = array();
   private $_databaseStack         = array();
-
+  private $_customSectionStack    = array();
 
   private function __construct()
   {
@@ -100,18 +100,6 @@ class Config
       $reserved[] = $attrib;
     }
     $this->_reservedStack = $reserved;
-
-    // Init default db settings
-    $dbSetting =
-    $this->_databaseStack['default'] = array (
-      'dbConnector' => 'mysql',
-      'dbHost'      => 'localhost',
-      'dbPort'      => 3306,
-      'dbName'      => NULL,
-      'dbUser'      => NULL,
-      'dbPassword'  => NULL,
-      'dbCharset'   => 'utf8',
-    );
 
     $this->_parseConfigs();
 
@@ -145,18 +133,14 @@ class Config
           // Get sections ...
           $section = trim($match[1]);
 
-          $subsection = NULL;
+          $subSection = NULL;
           if (isset($match[2])) {
-            $subsection = trim($match[2]);
+            $subSection = trim($match[2]);
           }
         } else if (preg_match('{(.+)=(.+)}', $line, $match)) {
           // Check if we have a valid section
           if (is_null($section)) {
             throw new Exception(__METHOD__ . " - No config section found in " . $configFile);
-          }
-
-          if (!in_array($section, self::$_validSections)) {
-            throw new Exception(__METHOD__ . " - " . $section . " is not a valid section!");
           }
 
           // Get config ...
@@ -173,22 +157,27 @@ class Config
               $privateKey = '_' . $key;
               $this->$privateKey = $value;
               break;
-            case 'db':
-              if (!is_null($subsection)) {
-                if (!isset($this->_databaseStack[$subsection])) {
-                  $this->_databaseStack[$subsection] = $this->_databaseStack['default'];
-                }
-                $this->_databaseStack[$subsection][$key] =  $value;
-              } else {
-                $this->_databaseStack['default'][$key] =  $value;
-              }
-              break;
             case 'userdefined':
               if (in_array($key, $this->_reservedStack)) {
                 trigger_error("User defined parameter '" . $key . "' is reserved (" . $configFile . ")", E_USER_WARNING);
               } else {
                 $this->_userDefinedStack[$key] = $value;
               }
+              break;
+            default:
+              // Check if section node exists
+              if (!isset($this->_customSectionStack[$section])) {
+                $this->_customSectionStack[$section] = array();
+              }
+
+              if (is_null($subSection)) {
+                $subSection = 'default';
+              }
+
+              if (!isset($this->_customSectionStack[$section][$subSection])) {
+                $this->_customSectionStack[$section][$subSection] = array();
+              }
+              $this->_customSectionStack[$section][$subSection][$key] =  $value;
               break;
           }
         }
@@ -289,10 +278,43 @@ class Config
             return $value;
           }
         } else {
-          trigger_error(__CLASS__ . "::Getter - Attribute " . $name . " not defined!", E_USER_ERROR);
+          if (!in_array($name, self::$_validSections)) {
+            throw new Exception(__METHOD__ . " - " . $name . " is not a valid section!");
+          }
+          $sectionKeys = array_keys($this->_customSectionStack);
+          if (in_array($name, $sectionKeys)) {
+            return $this->_sectionStack($name);
+          } else {
+            trigger_error(__CLASS__ . "::Getter - Attribute " . $name . " not defined!", E_USER_ERROR);
+          }
         }
         break;
     }
+  }
+
+  private function _sectionStack($section)
+  {
+    $sectionStack = $this->_customSectionStack[$section];
+
+    foreach ($sectionStack as $subSection => $theList) {
+      if ('default' == $subSection) {
+        continue;
+      }
+      if (isset($sectionStack['default'])) {
+        $sectionStack[$subSection] = array_merge($sectionStack['default'], $sectionStack[$subSection]);
+      }
+    }
+
+    $theStack = array();
+    foreach ($sectionStack as $subSection => $theList) {
+      $node = new \StdClass();
+      foreach ($theList as $key => $value) {
+        $node->$key = $value;
+      }
+      $theStack[$subSection] = $node;
+    }
+
+    return $theStack;
   }
 
   private function _fixBoolean($check)
@@ -328,5 +350,14 @@ class Config
   public function __clone()
   {
     trigger_error('Clone is not allowed.', E_USER_ERROR);
+  }
+
+  public static function registerSection($sectionName)
+  {
+    if (in_array($sectionName, self::$_validSections)) {
+      trigger_error(__METHOD__ . ' - Section ' . $sectionName . ' already registered.');
+    } else {
+      self::$_validSections[] = $sectionName;
+    }
   }
 }

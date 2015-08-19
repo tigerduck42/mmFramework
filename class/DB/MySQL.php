@@ -52,19 +52,27 @@ class MySQL extends DBCore
   {
     $config = fw\Config::getInstance();
 
-    if (!isset($config->dbConfiguration[$dbConfig])) {
+    if (!isset($config->db[$dbConfig])) {
       throw new Exception(__METHOD__ . " - No database config '" . $dbConfig . "' defined!");
     }
 
-    $conf = $config->dbConfiguration[$dbConfig];
+    // Set mysql core defaults
+    $dbConf = $config->db[$dbConfig];
+    if (!property_exists($dbConf, 'dbPort')) {
+      $dbConf->dbPort = 3306;
+    }
 
-    $this->_link = new \mysqli($conf['dbHost'], $conf['dbUser'], $conf['dbPassword'], $conf['dbName'], $conf['dbPort']);
+    if (!property_exists($dbConf, 'dbCharset')) {
+      $dbConf->dbCharset = 'utf8';
+    }
+
+    $this->_link = new \mysqli($dbConf->dbHost, $dbConf->dbUser, $dbConf->dbPassword, $dbConf->dbName, $dbConf->dbPort);
 
     if ($this->_link->connect_error) {
       throw new Exception('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
     }
 
-    $this->_link->set_charset($conf['dbCharset']);
+    $this->_link->set_charset($dbConf->dbCharset);
 
     $this->_checkError();
   }

@@ -37,11 +37,11 @@ class Database
   {
     $config = Config::getInstance();
 
-    if (!isset($config->dbConfiguration[$dbConfig])) {
+    if (!isset($config->db[$dbConfig])) {
       throw new Exception(__METHOD__ . " - No database config '" . $dbConfig . "' defined!");
     }
 
-    switch(strtolower($config->dbConfiguration[$dbConfig]['dbConnector'])) {
+    switch(strtolower($config->db[$dbConfig]->dbConnector)) {
       case 'sqllite':
         require_once(DIR_FRAMEWORK . "/class/DB/SQLite.php");
         return new DB\SQLite($dbConfig);
