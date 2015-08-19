@@ -13,15 +13,15 @@ function customError($no, $string, $file, $line, $context)
 
   if ($config->isDevServer) {
     if ($api == 'cli') {
-      $hError = new ErrorHandler(ErrorHandler::CLI);
+      $hError = new ErrorHandle(ErrorHandle::CLI);
     } else {
-      $hError = new ErrorHandler(ErrorHandler::WEB | ErrorHandler::LOG);
+      $hError = new ErrorHandle(ErrorHandle::WEB | ErrorHandle::LOG);
     }
   } else {
     if ($api == 'cli') {
-      $hError = new ErrorHandler(ErrorHandler::CLI | ErrorHandler::MAIL);
+      $hError = new ErrorHandle(ErrorHandle::CLI | ErrorHandle::MAIL);
     } else {
-      $hError = new ErrorHandler(ErrorHandler::MAIL | ErrorHandler::LOG);
+      $hError = new ErrorHandle(ErrorHandle::MAIL | ErrorHandle::LOG);
     }
   }
 
@@ -41,7 +41,7 @@ function customError($no, $string, $file, $line, $context)
 function customException($ex)
 {
   //ini_set('memory_limit', '-1');
-  $errorString  = ": Uncaught " . $ex->__toString();
+  $errorString  = "Uncaught " . $ex->__toString();
   $errorString .= " thrown in <b>" . $ex->getFile() . "</b> on line <b>" . $ex->getLine() . "</b><br/>";
 
   $traceStack = $ex->getTrace();
@@ -54,6 +54,16 @@ function customException($ex)
   }
 
   customError(0, nl2br($errorString), $ex->getFile(), $ex->getLine(), $reducedStack);
+
+  $config = Config::getInstance();
+  if (!$config->isDevServer) {
+    if (file_exists(DIR_BASE . '/html/error.php')) {
+      $errorHash = base64_encode(serialize('Error: ' . $errorString));
+      HTTP::redirect('/error.php?ec=500&eh=' . $errorHash);
+    } else {
+      echo "Fatal Error: " . $errorString;
+    }
+  }
 }
 
 

@@ -39,7 +39,7 @@ class Json
 
     $jsonErrCode = json_last_error();
     if ($jsonErrCode > 0) {
-      throw new Exception(__METHOD__ . " - Json Error: " .  ErrorHandler::getErrorCode('JSON_ERR', $jsonErrCode));
+      throw new Exception(__METHOD__ . " - Json Error: " .  ErrorHandle::getErrorCode('JSON_ERR', $jsonErrCode));
       exit;
     }
 
@@ -52,7 +52,7 @@ class Json
 
     $jsonErrCode = json_last_error();
     if ($jsonErrCode > 0) {
-      throw new Exception(__METHOD__ . " - Json Error: " .  ErrorHandler::getErrorCode('JSON_ERR', $jsonErrCode));
+      throw new Exception(__METHOD__ . " - Json Error: " .  ErrorHandle::getErrorCode('JSON_ERR', $jsonErrCode));
       exit;
     }
 

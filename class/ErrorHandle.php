@@ -31,7 +31,7 @@
 
 namespace mmFramework;
 
-class ErrorHandler
+class ErrorHandle
 {
 
   const WEB  = 1;

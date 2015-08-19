@@ -244,7 +244,7 @@ class HTTP
           $file = NULL;
           break;
         default:
-          $errorKey = ErrorHandler::getErrorCode('UPLOAD_ERR', $file['error']);
+          $errorKey = ErrorHandle::getErrorCode('UPLOAD_ERR', $file['error']);
           trigger_error(__METHOD__ . " - Fileupload failed with error " . $errorKey);
           break;
       }
