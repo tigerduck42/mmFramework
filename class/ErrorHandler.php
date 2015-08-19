@@ -40,6 +40,7 @@ class ErrorHandler
   const LOG  = 8;
 
   public static $mask = 0;
+
   private static $_errorCount = 0;
   private static $_stylesInjected = FALSE;
 
@@ -90,7 +91,6 @@ class ErrorHandler
 
   public function output()
   {
-
     // Skip error/warning if flagging mask is set
     if ($this->_no & self::$mask) {
       return;
@@ -115,14 +115,28 @@ class ErrorHandler
 
   private function _outputWeb()
   {
-    echo $this->_buildMessageBox();
+    if (!self::$_stylesInjected) {
+      echo $this->_injectStyle();
+      self::$_stylesInjected = TRUE;
+    }
+    echo $this->_buildMessageBox(FALSE);
   }
 
-  private function _outputCli()
+  private function _outputCli($return = FALSE)
   {
-    $msg = $this->_buildMessageBox(FALSE, FALSE);
+    $msg = $this->_buildMessageBox(FALSE);
     $msg = preg_replace('{<br\/?\>}', "\n", $msg);
-    echo strip_tags($msg);
+    $msg = strip_tags($msg);
+
+    $pad = str_pad("\n", 150, "-", STR_PAD_LEFT);
+
+    if ($return) {
+      $msg = $pad . $msg;
+      return $msg;
+    } else {
+      $msg = $pad . "Time: " . date('r') . "\n" . $msg . $pad;
+      echo $msg;
+    }
   }
 
   private function _outputLog()
@@ -137,17 +151,14 @@ class ErrorHandler
 
     $info = pathinfo($config->errorLog);
     if (is_writeable($info['dirname'])) {
-      $msg = $this->_buildMessageBox();
-      // clean up ...
-      $msg = preg_replace('{<br\/?\>}', "\n", $msg);
-      $msg = strip_tags($msg);
+      $msg = $this->_outputCli(TRUE);
 
       // add date and time in front of the line
       $lines = explode("\n", $msg);
-      $msg = str_pad("\n", 120, "-", STR_PAD_LEFT);
+      $msg = '';
       foreach ($lines as $line) {
         if (strlen($line) > 0) {
-          $msg .= "[" . date("Y-m-d H:i:s") . "] - " . $line . "\n";
+          $msg .= "[" . date('r') . "] - " . $line . "\n";
         }
       }
 
@@ -159,12 +170,42 @@ class ErrorHandler
     }
   }
 
-  private function _buildMessageBox($addContext = FALSE, $injectStyles = TRUE)
+  private function _outputMail()
   {
-    $html = '';
+    $body  = $this->_injectStyle();
+    $body .= $this->_buildMessageBox(TRUE);
+    echo $this->_send($body);
+  }
 
-    if ($injectStyles && !self::$_stylesInjected) {
-      $html .= '
+  public function send($msg)
+  {
+    echo $this->_send("<p>" . $msg . "</p>");
+  }
+
+  private function _send($msg)
+  {
+    $mail = new MyMailer();
+    $mail->From = $this->_mailTo;
+    $mail->FromName = "WEBError";
+    $mail->AddAddress($this->_mailTo, "WebAdmin");
+    $mail->Subject = "";
+    if (self::$_errorCount == 10) {
+      $mail->Subject .= "[BLOCKED] ";
+    }
+    $mail->Subject .= "Error on " . HTTP::hostname();
+    $mail->IsHTML();
+    $mail->setBody($msg);
+
+    if (self::$_errorCount <=  10) {
+      if (!$mail->Send()) {
+        return $mail->ErrorInfo . "<br/>";
+      }
+    }
+  }
+
+  private function _injectStyle()
+  {
+    $style = '
       <style type="text/css">
         .__error__ {
           margin: 20px 20px;
@@ -178,14 +219,22 @@ class ErrorHandler
           z-index: 1000000;
           position: relative;
         }
+
+         strong {
+          font-weight: bold;
+        }
       </style>
       ';
-      self::$_stylesInjected = TRUE;
-    }
+    return $style;
+  }
 
+  private function _buildMessageBox($addContext)
+  {
+    $html = '';
     $html .= '<div class="__error__">';
-    $html .= '<b>Error:</b> ' . $this->_string . '<br/>';
-    $html .= '<b>File:</b> ' . $this->_file  . ' (' . $this->_line  . ')<br/>';
+    $html .= '<strong>Time:</strong> ' . date('r') . '<br/>';
+    $html .= '<strong>Error:</strong> ' . $this->_string . '<br/>';
+    $html .= '<strong>File:</strong> ' . $this->_file  . ' (' . $this->_line  . ')<br/>';
 
     $stackCore = array_reverse(debug_backtrace());
 
@@ -237,42 +286,9 @@ class ErrorHandler
       $html .= '<pre>' . print_r($this->_context, TRUE) . '</pre>';
     }
 
-    $html .= '</div>';
+    $html .= "</div>\n";
 
     return $html;
-  }
-
-
-  private function _outputMail()
-  {
-    $body = $this->_buildMessageBox(TRUE);
-    echo $this->_send($body);
-  }
-
-  public function send($msg)
-  {
-    echo $this->_send("<p>" . $msg . "</p>");
-  }
-
-  private function _send($msg)
-  {
-    $mail = new MyMailer();
-    $mail->From = $this->_mailTo;
-    $mail->FromName = "WEBError";
-    $mail->AddAddress($this->_mailTo, "WebAdmin");
-    $mail->Subject = "";
-    if (self::$_errorCount == 10) {
-      $mail->Subject .= "[BLOCKED] ";
-    }
-    $mail->Subject .= "Error on " . HTTP::hostname();
-    $mail->IsHTML();
-    $mail->setBody($msg);
-
-    if (self::$_errorCount <=  10) {
-      if (!$mail->Send()) {
-        return $mail->ErrorInfo . "<br/>";
-      }
-    }
   }
 
   public static function disable($mask)

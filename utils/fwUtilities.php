@@ -21,7 +21,7 @@ function customError($no, $string, $file, $line, $context)
     if ($api == 'cli') {
       $hError = new ErrorHandler(ErrorHandler::CLI | ErrorHandler::MAIL);
     } else {
-      $hError = new ErrorHandler(ErrorHandler::MAIL);
+      $hError = new ErrorHandler(ErrorHandler::MAIL | ErrorHandler::LOG);
     }
   }
 
