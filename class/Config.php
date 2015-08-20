@@ -67,7 +67,6 @@ class Config
   private $_configFileStack       = array();
   private $_reservedStack         = array();
   private $_userDefinedStack      = array();
-  private $_databaseStack         = array();
   private $_customSectionStack    = array();
 
   private function __construct()
@@ -259,13 +258,10 @@ class Config
         return $this->_errorEmail;
         break;
       case 'mailOverRide':
-        if (!is_null($this->_mailOverRide) && !fw\MyMailer::ValidateAddress($this->_errorEmail)) {
-          throw new Exception(__METHOD__ . " - Error email not defined!");
+        if (!is_null($this->_mailOverRide) && !fw\MyMailer::ValidateAddress($this->_mailOverRide)) {
+          throw new Exception(__METHOD__ . " - Override email not defined!");
         }
         return $this->_mailOverRide;
-        break;
-      case 'dbConfiguration':
-        return $this->_databaseStack;
         break;
       default:
         if (isset($this->_userDefinedStack[$name])) {
