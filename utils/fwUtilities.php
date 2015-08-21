@@ -58,7 +58,7 @@ function customException($ex)
   $config = Config::getInstance();
   if (!$config->isDevServer) {
     if (file_exists(DIR_BASE . '/html/error.php')) {
-      $errorHash = base64_encode(serialize('Error: ' . $errorString));
+      $errorHash = urlencode(base64_encode(serialize('Error: ' . $errorString)));
       HTTP::redirect('/error.php?ec=500&eh=' . $errorHash);
     } else {
       echo "Fatal Error: " . $errorString;
