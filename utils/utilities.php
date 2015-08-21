@@ -1,4 +1,5 @@
 <?php
+use mmFramework as fw;
 
 function print_r_nice($data, $return = FALSE)
 {
@@ -44,4 +45,21 @@ function substrAdv($str, &$start, $len)
   $subString = trim(substr($str, $start, $len));
   $start += $len;
   return $subString;
+}
+
+function myObClean()
+{
+  $debugCode = NULL;
+  if (ob_get_length()) {
+    $debugCode = ob_get_contents();
+
+    $noticeHandler = new fw\ErrorHandle();
+    $page = new fw\Page();
+    $msg = '<strong>Found something hidden on the following page "' . $page->url . '"</strong>
+    <pre>' . $debugCode . '</pre>';
+    $noticeHandler->send($msg);
+
+    ob_clean();
+  }
+  return $debugCode;
 }
