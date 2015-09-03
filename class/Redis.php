@@ -49,6 +49,14 @@ class Redis extends \Redis
         if (!$success) {
           throw new \RedisException("Can't connect to Redis server " . $config->redisHost);
         }
+
+        // Select specific database
+        if ($config->exists('redisDb')) {
+          if (!parent::select($config->redisDb)) {
+            throw new \RedisException("Can't select database " . $config->redisDb);
+          }
+        }
+
       } catch (\RedisException $ex) {
         self::$_useRedis = FALSE;
         trigger_error($ex->getMessage(), E_USER_ERROR);
