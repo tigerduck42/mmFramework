@@ -33,7 +33,7 @@ namespace mmFramework\DB;
 
 use mmFramework as fw;
 
-class MySQL extends DBCore
+class MySQL extends Core
 {
   private static $_obj = array();
 
