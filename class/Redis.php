@@ -80,7 +80,7 @@ class Redis extends \Redis
   public function get($key)
   {
     if (!self::$_useRedis || !parent::exists($key)) {
-      return FALSE;
+      return NULL;
     }
 
     $type = parent::hget($key, 'type');
@@ -89,7 +89,7 @@ class Redis extends \Redis
     if ((FALSE === $type) || (FALSE === $data)) {
       //echo_nice("DELLLLLLLL");
       parent::del($key);
-      return FALSE;
+      return NULL;
     }
 
     switch($type) {
