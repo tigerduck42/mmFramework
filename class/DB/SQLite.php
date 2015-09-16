@@ -33,7 +33,7 @@ namespace mmFramework\DB;
 
 use mmFramework as fw;
 
-class SQLite extends DBCore
+class SQLite extends Core
 {
 
   protected function _connect($dbConfig = 'default')

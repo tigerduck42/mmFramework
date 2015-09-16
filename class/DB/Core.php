@@ -33,7 +33,7 @@ namespace mmFramework\DB;
 
 use mmFramework as fw;
 
-abstract class DBCore
+abstract class Core
 {
   protected $_link          = NULL;
   protected $_rows          = NULL;

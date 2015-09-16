@@ -38,14 +38,14 @@ class Redis extends \Redis
 
   private static $_useRedis = TRUE;
 
-  public function __construct()
+  public function __construct($timeOut = 2)
   {
     $config = Config::getInstance();
 
     if (self::$_useRedis) {
       try {
         parent::__construct();
-        $success = $this->pconnect($config->redisHost);
+        $success = $this->pconnect($config->redisHost, NULL, $timeOut);
         if (!$success) {
           throw new \RedisException("Can't connect to Redis server " . $config->redisHost);
         }
@@ -59,7 +59,7 @@ class Redis extends \Redis
 
       } catch (\RedisException $ex) {
         self::$_useRedis = FALSE;
-        trigger_error($ex->getMessage(), E_USER_ERROR);
+        //trigger_error($ex->getMessage(), E_USER_ERROR);
       }
     }
   }
@@ -80,7 +80,7 @@ class Redis extends \Redis
   public function get($key)
   {
     if (!self::$_useRedis || !parent::exists($key)) {
-      return FALSE;
+      return NULL;
     }
 
     $type = parent::hget($key, 'type');
@@ -89,7 +89,7 @@ class Redis extends \Redis
     if ((FALSE === $type) || (FALSE === $data)) {
       //echo_nice("DELLLLLLLL");
       parent::del($key);
-      return FALSE;
+      return NULL;
     }
 
     switch($type) {
@@ -126,7 +126,7 @@ class Redis extends \Redis
         break;
     }
 
-    $success1 =  parent::hset($key, 'data', $data);
+    $success1 = parent::hset($key, 'data', $data);
     $success2 = parent::hset($key, 'type', $type);
     $success = (FALSE !== $success1) & (FALSE !== $success2);
     if (!$success) {
@@ -141,5 +141,12 @@ class Redis extends \Redis
       return parent::del($key);
     }
     return 0;
+  }
+
+  public function expire($key, $lease)
+  {
+    if (self::$_useRedis) {
+      return parent::expire($key, $lease);
+    }
   }
 }
