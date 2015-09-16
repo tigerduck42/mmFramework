@@ -134,7 +134,8 @@ class ErrorHandle
       $msg = $pad . $msg;
       return $msg;
     } else {
-      $msg = $pad . "Time: " . date('r') . "\n" . $msg . $pad;
+      //$msg = $pad . "Time: " . date('r') . "\n" . $msg . $pad;
+      $msg = $pad . $msg . $pad;
       echo $msg;
     }
   }
