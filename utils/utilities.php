@@ -4,7 +4,7 @@ use mmFramework as fw;
 function print_r_nice($data, $return = FALSE)
 {
   if (TRUE == $return) {
-    return echo_nice(print_r($data, TRUE));
+    return echo_nice(print_r($data, TRUE), TRUE);
   } else {
     echo echo_nice(print_r($data, TRUE));
   }
