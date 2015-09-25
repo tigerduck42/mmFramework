@@ -39,7 +39,7 @@ class PushOver
   private $_token   = NULL;
   private $_userKey = NULL;
 
-  function __construct()
+  public function __construct()
   {
     $config = fw\Config::getInstance();
     $this->_token   = $config->pushOverToken;
