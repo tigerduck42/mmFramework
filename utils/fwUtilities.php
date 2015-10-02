@@ -56,7 +56,8 @@ function customException($ex)
   customError(0, nl2br($errorString), $ex->getFile(), $ex->getLine(), $reducedStack);
 
   $config = Config::getInstance();
-  if (!$config->isDevServer) {
+  $api = php_sapi_name();
+  if (!$config->isDevServer && ($api != 'cli')) {
     if (file_exists(DIR_BASE . '/html/error.php')) {
       $errorHash = urlencode(base64_encode(serialize('Error: ' . $errorString)));
       HTTP::redirect('/error.php?ec=500&eh=' . $errorHash);
