@@ -152,6 +152,15 @@ abstract class Core
     return $this->insertId;
   }
 
+  public function replace($table, $row)
+  {
+    $quoted = $this->_quoteValues($row);
+
+    $sql = "REPLACE INTO `" . $table . "`";
+    $sql .= " (" . implode(array_keys($quoted), ', ') . ")";
+    $sql .= " VALUES (" . implode($quoted, ", ") . ")";
+    $this->_query($sql);
+  }
 
   public function update($table, $row, $id, $customIdName = NULL)
   {
