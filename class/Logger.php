@@ -33,7 +33,6 @@ namespace mmFramework;
 
 class Logger
 {
-
   const LOG_CONSOLE = 1;
   const LOG_FILE    = 2;
   const LOG_DB      = 4;
@@ -79,8 +78,13 @@ class Logger
       foreach ($this->_digestStack as $style => $lines) {
         $block = implode("<br/>", $lines);
 
-        if (preg_match('{^code}', $style)) {
-          $body .= '<code>' . $block . '</code>';
+        if (preg_match('{^([^:]+)::}', $style, $match)) {
+          $tag = $match[1];
+          $addStyle = '';
+          if ($tag == 'pre') {
+            $addStyle = ' style="font-size: 0.9em;"';
+          }
+          $body .= '<' . $tag . $addStyle . '>' . $block . '</' . $tag . '>';
         } else {
           $body .= $block;
         }
