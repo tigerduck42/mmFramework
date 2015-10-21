@@ -107,7 +107,7 @@ class GetOpt
 
           $value = ltrim($value, '-');
           if (in_array($value, $this->_optStackKeys)) {
-            $this->_usage();
+            $this->usage();
           } else {
             $this->_theStack[$opt['name']] = $value;
           }
@@ -118,12 +118,12 @@ class GetOpt
     }
 
     if (isset($this->_theStack['help']) && (1 == $this->_theStack['help'])) {
-      $this->_usage();
+      $this->usage();
     }
   }
 
 
-  protected function _usage()
+  public function usage()
   {
     global $argv;
 
