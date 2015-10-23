@@ -47,6 +47,18 @@ function substrAdv($str, &$start, $len)
   return $subString;
 }
 
+function truncate($string, $maxLen, $ending = "...")
+{
+  $endingLen = strlen($ending);
+  $truncLen  = $maxLen - $endingLen;
+  $stringLen = strlen($string);
+  if ($stringLen > $maxLen) {
+    $string = substr($string, 0, $truncLen) . $ending;
+  }
+
+  return $string;
+}
+
 function myObClean()
 {
   $debugCode = NULL;
