@@ -56,12 +56,15 @@ class Logger
   private $_fileName       = NULL;
 
   private $_styleStack = array(
-    'reset' => "\e[0m",
+    'reset'   => "\e[0m",
 
-    'red'   => "\e[91m",
-    'green' => "\e[92m",
+    'red'     => "\e[91m",
+    'green'   => "\e[92m",
+    'blue'    => "\e[94m",
+    'magenta' => "\e[95m",
 
-    'bold'  => "\e[1m",
+    'bold'    => "\e[1m",
+    'invers'  => "\e[7m",
   );
 
 
