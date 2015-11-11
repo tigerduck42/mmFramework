@@ -33,7 +33,6 @@ namespace mmFramework;
 
 class Logger
 {
-
   const LOG_CONSOLE = 1;
   const LOG_FILE    = 2;
   const LOG_DB      = 4;
@@ -57,12 +56,15 @@ class Logger
   private $_fileName       = NULL;
 
   private $_styleStack = array(
-    'reset' => "\e[0m",
+    'reset'   => "\e[0m",
 
-    'red'   => "\e[91m",
-    'green' => "\e[92m",
+    'red'     => "\e[91m",
+    'green'   => "\e[92m",
+    'blue'    => "\e[94m",
+    'magenta' => "\e[95m",
 
-    'bold'  => "\e[1m",
+    'bold'    => "\e[1m",
+    'invers'  => "\e[7m",
   );
 
 
@@ -79,8 +81,13 @@ class Logger
       foreach ($this->_digestStack as $style => $lines) {
         $block = implode("<br/>", $lines);
 
-        if (preg_match('{^code}', $style)) {
-          $body .= '<code>' . $block . '</code>';
+        if (preg_match('{^([^:]+)::}', $style, $match)) {
+          $tag = $match[1];
+          $addStyle = '';
+          if ($tag == 'pre') {
+            $addStyle = ' style="font-size: 0.9em;"';
+          }
+          $body .= '<' . $tag . $addStyle . '>' . $block . '</' . $tag . '>';
         } else {
           $body .= $block;
         }
