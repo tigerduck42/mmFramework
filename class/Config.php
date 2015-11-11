@@ -348,10 +348,12 @@ class Config
     trigger_error('Clone is not allowed.', E_USER_ERROR);
   }
 
-  public static function registerSection($sectionName)
+  public static function registerSection($sectionName, $skipError = FALSE)
   {
     if (in_array($sectionName, self::$_validSections)) {
-      trigger_error(__METHOD__ . ' - Section ' . $sectionName . ' already registered.');
+      if (!$skipError) {
+        trigger_error(__METHOD__ . ' - Section ' . $sectionName . ' already registered.');
+      }
     } else {
       self::$_validSections[] = $sectionName;
     }
