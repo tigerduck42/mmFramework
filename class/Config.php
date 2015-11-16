@@ -263,6 +263,13 @@ class Config
         }
         return $this->_mailOverRide;
         break;
+      case 'hasMailConfigured':
+        if (is_null($this->_mailer) || ($this->_mailer == 'none')) {
+          return FALSE;
+        } else {
+          return TRUE;
+        }
+        break;
       default:
         if (isset($this->_userDefinedStack[$name])) {
           $value = $this->_userDefinedStack[$name];

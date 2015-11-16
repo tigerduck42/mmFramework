@@ -19,9 +19,19 @@ function customError($no, $string, $file, $line, $context)
     }
   } else {
     if ($api == 'cli') {
-      $hError = new ErrorHandle(ErrorHandle::CLI | ErrorHandle::MAIL);
+      $errorHandle = ErrorHandle::CLI;
+      if ($config->hasMailConfigured) {
+        $errorHandle |= ErrorHandle::MAIL;
+      }
+
+      $hError = new ErrorHandle($errorHandle);
     } else {
-      $hError = new ErrorHandle(ErrorHandle::MAIL | ErrorHandle::LOG);
+      $errorHandle = ErrorHandle::LOG;
+      if ($config->hasMailConfigured) {
+        $errorHandle |= ErrorHandle::MAIL;
+      }
+
+      $hError = new ErrorHandle($errorHandle);
     }
   }
 
