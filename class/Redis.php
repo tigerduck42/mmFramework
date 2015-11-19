@@ -42,6 +42,11 @@ class Redis extends \Redis
   {
     $config = Config::getInstance();
 
+    // Check if we should use redis
+    if ($config->redisHost == 'none') {
+      self::$_useRedis = FALSE;
+    }
+
     if (self::$_useRedis) {
       try {
         parent::__construct();
