@@ -270,16 +270,13 @@ class ErrorHandle
 
   private function _buildMessageBox($addContext)
   {
-    $errorTag = 'Error';
-    if (0 < strlen($this->_no)) {
-      $errorTag .= ' (' . $this->_no . ')';
-    }
-    $errorTag .= ':';
-
     $html = '';
     $html .= '<div class="__error__">';
     $html .= '<strong>Time:</strong> ' . date('r') . '<br/>';
-    $html .= '<strong>' . $errorTag . '</strong> ' . $this->_string . '<br/>';
+    $html .= '<strong>Error:</strong> ' . $this->_string . '<br/>';
+    if (0 < strlen($this->_no)) {
+      $html .= '<strong>ErrorNo:</strong> ' . $this->_no . '<br/>';
+    }
     $html .= '<strong>File:</strong> ' . $this->_file  . ' (' . $this->_line  . ')<br/>';
 
     $stackCore = array_reverse(debug_backtrace());
