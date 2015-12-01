@@ -216,11 +216,13 @@ class ErrorHandle
       $maxErrorLease = 60 * 15;
     }
 
-    $redisKey = "ERRORCOUNT:" . DIR_BASE . '|' . HTTP::hostname();
-    $cacheCount =  (int)self::$_redis->get($redisKey);
-    $cacheCount++;
+    $redisKeyHead = "ERRORCOUNT:" . DIR_BASE . '|' . HTTP::hostname() . "_";
+    $cachedErrors =  self::$_redis->keys($redisKeyHead . "*");
+    $cacheCount = count($cachedErrors);
+
     if ($cacheCount <= $maxError) {
-      self::$_redis->set($redisKey, $cacheCount);
+      $redisKey = $redisKeyHead . uniqid();
+      self::$_redis->set($redisKey, 'Error @' . date("Y-m-d H:i:s"));
       self::$_redis->expire($redisKey, $maxErrorLease);
     }
 
