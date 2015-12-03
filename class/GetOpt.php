@@ -42,10 +42,17 @@ class GetOpt
 
   public function __get($name)
   {
-    if (isset($this->_theStack[$name])) {
-      return $this->_theStack[$name];
-    } else {
-      trigger_error(__CLASS__ . "::Getter - Attribute " . $name . " not defined!", E_USER_ERROR);
+    switch($name) {
+      case 'list':
+        return array_keys($this->_theStack);
+        break;
+      default:
+        if (isset($this->_theStack[$name])) {
+          return $this->_theStack[$name];
+        } else {
+          trigger_error(__CLASS__ . "::Getter - Attribute " . $name . " not defined!", E_USER_ERROR);
+        }
+        break;
     }
   }
 
