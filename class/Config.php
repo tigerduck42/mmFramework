@@ -365,4 +365,14 @@ class Config
       self::$_validSections[] = $sectionName;
     }
   }
+
+  public static function get($name)
+  {
+    $obj = self::getInstance();
+    if ($obj->exists($name)) {
+      return $obj->$name;
+    } else {
+      trigger_error(__METHOD__ . " - Property '" . $name . "' does not exist.");
+    }
+  }
 }
