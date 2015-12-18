@@ -372,7 +372,7 @@ class Config
     if ($obj->exists($name)) {
       return $obj->$name;
     } else {
-      trigger_error(__METHOD__ . " - Property '" . $name . "' does not exist.");
+      trigger_error(__METHOD__ . " - Config property '" . $name . "' does not exist.");
     }
   }
 }
