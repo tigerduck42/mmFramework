@@ -250,6 +250,9 @@ class Font extends Object
                     $text .= '(';
                 }
 
+                if(in_array($part, array('NONE', 'UNSPECIFIED'))) {
+                    continue;
+                }
                 $part = pack('H*', $part);
                 $text .= ($add_braces ? preg_replace('/\\\/s', '\\\\\\', $part) : $part);
 
