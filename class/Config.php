@@ -75,6 +75,7 @@ class Config
       DIR_BASE . '/../masterConfig.ini',
       DIR_BASE . '/init/config.ini',
       DIR_BASE . '/init/config_dev.ini',
+      DIR_BASE . '/init/config_local.ini',
     );
 
     // Can we find a dev config?
