@@ -342,6 +342,11 @@ class Config
       return TRUE;
     }
 
+    // Custom section
+    if (in_array($name, array_keys($this->_customSectionStack))) {
+      return TRUE;
+    }
+
     // nothing found
     return FALSE;
   }
