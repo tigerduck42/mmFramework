@@ -81,12 +81,16 @@ class PushOver
     }
 
     $jsonResponse = fw\Url::post($api->_url, $postData);
-    $responseObj = fw\Json::decode($jsonResponse);
+    if (0 < strlen($jsonResponse)) {
+      $responseObj = fw\Json::decode($jsonResponse);
 
-    if (1 !== $responseObj->status) {
-      foreach ($responseObj->errors as $error) {
-        trigger_error('PushOverApi Error: ' . $error);
+      if (1 !== $responseObj->status) {
+        foreach ($responseObj->errors as $error) {
+          trigger_error('PushOverApi Error: ' . $error);
+        }
       }
+    } else {
+      trigger_error("PushOverApi Error: Got no response.");
     }
   }
 }
