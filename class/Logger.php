@@ -211,7 +211,12 @@ class Logger
     }
 
     if ($this->_withTimestamp) {
-      $msg = '[' . date('r') . '] - ' . $msg;
+      $date = new \DateTime('now');
+      if (TRUE === $this->_withTimestamp) {
+        $msg = '[' . $date->format('r') . '] - ' . $msg;
+      } else {
+        $msg = '[' . $date->format($this->_withTimestamp) . '] - ' . $msg;
+      }
     }
 
     return $msg;

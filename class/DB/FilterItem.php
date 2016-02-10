@@ -113,7 +113,9 @@ class FilterItem
           $value = (string)$value;
           break;
         default:
-          throw new Exception(__CLASS__ . " - Operator '" . $this->_operator . "' cannot be used with NULL value.");
+          $map = array_flip(self::$_opStack);
+          throw new Exception(__CLASS__ . " - Operator '" . $map[$this->_operator] . "' cannot be used with NULL value.");
+          break;
       }
 
       $value = '';

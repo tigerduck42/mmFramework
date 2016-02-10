@@ -75,6 +75,7 @@ class Config
       DIR_BASE . '/../masterConfig.ini',
       DIR_BASE . '/init/config.ini',
       DIR_BASE . '/init/config_dev.ini',
+      DIR_BASE . '/init/config_local.ini',
     );
 
     // Can we find a dev config?
@@ -341,6 +342,11 @@ class Config
       return TRUE;
     }
 
+    // Custom section
+    if (in_array($name, array_keys($this->_customSectionStack))) {
+      return TRUE;
+    }
+
     // nothing found
     return FALSE;
   }
@@ -363,6 +369,16 @@ class Config
       }
     } else {
       self::$_validSections[] = $sectionName;
+    }
+  }
+
+  public static function get($name)
+  {
+    $obj = self::getInstance();
+    if ($obj->exists($name)) {
+      return $obj->$name;
+    } else {
+      trigger_error(__METHOD__ . " - Config property '" . $name . "' does not exist.");
     }
   }
 }

@@ -39,18 +39,19 @@ class ErrorHandle
   const CLI  = 4;
   const LOG  = 8;
 
-  public static $mask = 0;
+  public static $mask             = 0;
 
-  private static $_errorCount = 0;
+  private static $_errorCount     = 0;
   private static $_stylesInjected = FALSE;
+  private static $_redis          = NULL;
 
-  private $_scope = NULL;
-  private $_no = NULL;
-  private $_string = NULL;
-  private $_file = NULL;
-  private $_line = NULL;
-  private $_context = NULL;
-  private $_mailTo = NULL;
+  private $_scope                 = NULL;
+  private $_no                    = NULL;
+  private $_string                = NULL;
+  private $_file                  = NULL;
+  private $_line                  = NULL;
+  private $_context               = NULL;
+  private $_mailTo                = NULL;
 
   public function __construct($scope = self::WEB)
   {
@@ -58,6 +59,11 @@ class ErrorHandle
     $this->_scope = $scope;
     $this->_mailTo = $config->errorEmail;
     self::$_errorCount++;
+
+    // Get global redis handle
+    if (is_null(self::$_redis)) {
+      self::$_redis = new Redis(1);
+    }
   }
 
 
@@ -189,15 +195,50 @@ class ErrorHandle
     $mail->From = $this->_mailTo;
     $mail->FromName = "WEBError";
     $mail->AddAddress($this->_mailTo, "WebAdmin");
-    $mail->Subject = "";
+    $mail->Subject = '';
+
+    $subType = '';
     if (self::$_errorCount == 10) {
-      $mail->Subject .= "[BLOCKED] ";
+      $subType .= "BLOCKED ";
     }
+
+    // Handle hard limit
+    // Default 20 errors within 15 minutes
+    $config = Config::getInstance();
+    if ($config->exists('maxError')) {
+      $maxError = $config->maxError;
+    } else {
+      $maxError = 20;
+    }
+    if ($config->exists('maxErrorLease')) {
+      $maxErrorLease = $config->maxErrorLease;
+    } else {
+      $maxErrorLease = 60 * 15;
+    }
+
+    $redisKeyHead = "ERRORCOUNT:" . DIR_BASE . '|' . HTTP::hostname() . "_";
+    $cachedErrors =  self::$_redis->keys($redisKeyHead . "*");
+    $cacheCount = count($cachedErrors);
+
+    if ($cacheCount <= $maxError) {
+      $redisKey = $redisKeyHead . uniqid();
+      self::$_redis->set($redisKey, 'Error @' . date("Y-m-d H:i:s"));
+      self::$_redis->expire($redisKey, $maxErrorLease);
+    }
+
+    if ($cacheCount >= $maxError) {
+      $subType .= "HARDLIMIT ";
+    }
+
+    if (0 < strlen($subType)) {
+      $mail->Subject .= '[' . trim($subType) . '] ';
+    }
+
     $mail->Subject .= "Error on " . HTTP::hostname();
     $mail->IsHTML();
     $mail->setBody($msg);
 
-    if (self::$_errorCount <=  10) {
+    if ((self::$_errorCount <=  10) && ($cacheCount <= $maxError)) {
       if (!$mail->Send()) {
         return $mail->ErrorInfo . "<br/>";
       }
@@ -235,6 +276,9 @@ class ErrorHandle
     $html .= '<div class="__error__">';
     $html .= '<strong>Time:</strong> ' . date('r') . '<br/>';
     $html .= '<strong>Error:</strong> ' . $this->_string . '<br/>';
+    if (0 < strlen($this->_no)) {
+      $html .= '<strong>ErrorNo:</strong> ' . $this->_no . '<br/>';
+    }
     $html .= '<strong>File:</strong> ' . $this->_file  . ' (' . $this->_line  . ')<br/>';
 
     $stackCore = array_reverse(debug_backtrace());

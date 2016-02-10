@@ -42,6 +42,11 @@ class Redis extends \Redis
   {
     $config = Config::getInstance();
 
+    // Check if we should use redis
+    if ($config->redisHost == 'none') {
+      self::$_useRedis = FALSE;
+    }
+
     if (self::$_useRedis) {
       try {
         parent::__construct();
@@ -148,5 +153,20 @@ class Redis extends \Redis
     if (self::$_useRedis) {
       return parent::expire($key, $lease);
     }
+  }
+
+  /**
+   * Flush redis keys
+   * @param  string $redisKeyWildcard Redis key with optional; wildcard (*)
+   * @return boolen                   success
+   */
+  public function flush($redisKeyWildcard)
+  {
+    $success = TRUE;
+    $keyList = $this->keys($redisKeyWildcard);
+    foreach ($keyList as $redisKey) {
+      $success &= $this->del($redisKey);
+    }
+    return $success;
   }
 }
