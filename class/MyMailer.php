@@ -144,10 +144,14 @@ class MyMailer extends \PHPMailer
 
   public function send()
   {
-    $success = parent::Send();
+    $config = Config::getInstance();
+    $success = TRUE;
+    if ($config->hasMailConfigured) {
+      $success = parent::Send();
 
-    if (!$success) {
-      trigger_error("Mail could not be send!\n" . $this->ErrorInfo, E_USER_ERROR);
+      if (!$success) {
+        trigger_error("Mail could not be send!\n" . $this->ErrorInfo, E_USER_ERROR);
+      }
     }
     return $success;
   }
