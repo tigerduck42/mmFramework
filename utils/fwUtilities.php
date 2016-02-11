@@ -13,9 +13,9 @@ function customError($no, $string, $file, $line, $context)
 
   if ($config->isDevServer) {
     if ($api == 'cli') {
-      $hError = new ErrorHandle(ErrorHandle::CLI);
+      $errorHandle = ErrorHandle::CLI;
     } else {
-      $hError = new ErrorHandle(ErrorHandle::WEB | ErrorHandle::LOG);
+      $errorHandle = ErrorHandle::WEB | ErrorHandle::LOG;
     }
   } else {
     if ($api == 'cli') {
@@ -23,16 +23,13 @@ function customError($no, $string, $file, $line, $context)
       if ($config->hasMailConfigured) {
         $errorHandle |= ErrorHandle::MAIL;
       }
-
-      $hError = new ErrorHandle($errorHandle);
     } else {
       $errorHandle = ErrorHandle::LOG;
       if ($config->hasMailConfigured) {
         $errorHandle |= ErrorHandle::MAIL;
       }
-
-      $hError = new ErrorHandle($errorHandle);
     }
+    $hError = new ErrorHandle($errorHandle);
   }
 
   $hError->no       = $no;
