@@ -29,8 +29,9 @@ function customError($no, $string, $file, $line, $context)
         $errorHandle |= ErrorHandle::MAIL;
       }
     }
-    $hError = new ErrorHandle($errorHandle);
   }
+
+  $hError = new ErrorHandle($errorHandle);
 
   $hError->no       = $no;
   $hError->string   = $string;
