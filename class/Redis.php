@@ -155,6 +155,15 @@ class Redis extends \Redis
     }
   }
 
+  public function keys($key)
+  {
+    if (!self::$_useRedis) {
+      return NULL;
+    }
+
+    return parent::keys($key);
+  }
+
   /**
    * Flush redis keys
    * @param  string $redisKeyWildcard Redis key with optional; wildcard (*)
