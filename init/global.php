@@ -52,3 +52,12 @@ if (in_array($me, array('/sitemap'))) {
 }
 
 $template->assign("me", $me);
+
+
+// Check database connection
+try {
+  $db = Database::getInstance();
+} catch (DB\Exception $ex) {
+  echo_nice("No database connection ....");
+  exit;
+}
