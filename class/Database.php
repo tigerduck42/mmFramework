@@ -53,7 +53,6 @@ class Database
       default:
         throw new Exception(__CLASS__ . " - Connector not defined!");
         break;
-
     }
   }
 
