@@ -44,6 +44,7 @@ class MySQL extends Core
     } else {
       $obj = new self($dbConfig);
       self::$_obj[$dbConfig] =& $obj;
+      //echo_nice("DB connect ...");
       return $obj;
     }
   }
