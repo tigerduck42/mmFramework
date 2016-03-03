@@ -17,6 +17,8 @@ define("DIR_FRAMEWORK", $dirBase);
 require_once(DIR_FRAMEWORK . '/utils/fwUtilities.php');
 require_once(DIR_FRAMEWORK . '/utils/utilities.php');
 
+require_once(DIR_FRAMEWORK . '/thirdParty/vendor/autoload.php');
+
 // Load classes
 spl_autoload_register('mmFramework\customAutoLoader');
 
@@ -52,12 +54,3 @@ if (in_array($me, array('/sitemap'))) {
 }
 
 $template->assign("me", $me);
-
-
-// Check database connection
-try {
-  $db = Database::getInstance();
-} catch (DB\Exception $ex) {
-  echo_nice("No database connection ....");
-  exit;
-}

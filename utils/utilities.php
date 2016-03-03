@@ -25,6 +25,12 @@ function echo_nice($data, $return = FALSE)
   }
 }
 
+function echo_exit($data)
+{
+  echo_nice($data);
+  exit;
+}
+
 function email_nice($data)
 {
   $config = fw\Config::getInstance();

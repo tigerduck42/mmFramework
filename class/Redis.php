@@ -171,6 +171,10 @@ class Redis extends \Redis
    */
   public function flush($redisKeyWildcard)
   {
+    if (!self::$_useRedis) {
+      return NULL;
+    }
+
     $success = TRUE;
     $keyList = $this->keys($redisKeyWildcard);
     foreach ($keyList as $redisKey) {
