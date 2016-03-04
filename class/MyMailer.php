@@ -31,8 +31,6 @@
 
 namespace mmFramework;
 
-require_once(DIR_FRAMEWORK . "/thirdParty/PHPMailer/class.phpmailer.php");
-
 class MyMailer extends \PHPMailer
 {
 
