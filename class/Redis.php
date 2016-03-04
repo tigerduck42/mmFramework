@@ -67,7 +67,13 @@ class Redis
         self::$_useRedis = FALSE;
         // Don't use trigger_error here.
         // This will cause a infinite loop because we need redis for error handling as well.
-        softException($ex);
+
+        // But we send the message about redis just once an hour!!! To prevent to many emails!!!
+        $redisBlock = sys_get_temp_dir() . '/redisBlock_' . md5(__FILE__);
+        if (!file_exists($redisBlock) || (time() - filemtime($redisBlock)) > 3600) {
+          softException($ex);
+          file_put_contents($redisBlock, time());
+        }
       }
     }
   }
