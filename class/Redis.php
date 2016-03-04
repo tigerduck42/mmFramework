@@ -65,7 +65,9 @@ class Redis
         }
       } catch (\RedisException $ex) {
         self::$_useRedis = FALSE;
-        //trigger_error($ex->getMessage(), E_USER_ERROR);
+        // Don't use trigger_error here.
+        // This wil cause a infinite loop because we need redis for error handling as well.
+        softException($ex);
       }
     }
   }
