@@ -97,6 +97,7 @@ abstract class Core
   abstract protected function _errorMsg();
 
   abstract protected function _prepare($sql);
+  abstract protected function _bindParam(&$params);
   abstract protected function _execute();
 
   // Transaction support
@@ -315,6 +316,12 @@ abstract class Core
   public function prepare($sql)
   {
     return $this->_prepare($sql);
+  }
+
+  public function bindParam()
+  {
+    $params = func_get_args();
+    return $this->_bindParam($params);
   }
 
   public function execute()

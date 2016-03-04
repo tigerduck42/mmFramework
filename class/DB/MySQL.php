@@ -181,6 +181,18 @@ class MySQL extends Core
     }
   }
 
+  protected function _bindParam(&$params)
+  {
+
+    // Passed by reference hack
+    $tmp = array();
+    foreach ($params as $key => $value) {
+      $tmp[] = &$params[$key];
+    }
+
+    return call_user_func_array(array($this->_statement, "bind_param"), $tmp);
+  }
+
   protected function _execute()
   {
     $this->_statement->execute();
