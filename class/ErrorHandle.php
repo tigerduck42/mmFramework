@@ -216,14 +216,38 @@ class ErrorHandle
       $maxErrorLease = 60 * 15;
     }
 
-    $redisKeyHead = "ERRORCOUNT:" . DIR_BASE . '|' . HTTP::hostname() . "_";
-    $cachedErrors =  self::$_redis->keys($redisKeyHead . "*");
-    $cacheCount = count($cachedErrors);
+    if (self::$_redis->useRedis) {
+      // Using redis
+      $redisKeyHead = "ERRORCOUNT:" . DIR_BASE . '|' . HTTP::hostname() . "_";
+      $cachedErrors =  self::$_redis->keys($redisKeyHead . "*");
+      $cacheCount = count($cachedErrors);
 
-    if ($cacheCount <= $maxError) {
-      $redisKey = $redisKeyHead . uniqid();
-      self::$_redis->set($redisKey, 'Error @' . date("Y-m-d H:i:s"));
-      self::$_redis->expire($redisKey, $maxErrorLease);
+      if ($cacheCount <= $maxError) {
+        $redisKey = $redisKeyHead . uniqid();
+        self::$_redis->set($redisKey, 'Error @' . date("Y-m-d H:i:s"));
+        self::$_redis->expire($redisKey, $maxErrorLease);
+      }
+    } else {
+      //
+      // If redis is down we fallback to a file bases method
+      //
+      $cacheCount = 0;
+      $blockFile = sys_get_temp_dir() . '/errorBlock_' . md5(DIR_BASE . '|' . HTTP::hostname());
+
+      if (file_exists($blockFile)) {
+        if ((time() - filemtime($blockFile)) > $maxErrorLease) {
+          unlink($blockFile);
+        } else {
+          $cmd = "wc -l "  . $blockFile . " | awk '{ print $1 }'";
+          $lines = ShellCmd::execute($cmd, TRUE);
+          $cacheCount = $lines[0];
+        }
+      }
+
+      if ($cacheCount <= $maxError) {
+        $cmd = "echo Error @" . date("Y-m-d H:i:s") . " >> " . $blockFile;
+        ShellCmd::execute($cmd);
+      }
     }
 
     if ($cacheCount >= $maxError) {

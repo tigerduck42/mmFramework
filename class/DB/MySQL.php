@@ -44,6 +44,7 @@ class MySQL extends Core
     } else {
       $obj = new self($dbConfig);
       self::$_obj[$dbConfig] =& $obj;
+      //echo_nice("DB connect ...");
       return $obj;
     }
   }
@@ -178,6 +179,18 @@ class MySQL extends Core
     if (!$this->_statement) {
       $this->_checkError();
     }
+  }
+
+  protected function _bindParam(&$params)
+  {
+
+    // Passed by reference hack
+    $tmp = array();
+    foreach ($params as $key => $value) {
+      $tmp[] = &$params[$key];
+    }
+
+    return call_user_func_array(array($this->_statement, "bind_param"), $tmp);
   }
 
   protected function _execute()

@@ -31,7 +31,6 @@
 
 namespace mmFramework;
 
-require_once(DIR_FRAMEWORK . '/thirdParty/Smarty3/libs/Smarty.class.php');
 /**
  * {@link MmOutputRenderer} for Smarty.
  * <p>Smarty is a template engine. See {@link http://www.smarty.net/}</p>

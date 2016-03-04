@@ -250,7 +250,7 @@ class Config
         return $this->_errorLog;
         break;
       case 'forceAssetLoad':
-        return $this->_forceAssetLoad;
+        return $this->_fixBoolean($this->_forceAssetLoad);
         break;
       case 'errorEmail':
         if (is_null($this->_errorEmail) || !fw\MyMailer::ValidateAddress($this->_errorEmail)) {
