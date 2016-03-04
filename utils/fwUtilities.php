@@ -42,6 +42,16 @@ function customError($no, $string, $file, $line, $context)
   $hError->output();
 }
 
+
+function softException($exception)
+{
+  $code    = $exception->getCode();
+  $message = $exception->getMessage();
+  $file    = $exception->getFile();
+  $line    = $exception->getLine();
+  customError($code, $message, $file, $line, NULL);
+}
+
 /**
  * Custom Exception handling
  * @param  exception $ex the thrown exception
