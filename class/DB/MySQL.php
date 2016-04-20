@@ -195,11 +195,14 @@ class MySQL extends Core
 
   protected function _execute()
   {
-    $this->_statement->execute();
+    $success = $this->_statement->execute();
+
     $this->_resultHandle = $this->_statement->get_result();
     $this->_rows         = max($this->_statement->num_rows, $this->_statement->affected_rows);
     $this->_affectedRows = $this->_statement->affected_rows;
     $this->_checkError();
+
+    return $success;
   }
 
   private function _endTransaction($type)
