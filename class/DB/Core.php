@@ -89,6 +89,7 @@ abstract class Core
 
   abstract protected function _connect();
   abstract protected function _q($sql);
+  abstract protected function _qMulti($sql);
   abstract protected function _escape($value);
   abstract protected function _rows();
   abstract protected function _affectedRows();
@@ -125,6 +126,11 @@ abstract class Core
           break;
       }
     }
+  }
+
+  public function queryMulti($sql)
+  {
+    return $this->_queryMulti($sql);
   }
 
 
@@ -242,7 +248,7 @@ abstract class Core
   }
 
 
-  protected function _query($sql)
+  private function _query($sql)
   {
 
     $mtime = microtime();
@@ -301,6 +307,11 @@ abstract class Core
     }
 
     return $this->_resultHandle;
+  }
+
+  private function _queryMulti($sql)
+  {
+    return $this->_qMulti($sql);
   }
 
   protected function _threadId()
