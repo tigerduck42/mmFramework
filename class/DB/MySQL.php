@@ -68,6 +68,9 @@ class MySQL extends Core
 
     $this->_link = new \mysqli($dbConf->dbHost, $dbConf->dbUser, $dbConf->dbPassword, $dbConf->dbName, $dbConf->dbPort);
 
+    // Set the dbName used for error messages
+    $this->_dbName = $dbConf->dbName;
+
     if ($this->_link->connect_error) {
       throw new Exception('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
     }

@@ -35,6 +35,7 @@ use mmFramework as fw;
 
 abstract class Core
 {
+  protected $_dbName        = NULL;
   protected $_link          = NULL;
   protected $_rows          = NULL;
   protected $_affectedRows  = NULL;
@@ -261,12 +262,12 @@ abstract class Core
 
       $errorMessage =
         'Query Failed<br/>
-        <b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
-        <b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
-        <b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
-        <b>SQL:</b> ' . $sql . '<br/>
-        <b>Total Time:</b> ' . $totaltime . '<br/>
-        <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n";
+        <strong>URI:</strong> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
+        <strong>Remote Address:</strong> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
+        <strong>Database:</strong> ' . $this->_dbName . '<br/>
+        <strong>SQL:</strong> ' . $sql . '<br/>
+        <strong>Total Time:</strong> ' . $totaltime . '<br/>
+        <strong>MySQL Error:</strong> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n";
 
       if ($this->_inTransaction) {
         throw new Exception($errorMessage);
