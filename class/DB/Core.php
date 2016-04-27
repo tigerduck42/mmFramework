@@ -275,15 +275,25 @@ abstract class Core
       $endtime = $mtime;
       $totaltime = ($endtime - $starttime);
 
+      $errorMessageStack = array();
+      $errorMessageStack[] = 'Query Failed';
+      if (!empty(fw\HTTP::server('REQUEST_URI'))) {
+        $errorMessageStack[] = '<strong>URI:</strong> ' . fw\HTTP::server('REQUEST_URI');
+      }
+      if (!empty(fw\HTTP::server("REMOTE_ADDR"))) {
+        $errorMessageStack[] = '<strong>Remote Address:</strong> '  . fw\HTTP::server("REMOTE_ADDR");
+      }
+      $errorMessageStack[] = '<strong>Database:</strong> ' . $this->_dbName;
+      $errorMessageStack[] = '<strong>SQL:</strong> ' . $sql;
+      $errorMessageStack[] = '<strong>Total Time:</strong> ' . $totaltime;
+      $errorMessageStack[] = '<strong>MySQL Error:</strong> (' . $this->_errorNo() . ') ' . $this->_errorMsg();
 
-      $errorMessage =
-        'Query Failed<br/>
-        <strong>URI:</strong> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
-        <strong>Remote Address:</strong> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
-        <strong>Database:</strong> ' . $this->_dbName . '<br/>
-        <strong>SQL:</strong> ' . $sql . '<br/>
-        <strong>Total Time:</strong> ' . $totaltime . '<br/>
-        <strong>MySQL Error:</strong> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n";
+      $api = php_sapi_name();
+      if ($api == 'cli') {
+        $errorMessage = implode("\n", $errorMessageStack);
+      } else {
+        $errorMessage = implode("<br/>", $errorMessageStack);
+      }
 
       if ($this->_inTransaction) {
         throw new Exception($errorMessage);
