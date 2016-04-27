@@ -25,6 +25,37 @@ function echo_nice($data, $return = FALSE)
   }
 }
 
+function echo_exit($data)
+{
+  echo_nice($data);
+  exit;
+}
+
+function email_nice($data)
+{
+  $config = fw\Config::getInstance();
+  $body = '';
+  if (is_array($data) || is_object($data)) {
+    $body .= print_r_nice($data, TRUE);
+  } else {
+    $body .= echo_nice($data, TRUE);
+  }
+
+
+  $mail = new fw\MyMailer();
+  $mail->From = $config->errorEmail;
+  $mail->FromName = "DebugNotify";
+  $mail->AddAddress($config->errorEmail, "WebAdmin");
+  $mail->Subject = "";
+  $mail->Subject .= "[DEBUG] " . fw\HTTP::hostname();
+  $mail->IsHTML();
+  $mail->setBody($body);
+
+  if (!$mail->Send()) {
+    trigger_error($mail->ErrorInfo, E_USER_ERROR);
+  }
+}
+
 function intNice($value)
 {
   if (!is_null($value)) {
@@ -45,6 +76,18 @@ function substrAdv($str, &$start, $len)
   $subString = trim(substr($str, $start, $len));
   $start += $len;
   return $subString;
+}
+
+function truncate($string, $maxLen, $ending = "...")
+{
+  $endingLen = strlen($ending);
+  $truncLen  = $maxLen - $endingLen;
+  $stringLen = strlen($string);
+  if ($stringLen > $maxLen) {
+    $string = substr($string, 0, $truncLen) . $ending;
+  }
+
+  return $string;
 }
 
 function myObClean()

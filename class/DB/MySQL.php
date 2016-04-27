@@ -44,6 +44,7 @@ class MySQL extends Core
     } else {
       $obj = new self($dbConfig);
       self::$_obj[$dbConfig] =& $obj;
+      //echo_nice("DB connect ...");
       return $obj;
     }
   }
@@ -183,13 +184,28 @@ class MySQL extends Core
     }
   }
 
+  protected function _bindParam(&$params)
+  {
+
+    // Passed by reference hack
+    $tmp = array();
+    foreach ($params as $key => $value) {
+      $tmp[] = &$params[$key];
+    }
+
+    return call_user_func_array(array($this->_statement, "bind_param"), $tmp);
+  }
+
   protected function _execute()
   {
-    $this->_statement->execute();
+    $success = $this->_statement->execute();
+
     $this->_resultHandle = $this->_statement->get_result();
     $this->_rows         = max($this->_statement->num_rows, $this->_statement->affected_rows);
     $this->_affectedRows = $this->_statement->affected_rows;
     $this->_checkError();
+
+    return $success;
   }
 
   private function _endTransaction($type)

@@ -13,17 +13,25 @@ function customError($no, $string, $file, $line, $context)
 
   if ($config->isDevServer) {
     if ($api == 'cli') {
-      $hError = new ErrorHandle(ErrorHandle::CLI);
+      $errorHandle = ErrorHandle::CLI;
     } else {
-      $hError = new ErrorHandle(ErrorHandle::WEB | ErrorHandle::LOG);
+      $errorHandle = ErrorHandle::WEB | ErrorHandle::LOG;
     }
   } else {
     if ($api == 'cli') {
-      $hError = new ErrorHandle(ErrorHandle::CLI | ErrorHandle::MAIL);
+      $errorHandle = ErrorHandle::CLI;
+      if ($config->hasMailConfigured) {
+        $errorHandle |= ErrorHandle::MAIL;
+      }
     } else {
-      $hError = new ErrorHandle(ErrorHandle::MAIL | ErrorHandle::LOG);
+      $errorHandle = ErrorHandle::LOG;
+      if ($config->hasMailConfigured) {
+        $errorHandle |= ErrorHandle::MAIL;
+      }
     }
   }
+
+  $hError = new ErrorHandle($errorHandle);
 
   $hError->no       = $no;
   $hError->string   = $string;
@@ -32,6 +40,16 @@ function customError($no, $string, $file, $line, $context)
   $hError->context  = $context;
   $hError->mailTo   = $config->errorEmail;
   $hError->output();
+}
+
+
+function softException($exception)
+{
+  $code    = $exception->getCode();
+  $message = $exception->getMessage();
+  $file    = $exception->getFile();
+  $line    = $exception->getLine();
+  customError($code, $message, $file, $line, NULL);
 }
 
 /**

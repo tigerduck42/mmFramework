@@ -75,6 +75,7 @@ class Config
       DIR_BASE . '/../masterConfig.ini',
       DIR_BASE . '/init/config.ini',
       DIR_BASE . '/init/config_dev.ini',
+      DIR_BASE . '/init/config_local.ini',
     );
 
     // Can we find a dev config?
@@ -249,7 +250,7 @@ class Config
         return $this->_errorLog;
         break;
       case 'forceAssetLoad':
-        return $this->_forceAssetLoad;
+        return $this->_fixBoolean($this->_forceAssetLoad);
         break;
       case 'errorEmail':
         if (is_null($this->_errorEmail) || !fw\MyMailer::ValidateAddress($this->_errorEmail)) {
@@ -262,6 +263,13 @@ class Config
           throw new Exception(__METHOD__ . " - Override email not defined!");
         }
         return $this->_mailOverRide;
+        break;
+      case 'hasMailConfigured':
+        if (is_null($this->_mailer) || ($this->_mailer == 'none')) {
+          return FALSE;
+        } else {
+          return TRUE;
+        }
         break;
       default:
         if (isset($this->_userDefinedStack[$name])) {
@@ -334,6 +342,11 @@ class Config
       return TRUE;
     }
 
+    // Custom section
+    if (in_array($name, array_keys($this->_customSectionStack))) {
+      return TRUE;
+    }
+
     // nothing found
     return FALSE;
   }
@@ -348,12 +361,24 @@ class Config
     trigger_error('Clone is not allowed.', E_USER_ERROR);
   }
 
-  public static function registerSection($sectionName)
+  public static function registerSection($sectionName, $skipError = FALSE)
   {
     if (in_array($sectionName, self::$_validSections)) {
-      trigger_error(__METHOD__ . ' - Section ' . $sectionName . ' already registered.');
+      if (!$skipError) {
+        trigger_error(__METHOD__ . ' - Section ' . $sectionName . ' already registered.');
+      }
     } else {
       self::$_validSections[] = $sectionName;
+    }
+  }
+
+  public static function get($name)
+  {
+    $obj = self::getInstance();
+    if ($obj->exists($name)) {
+      return $obj->$name;
+    } else {
+      trigger_error(__METHOD__ . " - Config property '" . $name . "' does not exist.");
     }
   }
 }
