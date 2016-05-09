@@ -7,7 +7,7 @@ require_once($fileLocation . "/init/global.php");
 
 function echo_block($title, $value)
 {
-  echo_nice(str_pad($title. ': ', 15) . $value);
+  echo_nice(str_pad($title. ': ', 18) . $value);
 }
 
 
@@ -16,13 +16,22 @@ echo_block("Project", $config->projectName);
 
 echo_block("Timezone", $config->timezone);
 echo_block("Language", $config->language);
-echo_block("Mail", $config->hasMailConfigured);
+
 if ($config->hasMailConfigured) {
+  echo_block("Mail configured", 'yes');
   echo_block("Mailer", $config->mailer);
   echo_block("Error Mail", $config->errorEmail);
+} else {
+  echo_block("Mail configured", 'no');
 }
+
 echo_block("Redis Host", $config->redisHost);
-echo_block("MailOverRide", $config->mailOverRide);
+
+if (empty($config->mailOverRide)) {
+  echo_block("MailOverRide", '---');
+} else {
+  echo_block("MailOverRide", $config->mailOverRide);
+}
 
 
 //
