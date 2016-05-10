@@ -69,6 +69,9 @@ class MySQL extends Core
 
     $this->_link = new \mysqli($dbConf->dbHost, $dbConf->dbUser, $dbConf->dbPassword, $dbConf->dbName, $dbConf->dbPort);
 
+    // Set the dbName used for error messages
+    $this->_dbName = $dbConf->dbName;
+
     if ($this->_link->connect_error) {
       throw new Exception('Connect Error (' . $this->_link->connect_errno . ') ' . $this->_link->connect_error, E_USER_ERROR);
     }
@@ -195,11 +198,14 @@ class MySQL extends Core
 
   protected function _execute()
   {
-    $this->_statement->execute();
+    $success = $this->_statement->execute();
+
     $this->_resultHandle = $this->_statement->get_result();
     $this->_rows         = max($this->_statement->num_rows, $this->_statement->affected_rows);
     $this->_affectedRows = $this->_statement->affected_rows;
     $this->_checkError();
+
+    return $success;
   }
 
   private function _endTransaction($type)
