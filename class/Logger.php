@@ -197,6 +197,9 @@ class Logger
 
   private function _build($msg, $format = NULL)
   {
+    // remove html entities
+    $msg = html_entity_decode($msg);
+
     if (!is_null($format)) {
       $parts = explode("|", $format);
       $styledMsg = '';
