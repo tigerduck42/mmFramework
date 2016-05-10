@@ -14,7 +14,7 @@ function echo_nice($data, $return = FALSE)
 {
   $api = php_sapi_name();
   if (preg_match('{cli}', $api)) {
-    $data .= "\n";
+    $data = html_entity_decode($data) . "\n";
   } else {
     $data = '<pre>' . $data . '</pre>';
   }
