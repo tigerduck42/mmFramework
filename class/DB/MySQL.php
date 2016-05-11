@@ -116,6 +116,27 @@ class MySQL extends Core
     return $this->_link->query($sql, MYSQLI_STORE_RESULT);
   }
 
+  protected function _qMulti($sql)
+  {
+    //
+    // So far this method is just used for the db deploy functions
+    //
+
+    $success = $this->_link->multi_query($sql);
+    if ($success) {
+      // step through result set
+      do {
+        /* store first result set */
+        if ($result = $this->_link->store_result()) {
+          $result->free();
+        }
+      } while ($this->_link->more_results() && $this->_link->next_result());
+    }
+
+    $error = $this->_checkError(TRUE);
+    return $error;
+  }
+
   protected function _escape($value)
   {
     return $this->_link->real_escape_string($value);
@@ -223,16 +244,31 @@ class MySQL extends Core
     $this->_inTransaction = FALSE;
   }
 
-  private function _checkError()
+  private function _checkError($nice = FALSE)
   {
+    $errorStack = array();
     if (count($this->_link->error_list)) {
       foreach ($this->_link->error_list as $eRec) {
-        trigger_error('DB Error (' . $eRec['errno'] . ') ' . $eRec['error'], E_USER_ERROR);
+        $message = 'DB Error (' . $eRec['errno'] . ') ' . $eRec['error'];
+        if ($nice) {
+          $errorStack[] = $message;
+        } else {
+          trigger_error($message, E_USER_ERROR);
+        }
       }
     } else {
       if ((0 < strlen($this->_link->error)) || ($this->_link->errno > 0)) {
-        trigger_error('DB Error (' . $this->_link->errno . ') ' . $this->_link->error, E_USER_ERROR);
+        $message = 'DB Error (' . $this->_link->errno . ') ' . $this->_link->error;
+        if ($nice) {
+          $errorStack[] = $message;
+        } else {
+          trigger_error($message, E_USER_ERROR);
+        }
       }
+    }
+
+    if ($nice) {
+      return implode("\n", $errorStack);
     }
   }
 }

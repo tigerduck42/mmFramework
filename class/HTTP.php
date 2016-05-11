@@ -210,8 +210,13 @@ class HTTP
     return $hostname;
   }
 
-  public static function file($name, $target, $filename = NULL)
+  public static function file($name, $target = NULL, $filename = NULL)
   {
+    // Set target to default temp directory
+    if (is_null($target)) {
+      $target = sys_get_temp_dir();
+    }
+
     if (isset($_FILES[$name])) {
       $file = $_FILES[$name];
 
