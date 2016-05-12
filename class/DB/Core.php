@@ -35,6 +35,7 @@ use mmFramework as fw;
 
 abstract class Core
 {
+  protected $_dbName        = NULL;
   protected $_link          = NULL;
   protected $_rows          = NULL;
   protected $_affectedRows  = NULL;
@@ -89,6 +90,7 @@ abstract class Core
 
   abstract protected function _connect();
   abstract protected function _q($sql);
+  abstract protected function _qMulti($sql);
   abstract protected function _escape($value);
   abstract protected function _rows();
   abstract protected function _affectedRows();
@@ -125,6 +127,11 @@ abstract class Core
           break;
       }
     }
+  }
+
+  public function queryMulti($sql)
+  {
+    return $this->_queryMulti($sql);
   }
 
 
@@ -242,7 +249,7 @@ abstract class Core
   }
 
 
-  protected function _query($sql)
+  private function _query($sql)
   {
 
     $mtime = microtime();
@@ -268,15 +275,25 @@ abstract class Core
       $endtime = $mtime;
       $totaltime = ($endtime - $starttime);
 
+      $errorMessageStack = array();
+      $errorMessageStack[] = 'Query Failed';
+      if (!empty(fw\HTTP::server('REQUEST_URI'))) {
+        $errorMessageStack[] = '<strong>URI:</strong> ' . fw\HTTP::server('REQUEST_URI');
+      }
+      if (!empty(fw\HTTP::server("REMOTE_ADDR"))) {
+        $errorMessageStack[] = '<strong>Remote Address:</strong> '  . fw\HTTP::server("REMOTE_ADDR");
+      }
+      $errorMessageStack[] = '<strong>Database:</strong> ' . $this->_dbName;
+      $errorMessageStack[] = '<strong>SQL:</strong> ' . $sql;
+      $errorMessageStack[] = '<strong>Total Time:</strong> ' . $totaltime;
+      $errorMessageStack[] = '<strong>MySQL Error:</strong> (' . $this->_errorNo() . ') ' . $this->_errorMsg();
 
-      $errorMessage =
-        'Query Failed<br/>
-        <b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
-        <b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
-        <b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
-        <b>SQL:</b> ' . $sql . '<br/>
-        <b>Total Time:</b> ' . $totaltime . '<br/>
-        <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n";
+      $api = php_sapi_name();
+      if ($api == 'cli') {
+        $errorMessage = implode("\n", $errorMessageStack);
+      } else {
+        $errorMessage = implode("<br/>", $errorMessageStack);
+      }
 
       if ($this->_inTransaction) {
         throw new Exception($errorMessage);
@@ -301,6 +318,11 @@ abstract class Core
     }
 
     return $this->_resultHandle;
+  }
+
+  private function _queryMulti($sql)
+  {
+    return $this->_qMulti($sql);
   }
 
   protected function _threadId()
