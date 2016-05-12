@@ -39,6 +39,8 @@ class Logger
   const LOG_MAIL    = 8;
   const LOG_RETURN  = 16;
 
+  const TS_FORMAT_LOG = 'log';
+
   private $_withTimestamp  = FALSE;
   private $_handleType     = 1;
 
@@ -197,6 +199,9 @@ class Logger
 
   private function _build($msg, $format = NULL)
   {
+    // remove html entities
+    $msg = html_entity_decode($msg);
+
     if (!is_null($format)) {
       $parts = explode("|", $format);
       $styledMsg = '';
@@ -215,6 +220,12 @@ class Logger
       if (TRUE === $this->_withTimestamp) {
         $msg = '[' . $date->format('r') . '] - ' . $msg;
       } else {
+        switch($this->_withTimestamp) {
+          case self::TS_FORMAT_LOG:
+            $this->_withTimestamp = 'D j M H:i:s T Y';
+            break;
+        }
+
         $msg = '[' . $date->format($this->_withTimestamp) . '] - ' . $msg;
       }
     }
