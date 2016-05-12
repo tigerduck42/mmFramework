@@ -33,6 +33,20 @@ if (empty($config->mailOverRide)) {
   echo_block("MailOverRide", $config->mailOverRide);
 }
 
+//
+// Database information
+//
+echo_nice('');
+foreach ($config->db as $dbKey => $dbConf) {
+  echo_block("Db Config", $dbKey);
+  echo_block("Connector", $dbConf->dbConnector);
+  echo_block("Host", $dbConf->dbHost);
+  echo_block("Username", $dbConf->dbUser);
+  echo_block("Password", $dbConf->dbPassword);
+  echo_block("Database", $dbConf->dbName);
+  echo_nice('');
+}
+
 
 //
 // Test Mail
