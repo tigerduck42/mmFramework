@@ -101,6 +101,7 @@ abstract class Core
   abstract protected function _prepare($sql);
   abstract protected function _bindParam(&$params);
   abstract protected function _execute();
+  abstract protected function _executeWithId($sql, $id);
 
   // Transaction support
   abstract public function beginTransaction();
@@ -349,6 +350,12 @@ abstract class Core
   public function execute()
   {
     return $this->_execute();
+  }
+
+  public function executeWithId($sql, $id)
+  {
+    assert(is_int($id));
+    return $this->_executeWithId($sql, $id);
   }
 
   public function escape($value)
