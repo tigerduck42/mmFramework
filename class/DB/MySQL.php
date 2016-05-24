@@ -229,6 +229,13 @@ class MySQL extends Core
     return $success;
   }
 
+  protected function _executeWithId($sql, $id)
+  {
+    $this->_prepare($sql);
+    $this->_statement->bind_param('i', $id);
+    $this->_execute();
+  }
+
   private function _endTransaction($type)
   {
     switch ($type) {
