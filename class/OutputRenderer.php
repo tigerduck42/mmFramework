@@ -147,7 +147,7 @@ abstract class OutputRenderer
         }
         break;
       default:
-        throw new Exception(__METHOD__ . " - Property " . $name . " not defined!");
+        throw new Exception(__METHOD__ . " - Property '" . $name . "' not defined!");
         break;
     }
   }
