@@ -190,7 +190,7 @@ abstract class OutputRenderer
     } else {
       trigger_error("No Content type set", E_USER_ERROR);
     }
-    // TODO: throw exception or use fallback if fileinfo not available?
+    // TODO: throw new exception or use fallback if fileinfo not available?
   }
 
   /**
