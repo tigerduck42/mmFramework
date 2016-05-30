@@ -194,19 +194,27 @@ class MySQL extends Core
 
 
   //
-  //  Prepare /  Excute
+  //  Prepare /  Execute
   //
 
   protected function _prepare($sql)
   {
-    $this->_statement = $this->_link->prepare($sql);
-    if (!$this->_statement) {
-      $this->_checkError();
+    $statementKey = md5($sql);
+    if (!isset($this->_statementStack[$statementKey])) {
+      $statement = $this->_link->prepare($sql);
+      if (!$statement) {
+        $this->_checkError();
+      }
+      $this->_statementStack[$statementKey] = $statement;
     }
+
+    return $statementKey;
   }
 
   protected function _bindParam(&$params)
   {
+    // Knock off statement key
+    $statementKey = array_shift($params);
 
     // Passed by reference hack
     $tmp = array();
@@ -214,26 +222,38 @@ class MySQL extends Core
       $tmp[] = &$params[$key];
     }
 
-    return call_user_func_array(array($this->_statement, "bind_param"), $tmp);
+    return call_user_func_array(array($this->_statementStack[$statementKey], "bind_param"), $tmp);
   }
 
-  protected function _execute()
+  protected function _execute($statementKey)
   {
-    $success = $this->_statement->execute();
+    // Fetch statement from stack
+    $statement = $this->_statementStack[$statementKey];
 
-    $this->_resultHandle = $this->_statement->get_result();
-    $this->_rows         = max($this->_statement->num_rows, $this->_statement->affected_rows);
-    $this->_affectedRows = $this->_statement->affected_rows;
+    $success = $statement->execute();
+
+    $this->_resultHandle = $statement->get_result();
+    $this->_rows         = max($statement->num_rows, $statement->affected_rows);
+    $this->_affectedRows = $statement->affected_rows;
     $this->_checkError();
 
     return $success;
   }
 
+  protected function _bindParamExecute(&$params)
+  {
+    // Knock off statement key
+    $statementKey = $params[0];
+    $this->_bindParam($params);
+    $success = $this->_execute($statementKey);
+    return $success;
+  }
+
   protected function _executeWithId($sql, $id)
   {
-    $this->_prepare($sql);
-    $this->_statement->bind_param('i', $id);
-    return $this->_execute();
+    $statementKey = $this->_prepare($sql);
+    $this->bindParam($statementKey, 'i', $id);
+    return $this->_execute($statementKey);
   }
 
   private function _endTransaction($type)
