@@ -4,7 +4,7 @@ namespace mmFramework;
 //ini_set('display_errors', 'on');
 //ini_set('display_startup_errors', 'on');
 
-error_reporting(E_ALL | E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+error_reporting(E_ALL);
 date_default_timezone_set("UTC");
 
 if (!defined('DIR_BASE')) {
@@ -22,7 +22,10 @@ require_once(DIR_FRAMEWORK . '/thirdParty/vendor/autoload.php');
 // Load classes
 spl_autoload_register('mmFramework\customAutoLoader');
 
+// Error handler
 set_error_handler("mmFramework\customError");
+
+// Exception handler
 set_exception_handler("mmFramework\customException");
 
 if (isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT'])) {

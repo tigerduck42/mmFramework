@@ -47,6 +47,7 @@ class ErrorHandle
 
   private $_scope                 = NULL;
   private $_no                    = NULL;
+  private $_severity              = NULL;
   private $_string                = NULL;
   private $_file                  = NULL;
   private $_line                  = NULL;
@@ -73,6 +74,9 @@ class ErrorHandle
       case 'no':
         $this->_no = $value;
         break;
+      case 'severity':
+        $this->_severity = $value;
+        break;
       case 'string':
         $this->_string = $value;
         break;
@@ -98,7 +102,7 @@ class ErrorHandle
   public function output()
   {
     // Skip error/warning if flagging mask is set
-    if ($this->_no & self::$mask) {
+    if ($this->_severity & self::$mask) {
       return;
     }
 
@@ -300,7 +304,10 @@ class ErrorHandle
     $html .= '<div class="__error__">';
     $html .= '<strong>Time:</strong> ' . date('r') . '<br/>';
     $html .= '<strong>Error:</strong> ' . $this->_string . '<br/>';
-    if (0 < strlen($this->_no)) {
+    if (0 < $this->_severity) {
+      $html .= '<strong>Severity:</strong> ' . $this->_severity . '<br/>';
+    }
+    if (0 < $this->_no) {
       $html .= '<strong>ErrorNo:</strong> ' . $this->_no . '<br/>';
     }
     $html .= '<strong>File:</strong> ' . $this->_file  . ' (' . $this->_line  . ')<br/>';
