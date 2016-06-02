@@ -14,7 +14,7 @@ function customError($severity, $message, $file, $line, $context)
       //return;
     }
     // Don't spill exception on deprecated warnings
-    if ((E_DEPRECATED | E_USER_DEPRECATED) & $severity) {
+    if ((E_DEPRECATED | E_USER_DEPRECATED | E_USER_ERROR) & $severity) {
       return;
     }
     throw new \ErrorException($message, 0, $severity, $file, $line);
