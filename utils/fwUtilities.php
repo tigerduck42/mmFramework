@@ -14,10 +14,10 @@ function customError($severity, $message, $file, $line, $context)
       //return;
     }
     // Don't spill exception on deprecated warnings
-    if ((E_DEPRECATED | E_USER_DEPRECATED | E_USER_ERROR) & $severity) {
+    if (!((E_DEPRECATED | E_USER_DEPRECATED | E_USER_ERROR) & $severity)) {
+      throw new \ErrorException($message, 0, $severity, $file, $line);
       return;
     }
-    throw new \ErrorException($message, 0, $severity, $file, $line);
   }
 
   customErrorMessage(NULL, $message, $file, $line, $context, $severity);
@@ -67,7 +67,7 @@ function softException($exception)
   $message = $exception->getMessage();
   $file    = $exception->getFile();
   $line    = $exception->getLine();
-  customError($code, $message, $file, $line, NULL);
+  customErrorMessage($code, $message, $file, $line, NULL, E_USER_ERROR);
 }
 
 /**
