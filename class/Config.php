@@ -62,6 +62,7 @@ class Config
   private $_isDevServer           = FALSE;
   private $_forceAssetLoad        = FALSE;
   private $_assertActive          = FALSE;
+  private $_errorToExeptions      = TRUE;
 
   // Helper stacks
   private $_configFileStack       = array();
@@ -251,6 +252,9 @@ class Config
         break;
       case 'forceAssetLoad':
         return $this->_fixBoolean($this->_forceAssetLoad);
+        break;
+      case 'errorToExeptions':
+        return $this->_fixBoolean($this->_errorToExeptions);
         break;
       case 'errorEmail':
         if (is_null($this->_errorEmail) || !fw\MyMailer::ValidateAddress($this->_errorEmail)) {

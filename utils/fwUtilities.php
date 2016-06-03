@@ -8,7 +8,8 @@ namespace mmFramework;
 
 function customError($severity, $message, $file, $line, $context)
 {
-  if (TRUE) {
+  $config = Config::getInstance();
+  if ($config->errorToExeptions) {
     if (!(error_reporting() & $severity)) {
       // This seveerity is not in included in error_reporting
       //return;
