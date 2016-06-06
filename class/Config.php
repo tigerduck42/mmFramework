@@ -64,6 +64,8 @@ class Config
   private $_assertActive          = FALSE;
   private $_errorToExeptions      = TRUE;
 
+  private $_ignoreExections       = FALSE;
+
   // Helper stacks
   private $_configFileStack       = array();
   private $_reservedStack         = array();
@@ -256,6 +258,9 @@ class Config
       case 'errorToExeptions':
         return $this->_fixBoolean($this->_errorToExeptions);
         break;
+      case 'ignoreExections':
+        return $this->_ignoreExections;
+        break;
       case 'errorEmail':
         if (is_null($this->_errorEmail) || !fw\MyMailer::ValidateAddress($this->_errorEmail)) {
           throw new Exception(__METHOD__ . " - Error email not defined!");
@@ -296,6 +301,18 @@ class Config
             trigger_error(__CLASS__ . "::Getter - Attribute " . $name . " not defined!", E_USER_ERROR);
           }
         }
+        break;
+    }
+  }
+
+  public function __set($name, $value)
+  {
+    switch($name) {
+      case 'ignoreExections':
+        $this->_ignoreExections = $value;
+        break;
+      default:
+        trigger_error(__CLASS__ . "::Setter - '" . $name . "' Please use config file!", E_USER_ERROR);
         break;
     }
   }
@@ -353,11 +370,6 @@ class Config
 
     // nothing found
     return FALSE;
-  }
-
-  public function __set($name, $value)
-  {
-    trigger_error(__CLASS__ . "::Setter - '" . $name . "' Please use config file!", E_USER_ERROR);
   }
 
   public function __clone()

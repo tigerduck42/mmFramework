@@ -9,13 +9,19 @@ namespace mmFramework;
 function customError($severity, $message, $file, $line, $context)
 {
   $config = Config::getInstance();
+
   if ($config->errorToExeptions) {
+    if($config->ignoreExections) {
+      return;
+    }
+
     if (!(error_reporting() & $severity)) {
-      // This seveerity is not in included in error_reporting
+      // This severity is not in included in error_reporting
       //return;
     }
+
     // Don't spill exception on deprecated warnings
-    if (!((E_DEPRECATED | E_USER_DEPRECATED | E_USER_ERROR) & $severity)) {
+    if (!((E_DEPRECATED | E_USER_DEPRECATED | E_USER_ERROR | E_USER_NOTICE | E_USER_WARNING) & $severity)) {
       throw new \ErrorException($message, 0, $severity, $file, $line);
       return;
     }
