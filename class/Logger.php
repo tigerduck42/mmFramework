@@ -33,7 +33,6 @@ namespace mmFramework;
 
 class Logger
 {
-
   const LOG_CONSOLE = 1;
   const LOG_FILE    = 2;
   const LOG_DB      = 4;
@@ -49,16 +48,23 @@ class Logger
   private $_fromAddress    = NULL;
   private $_toAddress      = NULL;
 
+  // Digest settings
+  private $_digestStack    = array();
+  private $_digestSubject  = NULL;
+
   // File settings
   private $_fileName       = NULL;
 
   private $_styleStack = array(
-    'reset' => "\e[0m",
+    'reset'   => "\e[0m",
 
-    'red'   => "\e[91m",
-    'green' => "\e[92m",
+    'red'     => "\e[91m",
+    'green'   => "\e[92m",
+    'blue'    => "\e[94m",
+    'magenta' => "\e[95m",
 
-    'bold'  => "\e[1m",
+    'bold'    => "\e[1m",
+    'invers'  => "\e[7m",
   );
 
 
@@ -66,6 +72,31 @@ class Logger
   public function __construct($type = self::LOG_CONSOLE)
   {
     $this->_handleType = $type;
+  }
+
+  public function __destruct()
+  {
+    if (0 < count($this->_digestStack)) {
+      $body = "";
+      foreach ($this->_digestStack as $style => $lines) {
+        $block = implode("<br/>", $lines);
+
+        if (preg_match('{^([^:]+)::}', $style, $match)) {
+          $tag = $match[1];
+          $addStyle = '';
+          if ($tag == 'pre') {
+            $addStyle = ' style="font-size: 0.9em;"';
+          }
+          $body .= '<' . $tag . $addStyle . '>' . $block . '</' . $tag . '>';
+        } else {
+          $body .= $block;
+        }
+        $body .= "<br/>";
+      }
+
+      $subject = "[digest] " . $this->_digestSubject;
+      $this->_mail($body, $subject);
+    }
   }
 
   private function _setupMail()
@@ -97,6 +128,9 @@ class Logger
         break;
       case 'fileName':
         $this->_fileName = $value;
+        break;
+      case 'digestSubject':
+        $this->_digestSubject = $value;
         break;
       default:
         throw new Exception(__METHOD__ . " - Property " . $name . " not defined!", 2);
@@ -153,6 +187,14 @@ class Logger
     }
   }
 
+  public function digest($msg, $digestKey = 'default')
+  {
+    if (!isset($this->_digestStack[$digestKey])) {
+      $this->_digestStack[$digestKey] = array();
+    }
+    $this->_digestStack[$digestKey][] = $msg;
+  }
+
   private function _build($msg, $format = NULL)
   {
     if (!is_null($format)) {
@@ -169,13 +211,18 @@ class Logger
     }
 
     if ($this->_withTimestamp) {
-      $msg = '[' . date('r') . '] - ' . $msg;
+      $date = new \DateTime('now');
+      if (TRUE === $this->_withTimestamp) {
+        $msg = '[' . $date->format('r') . '] - ' . $msg;
+      } else {
+        $msg = '[' . $date->format($this->_withTimestamp) . '] - ' . $msg;
+      }
     }
 
     return $msg;
   }
 
-  private function _mail($msg)
+  private function _mail($msg, $subject = NULL)
   {
     $this->_setupMail();
 
@@ -183,7 +230,11 @@ class Logger
     $mail->From = $this->_fromAddress;
     $mail->FromName = $this->_fromName;
     $mail->AddAddress($this->_toAddress);
-    $mail->Subject = $msg;
+    if (is_null($subject)) {
+      $mail->Subject = $msg;
+    } else {
+      $mail->Subject = $subject;
+    }
     $mail->IsHTML();
     $mail->setBody("<p>" . $msg . "</p>");
 

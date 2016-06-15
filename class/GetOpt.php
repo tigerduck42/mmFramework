@@ -42,10 +42,17 @@ class GetOpt
 
   public function __get($name)
   {
-    if (isset($this->_theStack[$name])) {
-      return $this->_theStack[$name];
-    } else {
-      trigger_error(__CLASS__ . "::Getter - Attribute " . $name . " not defined!", E_USER_ERROR);
+    switch($name) {
+      case 'list':
+        return array_keys($this->_theStack);
+        break;
+      default:
+        if (isset($this->_theStack[$name])) {
+          return $this->_theStack[$name];
+        } else {
+          trigger_error(__CLASS__ . "::Getter - Attribute " . $name . " not defined!", E_USER_ERROR);
+        }
+        break;
     }
   }
 
@@ -107,7 +114,7 @@ class GetOpt
 
           $value = ltrim($value, '-');
           if (in_array($value, $this->_optStackKeys)) {
-            $this->_usage();
+            $this->usage();
           } else {
             $this->_theStack[$opt['name']] = $value;
           }
@@ -118,24 +125,33 @@ class GetOpt
     }
 
     if (isset($this->_theStack['help']) && (1 == $this->_theStack['help'])) {
-      $this->_usage();
+      $this->usage();
     }
   }
 
 
-  protected function _usage()
+  public function usage()
   {
     global $argv;
 
     $usageString = '';
     $usageString .= "Usage: " . $argv[0] . " [ options ]\n";
     $usageString .= "Options:\n";
-    foreach ($this->_optStack as $opt) {
+
+    // first determine the padding for option display
+    $pad = 0;
+    foreach ($this->_optStack as $key => $opt) {
       $param = '';
       if ($opt['forceValue']) {
-        $param = ' <' . $opt['name'] . '>';
+         $param .= ' <' . $opt['name'] . '>';
       }
-      $usageString .= "\t" . str_pad("-" . $opt['opt'] . "  --" . $opt['name'] . $param, 30) . $opt['text'] . "\n";
+      $this->_optStack[$key]['param'] = $opt['name'] . $param;
+      $pad = max($pad, (strlen($this->_optStack[$key]['param']) + 2));
+    }
+
+    foreach ($this->_optStack as $key => $opt) {
+      $usageString .= "\t" . "-" . $opt['opt'] . "  --" . str_pad($opt['param'], $pad) . $opt['text'] . "\n";
+      unset($this->_optStack[$key]['param']);
     }
 
     echo $usageString . "\n";

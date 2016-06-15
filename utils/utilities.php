@@ -25,6 +25,12 @@ function echo_nice($data, $return = FALSE)
   }
 }
 
+function echo_exit($data)
+{
+  echo_nice($data);
+  exit;
+}
+
 function email_nice($data)
 {
   $config = fw\Config::getInstance();
@@ -70,6 +76,18 @@ function substrAdv($str, &$start, $len)
   $subString = trim(substr($str, $start, $len));
   $start += $len;
   return $subString;
+}
+
+function truncate($string, $maxLen, $ending = "...")
+{
+  $endingLen = strlen($ending);
+  $truncLen  = $maxLen - $endingLen;
+  $stringLen = strlen($string);
+  if ($stringLen > $maxLen) {
+    $string = substr($string, 0, $truncLen) . $ending;
+  }
+
+  return $string;
 }
 
 function myObClean()

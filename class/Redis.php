@@ -33,33 +33,47 @@ namespace mmFramework;
 
 use mmFramework as fw;
 
-class Redis extends \Redis
+class Redis
 {
 
   private static $_useRedis = TRUE;
+
+  private $_redis           = NULL;
 
   public function __construct($timeOut = 2)
   {
     $config = Config::getInstance();
 
+    // Check if we should use redis
+    if ($config->redisHost == 'none') {
+      self::$_useRedis = FALSE;
+    }
+
     if (self::$_useRedis) {
       try {
-        parent::__construct();
-        $success = $this->pconnect($config->redisHost, NULL, $timeOut);
+        $this->_redis = new \Redis();
+        $success = $this->_redis->pconnect($config->redisHost, NULL, $timeOut);
         if (!$success) {
           throw new \RedisException("Can't connect to Redis server " . $config->redisHost);
         }
 
         // Select specific database
         if ($config->exists('redisDb')) {
-          if (!parent::select($config->redisDb)) {
+          if (!$this->_redis->select($config->redisDb)) {
             throw new \RedisException("Can't select database " . $config->redisDb);
           }
         }
-
       } catch (\RedisException $ex) {
         self::$_useRedis = FALSE;
-        //trigger_error($ex->getMessage(), E_USER_ERROR);
+        // Don't use trigger_error here.
+        // This will cause a infinite loop because we need redis for error handling as well.
+
+        // But we send the message about redis just once an hour!!! To prevent to many emails!!!
+        $redisBlock = sys_get_temp_dir() . '/redisBlock_' . md5(__FILE__);
+        if (!file_exists($redisBlock) || (time() - filemtime($redisBlock)) > 3600) {
+          softException($ex);
+          file_put_contents($redisBlock, time());
+        }
       }
     }
   }
@@ -76,19 +90,37 @@ class Redis extends \Redis
     }
   }
 
-
-  public function get($key)
+  /**
+   * Pushes all method calls to the Redis Client instance
+   */
+  public function __call($method, $args)
   {
-    if (!self::$_useRedis || !parent::exists($key)) {
+    if (!self::$_useRedis) {
       return NULL;
     }
 
-    $type = parent::hget($key, 'type');
-    $data = parent::hget($key, 'data');
+    try {
+      $reflectionMethod = new \ReflectionMethod($this->_redis, $method);
+      return $reflectionMethod->invokeArgs($this->_redis, $args);
+    } catch (\ReflectionException $ex) {
+      echo_nice($ex->getMessage());
+      //trigger_error($err->getMessage());
+    }
+  }
+
+
+  public function get($key)
+  {
+    if (!self::$_useRedis || !$this->_redis->exists($key)) {
+      return NULL;
+    }
+
+    $type = $this->_redis->hget($key, 'type');
+    $data = $this->_redis->hget($key, 'data');
 
     if ((FALSE === $type) || (FALSE === $data)) {
       //echo_nice("DELLLLLLLL");
-      parent::del($key);
+      $this->_redis->del($key);
       return NULL;
     }
 
@@ -126,27 +158,31 @@ class Redis extends \Redis
         break;
     }
 
-    $success1 = parent::hset($key, 'data', $data);
-    $success2 = parent::hset($key, 'type', $type);
+    $success1 = $this->_redis->hset($key, 'data', $data);
+    $success2 = $this->_redis->hset($key, 'type', $type);
     $success = (FALSE !== $success1) & (FALSE !== $success2);
     if (!$success) {
-      parent::del($key);
+      $this->_redis->del($key);
     }
     return (bool)$success;
   }
 
-  public function del($key)
+  /**
+   * Flush redis keys
+   * @param  string $redisKeyWildcard Redis key with optional; wildcard (*)
+   * @return boolen                   success
+   */
+  public function flush($redisKeyWildcard)
   {
-    if (self::$_useRedis) {
-      return parent::del($key);
+    if (!self::$_useRedis) {
+      return NULL;
     }
-    return 0;
-  }
 
-  public function expire($key, $lease)
-  {
-    if (self::$_useRedis) {
-      return parent::expire($key, $lease);
+    $success = TRUE;
+    $keyList = $this->keys($redisKeyWildcard);
+    foreach ($keyList as $redisKey) {
+      $success &= $this->del($redisKey);
     }
+    return $success;
   }
 }

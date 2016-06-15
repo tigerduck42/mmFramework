@@ -17,6 +17,8 @@ define("DIR_FRAMEWORK", $dirBase);
 require_once(DIR_FRAMEWORK . '/utils/fwUtilities.php');
 require_once(DIR_FRAMEWORK . '/utils/utilities.php');
 
+require_once(DIR_FRAMEWORK . '/thirdParty/vendor/autoload.php');
+
 // Load classes
 spl_autoload_register('mmFramework\customAutoLoader');
 

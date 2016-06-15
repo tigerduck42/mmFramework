@@ -31,6 +31,8 @@
 
 namespace mmFramework\DB;
 
-class Exception extends \exception
+use mmFramework as fw;
+
+class Exception extends fw\Exception
 {
 }

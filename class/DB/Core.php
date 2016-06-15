@@ -97,6 +97,7 @@ abstract class Core
   abstract protected function _errorMsg();
 
   abstract protected function _prepare($sql);
+  abstract protected function _bindParam(&$params);
   abstract protected function _execute();
 
   // Transaction support
@@ -152,6 +153,15 @@ abstract class Core
     return $this->insertId;
   }
 
+  public function replace($table, $row)
+  {
+    $quoted = $this->_quoteValues($row);
+
+    $sql = "REPLACE INTO `" . $table . "`";
+    $sql .= " (" . implode(array_keys($quoted), ', ') . ")";
+    $sql .= " VALUES (" . implode($quoted, ", ") . ")";
+    $this->_query($sql);
+  }
 
   public function update($table, $row, $id, $customIdName = NULL)
   {
@@ -306,6 +316,12 @@ abstract class Core
   public function prepare($sql)
   {
     return $this->_prepare($sql);
+  }
+
+  public function bindParam()
+  {
+    $params = func_get_args();
+    return $this->_bindParam($params);
   }
 
   public function execute()
