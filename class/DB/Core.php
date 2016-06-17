@@ -296,7 +296,7 @@ abstract class Core
       if ($this->_inTransaction) {
         throw new Exception($errorMessage);
       } else {
-        trigger_error($errorMessage, E_USER_ERROR);
+        fw\customError(42, $errorMessage, __FILE__, __LINE__, NULL);
       }
 
       $this->_resultHandle = FALSE;
