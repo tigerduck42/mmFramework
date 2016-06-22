@@ -276,11 +276,15 @@ class MySQL extends Core
     $errorStack = array();
     if (count($this->_link->error_list)) {
       foreach ($this->_link->error_list as $eRec) {
-        $message = 'DB Error (' . $eRec['errno'] . ') ' . $eRec['error'];
+        $errorMessage = 'DB Error (' . $eRec['errno'] . ') ' . $eRec['error'];
         if ($nice) {
-          $errorStack[] = $message;
+          $errorStack[] = $errorMessage;
         } else {
-          trigger_error($message, E_USER_ERROR);
+          if ($this->_inTransaction) {
+            throw new Exception($errorMessage);
+          } else {
+            fw\customError(42, $errorMessage, __FILE__, __LINE__, NULL);
+          }
         }
       }
     } else {
