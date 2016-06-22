@@ -149,6 +149,7 @@ class Logger
     $this->_handleType    = self::LOG_MAIL;
     $this->_withTimestamp = FALSE;
 
+    // mail the message
     $this->write($msg);
 
     $this->_handleType    = $oldType;
