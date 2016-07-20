@@ -388,6 +388,11 @@ class Config
     }
   }
 
+  /**
+   * Get a single config attribute
+   * @param  string $name Name of attribute
+   * @return mixed        Value of attribute
+   */
   public static function get($name)
   {
     $obj = self::getInstance();
