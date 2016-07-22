@@ -37,7 +37,8 @@ class ShellCmd
   {
     $lines = array();
     $exitStatus = 0;
-    $lastLine = exec($cmd, $lines, $exitStatus);
+    //$lastLine = exec($cmd, $lines, $exitStatus);
+    $lastLine = exec(escapeshellcmd($cmd), $lines, $exitStatus);
     if ($returnLines) {
       return $lines;
     } else {
