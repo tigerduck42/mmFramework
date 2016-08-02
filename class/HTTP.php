@@ -248,6 +248,11 @@ class HTTP
           // still okay, no file uploaded
           $file = NULL;
           break;
+        case UPLOAD_ERR_INI_SIZE:
+          $errorKey = ErrorHandle::getErrorCode('UPLOAD_ERR', $file['error']);
+          trigger_error(__METHOD__ . " - Fileupload failed with error " . $errorKey);
+          $file = NULL;
+          break;
         default:
           $errorKey = ErrorHandle::getErrorCode('UPLOAD_ERR', $file['error']);
           trigger_error(__METHOD__ . " - Fileupload failed with error " . $errorKey);
