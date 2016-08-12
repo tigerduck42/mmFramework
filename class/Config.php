@@ -268,6 +268,9 @@ class Config
         return $this->_errorEmail;
         break;
       case 'mailOverRide':
+        if (preg_match('{(NULL|FALSE|0)}i', $this->_mailOverRide)) {
+          $this->_mailOverRide = NULL;
+        }
         if (!is_null($this->_mailOverRide) && !fw\MyMailer::ValidateAddress($this->_mailOverRide)) {
           throw new Exception(__METHOD__ . " - Override email not defined!");
         }

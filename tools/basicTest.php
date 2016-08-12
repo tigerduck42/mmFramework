@@ -27,7 +27,7 @@ if ($config->hasMailConfigured) {
 
 echo_block("Redis Host", $config->redisHost);
 
-if (empty($config->mailOverRide)) {
+if (is_null($config->mailOverRide)) {
   echo_block("MailOverRide", '---');
 } else {
   echo_block("MailOverRide", $config->mailOverRide);
