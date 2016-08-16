@@ -83,6 +83,10 @@ class MySQL extends Core
 
   public function asFetch()
   {
+    if (is_null($this->_resultHandle)) {
+      throw new Exception("Resource handle is NULL");
+    }
+
     if (FALSE !== $this->_resultHandle) {
       $this->_result = $this->_resultHandle->fetch_assoc();
       return $this->_result;
@@ -93,6 +97,10 @@ class MySQL extends Core
 
   public function objFetch()
   {
+    if (is_null($this->_resultHandle)) {
+      throw new Exception("Resource handle is NULL");
+    }
+
     if (FALSE !== $this->_resultHandle) {
       $this->_result = $this->_resultHandle->fetch_object();
       return $this->_result;
@@ -103,6 +111,10 @@ class MySQL extends Core
 
   public function asFetchAll()
   {
+    if (is_null($this->_resultHandle)) {
+      throw new Exception("Resource handle is NULL");
+    }
+
     if (FALSE !== $this->_resultHandle) {
       $this->_result = $this->_resultHandle->fetch_all(MYSQLI_ASSOC);
       return $this->_result;
@@ -170,7 +182,7 @@ class MySQL extends Core
   public function beginTransaction()
   {
     if ($this->_inTransaction) {
-      throw new exception("Already in transaction!");
+      throw new Exception("Already in transaction!");
     }
 
     $this->_link->autocommit(FALSE);
@@ -205,7 +217,12 @@ class MySQL extends Core
       if (!$statement) {
         $this->_checkError();
       }
-      $this->_statementStack[$statementKey] = $statement;
+
+      if (FALSE !== $statement) {
+        $this->_statementStack[$statementKey] = $statement;
+      } else {
+        throw new Exception("Invalid query: " . $sql);
+      }
     }
 
     return $statementKey;
@@ -215,6 +232,10 @@ class MySQL extends Core
   {
     // Knock off statement key
     $statementKey = array_shift($params);
+
+    if (!isset($this->_statementStack[$statementKey])) {
+      throw new Exception("Statement key not found");
+    }
 
     // Passed by reference hack
     $tmp = array();
@@ -227,6 +248,11 @@ class MySQL extends Core
 
   protected function _execute($statementKey)
   {
+
+    if (!isset($this->_statementStack[$statementKey])) {
+      throw new Exception("Statement key not found");
+    }
+
     // Fetch statement from stack
     $statement = $this->_statementStack[$statementKey];
 
@@ -244,8 +270,10 @@ class MySQL extends Core
   {
     // Knock off statement key
     $statementKey = $params[0];
-    $this->_bindParam($params);
-    $success = $this->_execute($statementKey);
+    $success = $this->_bindParam($params);
+    if ($success) {
+      $success = $this->_execute($statementKey);
+    }
     return $success;
   }
 
