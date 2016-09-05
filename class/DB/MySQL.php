@@ -83,6 +83,10 @@ class MySQL extends Core
 
   public function asFetch()
   {
+    if (is_null($this->_resultHandle)) {
+      throw new Exception("Resource handle is NULL");
+    }
+
     if (FALSE !== $this->_resultHandle) {
       $this->_result = $this->_resultHandle->fetch_assoc();
       return $this->_result;
@@ -93,6 +97,10 @@ class MySQL extends Core
 
   public function objFetch()
   {
+    if (is_null($this->_resultHandle)) {
+      throw new Exception("Resource handle is NULL");
+    }
+
     if (FALSE !== $this->_resultHandle) {
       $this->_result = $this->_resultHandle->fetch_object();
       return $this->_result;
@@ -103,6 +111,10 @@ class MySQL extends Core
 
   public function asFetchAll()
   {
+    if (is_null($this->_resultHandle)) {
+      throw new Exception("Resource handle is NULL");
+    }
+
     if (FALSE !== $this->_resultHandle) {
       $this->_result = $this->_resultHandle->fetch_all(MYSQLI_ASSOC);
       return $this->_result;
@@ -170,7 +182,7 @@ class MySQL extends Core
   public function beginTransaction()
   {
     if ($this->_inTransaction) {
-      throw new exception("Already in transaction!");
+      throw new Exception("Already in transaction!");
     }
 
     $this->_link->autocommit(FALSE);
@@ -194,19 +206,36 @@ class MySQL extends Core
 
 
   //
-  //  Prepare /  Excute
+  //  Prepare /  Execute
   //
 
   protected function _prepare($sql)
   {
-    $this->_statement = $this->_link->prepare($sql);
-    if (!$this->_statement) {
-      $this->_checkError();
+    $statementKey = md5($sql);
+    if (!isset($this->_statementStack[$statementKey])) {
+      $statement = $this->_link->prepare($sql);
+      if (!$statement) {
+        $this->_checkError();
+      }
+
+      if (FALSE !== $statement) {
+        $this->_statementStack[$statementKey] = $statement;
+      } else {
+        throw new Exception("Invalid query: " . $sql);
+      }
     }
+
+    return $statementKey;
   }
 
   protected function _bindParam(&$params)
   {
+    // Knock off statement key
+    $statementKey = array_shift($params);
+
+    if (!isset($this->_statementStack[$statementKey])) {
+      throw new Exception("Statement key not found");
+    }
 
     // Passed by reference hack
     $tmp = array();
@@ -214,26 +243,45 @@ class MySQL extends Core
       $tmp[] = &$params[$key];
     }
 
-    return call_user_func_array(array($this->_statement, "bind_param"), $tmp);
+    return call_user_func_array(array($this->_statementStack[$statementKey], "bind_param"), $tmp);
   }
 
-  protected function _execute()
+  protected function _execute($statementKey)
   {
-    $success = $this->_statement->execute();
 
-    $this->_resultHandle = $this->_statement->get_result();
-    $this->_rows         = max($this->_statement->num_rows, $this->_statement->affected_rows);
-    $this->_affectedRows = $this->_statement->affected_rows;
+    if (!isset($this->_statementStack[$statementKey])) {
+      throw new Exception("Statement key not found");
+    }
+
+    // Fetch statement from stack
+    $statement = $this->_statementStack[$statementKey];
+
+    $success = $statement->execute();
+
+    $this->_resultHandle = $statement->get_result();
+    $this->_rows         = max($statement->num_rows, $statement->affected_rows);
+    $this->_affectedRows = $statement->affected_rows;
     $this->_checkError();
 
     return $success;
   }
 
+  protected function _bindParamExecute(&$params)
+  {
+    // Knock off statement key
+    $statementKey = $params[0];
+    $success = $this->_bindParam($params);
+    if ($success) {
+      $success = $this->_execute($statementKey);
+    }
+    return $success;
+  }
+
   protected function _executeWithId($sql, $id)
   {
-    $this->_prepare($sql);
-    $this->_statement->bind_param('i', $id);
-    return $this->_execute();
+    $statementKey = $this->_prepare($sql);
+    $this->bindParam($statementKey, 'i', $id);
+    return $this->_execute($statementKey);
   }
 
   private function _endTransaction($type)
@@ -256,11 +304,15 @@ class MySQL extends Core
     $errorStack = array();
     if (count($this->_link->error_list)) {
       foreach ($this->_link->error_list as $eRec) {
-        $message = 'DB Error (' . $eRec['errno'] . ') ' . $eRec['error'];
+        $errorMessage = 'DB Error (' . $eRec['errno'] . ') ' . $eRec['error'];
         if ($nice) {
-          $errorStack[] = $message;
+          $errorStack[] = $errorMessage;
         } else {
-          trigger_error($message, E_USER_ERROR);
+          if ($this->_inTransaction) {
+            throw new Exception($errorMessage);
+          } else {
+            fw\customError(42, $errorMessage, __FILE__, __LINE__, NULL);
+          }
         }
       }
     } else {

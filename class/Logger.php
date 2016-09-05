@@ -39,7 +39,8 @@ class Logger
   const LOG_MAIL    = 8;
   const LOG_RETURN  = 16;
 
-  const TS_FORMAT_LOG = 'log';
+  const TS_FORMAT_LOG      = 'log';
+  const TS_FORMAT_FAIL2BAN = 'fail2ban';
 
   private $_withTimestamp  = FALSE;
   private $_handleType     = 1;
@@ -149,6 +150,7 @@ class Logger
     $this->_handleType    = self::LOG_MAIL;
     $this->_withTimestamp = FALSE;
 
+    // mail the message
     $this->write($msg);
 
     $this->_handleType    = $oldType;
@@ -220,13 +222,21 @@ class Logger
       if (TRUE === $this->_withTimestamp) {
         $msg = '[' . $date->format('r') . '] - ' . $msg;
       } else {
+        $wrapping = TRUE;
         switch($this->_withTimestamp) {
           case self::TS_FORMAT_LOG:
             $this->_withTimestamp = 'D j M H:i:s T Y';
             break;
+          case self::TS_FORMAT_FAIL2BAN:
+            $this->_withTimestamp = 'M j H:i:s T Y';
+            $wrapping = FALSE;
         }
 
-        $msg = '[' . $date->format($this->_withTimestamp) . '] - ' . $msg;
+        if ($wrapping) {
+          $msg = '[' . $date->format($this->_withTimestamp) . '] - ' . $msg;
+        } else {
+          $msg = $date->format($this->_withTimestamp) . ' - ' . $msg;
+        }
       }
     }
 

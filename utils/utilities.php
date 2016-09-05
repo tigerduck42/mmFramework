@@ -64,11 +64,16 @@ function intNice($value)
   return $value;
 }
 
-function waitForMe()
+function waitForMe($question = NULL)
 {
-  echo_nice("Press Key to continue.");
+  if (is_null($question)) {
+    echo_nice("Press Key to continue.");
+  } else {
+    echo($question . " ");
+  }
   $handle = fopen("php://stdin", "r");
-  $line = fgets($handle);
+  $char = fgetc($handle);
+  return $char;
 }
 
 function substrAdv($str, &$start, $len)

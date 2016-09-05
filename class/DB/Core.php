@@ -35,15 +35,14 @@ use mmFramework as fw;
 
 abstract class Core
 {
-  protected $_dbName        = NULL;
-  protected $_link          = NULL;
-  protected $_rows          = NULL;
-  protected $_affectedRows  = NULL;
-  protected $_resultHandle  = NULL;
-  protected $_result        = NULL;
-  protected $_insertId      = NULL;
-
-  protected $_statement     = NULL;
+  protected $_dbName         = NULL;
+  protected $_link           = NULL;
+  protected $_rows           = NULL;
+  protected $_affectedRows   = NULL;
+  protected $_resultHandle   = NULL;
+  protected $_result         = NULL;
+  protected $_insertId       = NULL;
+  protected $_statementStack = array();
 
   protected $_inTransaction = FALSE;
 
@@ -69,9 +68,6 @@ abstract class Core
       //case 'link':
       //  return $this->_link;
       //  break;
-      case 'statement':
-        return $this->_statement;
-        break;
       case 'threadId':
         return $this->_threadId();
         break;
@@ -79,7 +75,7 @@ abstract class Core
         return (is_object($this->_resultHandle) || (TRUE === $this->_resultHandle));
         break;
       default:
-        throw new Exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
+        throw new Exception(__CLASS__ . "::Get - Attribute '" . $name . "' not defined!");
         break;
     }
   }
@@ -100,7 +96,8 @@ abstract class Core
 
   abstract protected function _prepare($sql);
   abstract protected function _bindParam(&$params);
-  abstract protected function _execute();
+  abstract protected function _execute($statementKey);
+  abstract protected function _bindParamExecute(&$params);
   abstract protected function _executeWithId($sql, $id);
 
   // Transaction support
@@ -299,7 +296,7 @@ abstract class Core
       if ($this->_inTransaction) {
         throw new Exception($errorMessage);
       } else {
-        trigger_error($errorMessage, E_USER_ERROR);
+        fw\customError(42, $errorMessage, __FILE__, __LINE__, NULL);
       }
 
       $this->_resultHandle = FALSE;
@@ -347,9 +344,15 @@ abstract class Core
     return $this->_bindParam($params);
   }
 
-  public function execute()
+  public function execute($statementKey)
   {
-    return $this->_execute();
+    return $this->_execute($statementKey);
+  }
+
+  public function bindParamExecute()
+  {
+    $params = func_get_args();
+    return $this->_bindParamExecute($params);
   }
 
   public function executeWithId($sql, $id)

@@ -230,7 +230,7 @@ abstract class OutputRenderer
    * @param string $media The media type, defaults to screen.
    * @return HtmlRelationTag The new tag, if you need to add extra attributes.
    */
-  public function addCss($cssUrl, $media = "screen")
+  public function addCss($cssUrl, $media = "all")
   {
     assert(is_string($cssUrl));
     assert(is_string($media));

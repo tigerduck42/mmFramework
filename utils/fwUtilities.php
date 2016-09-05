@@ -6,7 +6,31 @@ namespace mmFramework;
  * Error
  */
 
-function customError($no, $string, $file, $line, $context)
+function customError($severity, $message, $file, $line, $context)
+{
+  $config = Config::getInstance();
+
+  if ($config->errorToExeptions) {
+    if($config->ignoreExections) {
+      return;
+    }
+
+    if (!(error_reporting() & $severity)) {
+      // This severity is not in included in error_reporting
+      //return;
+    }
+
+    // Don't spill exception on deprecated warnings
+    if (!((E_DEPRECATED | E_USER_DEPRECATED | E_USER_ERROR | E_USER_NOTICE | E_USER_WARNING) & $severity)) {
+      throw new \ErrorException($message, 0, $severity, $file, $line);
+      return;
+    }
+  }
+
+  customErrorMessage(NULL, $message, $file, $line, $context, $severity);
+}
+
+function customErrorMessage($no, $message, $file, $line, $context, $severity = NULL)
 {
   $config = Config::getInstance();
   $api = php_sapi_name();
@@ -34,7 +58,8 @@ function customError($no, $string, $file, $line, $context)
   $hError = new ErrorHandle($errorHandle);
 
   $hError->no       = $no;
-  $hError->string   = $string;
+  $hError->severity = $severity;
+  $hError->string   = $message;
   $hError->file     = $file;
   $hError->line     = $line;
   $hError->context  = $context;
@@ -49,7 +74,7 @@ function softException($exception)
   $message = $exception->getMessage();
   $file    = $exception->getFile();
   $line    = $exception->getLine();
-  customError($code, $message, $file, $line, NULL);
+  customErrorMessage($code, $message, $file, $line, NULL, E_USER_ERROR);
 }
 
 /**
@@ -71,7 +96,11 @@ function customException($ex)
     $reducedStack[] = $node;
   }
 
-  customError(0, nl2br($errorString), $ex->getFile(), $ex->getLine(), $reducedStack);
+  $severity = NULL;
+  if (get_class($ex) == "ErrorException") {
+    $severity = $ex->getSeverity();
+  }
+  customErrorMessage($ex->getCode(), nl2br($errorString), $ex->getFile(), $ex->getLine(), $reducedStack, $severity);
 
   $config = Config::getInstance();
   $api = php_sapi_name();
