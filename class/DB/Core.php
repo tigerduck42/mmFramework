@@ -71,6 +71,9 @@ abstract class Core
       case 'threadId':
         return $this->_threadId();
         break;
+      case 'inTransaction':
+        return $this->_inTransaction;
+        break;
       case 'success':
         return (is_object($this->_resultHandle) || (TRUE === $this->_resultHandle));
         break;
