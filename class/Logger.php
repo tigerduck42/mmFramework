@@ -65,7 +65,7 @@ class Logger
     'magenta' => "\e[95m",
 
     'bold'    => "\e[1m",
-    'invers'  => "\e[7m",
+    'inverse' => "\e[7m",
 
     'reset'   => "\e[0m",
   );
