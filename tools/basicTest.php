@@ -5,9 +5,15 @@ namespace mmFramework;
 $fileLocation = preg_replace('{tools.*$}', '', dirname(__FILE__));
 require_once($fileLocation . "/init/global.php");
 
-function echo_block($title, $value)
+function echo_block($title, $value, $red = NULL)
 {
-  echo_nice(str_pad($title. ': ', 18) . $value);
+  $style = NULL;
+  if ($red) {
+    $style = 'red|inverse';
+  }
+
+  $log = new Logger();
+  $log->write(str_pad($title. ': ', 18) . $value, $style);
 }
 
 
@@ -33,6 +39,10 @@ if (is_null($config->mailOverRide)) {
   echo_block("MailOverRide", $config->mailOverRide);
 }
 
+echo_block("Minfy Js", $config->minifyJs, !$config->minifyJs);
+echo_block("Minfy Css", $config->minifyCss, !$config->minifyCss);
+echo_block("Error2Exception", $config->errorToExeptions, !$config->errorToExeptions);
+
 //
 // Database information
 //
@@ -49,7 +59,6 @@ foreach ($config->db as $dbKey => $dbConf) {
   }
 }
 
-
 //
 // Test Mail
 //
@@ -65,5 +74,5 @@ if ($config->hasMailConfigured) {
   $hError->output();
   echo_block("Trigger Error", 'yes');
 } else {
-  echo_block("Trigger Error", 'no');
+  echo_block("Trigger Error", 'no', 1);
 }
