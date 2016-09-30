@@ -11,7 +11,7 @@ function customError($severity, $message, $file, $line, $context)
   $config = Config::getInstance();
 
   if ($config->errorToExeptions) {
-    if($config->ignoreExections) {
+    if ($config->ignoreExections) {
       return;
     }
 
@@ -86,6 +86,19 @@ function customException($ex)
   //ini_set('memory_limit', '-1');
   $errorString  = "Uncaught " . $ex->__toString();
   $errorString .= " thrown in <b>" . $ex->getFile() . "</b> on line <b>" . $ex->getLine() . "</b><br/>";
+
+  // Add _GET, _POST and _SERVER stack
+  if (!empty($_GET)) {
+    $errorString .=  "\nGET: " . print_r($_GET, TRUE);
+  }
+
+  if (!empty($_POST)) {
+    $errorString .=  "\nPOST: " . print_r($_POST, TRUE);
+  }
+
+  if (!empty($_SERVER)) {
+    $errorString .=  "\nSERVER: " . print_r($_SERVER, TRUE);
+  }
 
   $traceStack = $ex->getTrace();
   $reducedStack = array();
