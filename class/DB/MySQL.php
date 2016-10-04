@@ -67,7 +67,30 @@ class MySQL extends Core
       $dbConf->dbCharset = 'utf8';
     }
 
-    $this->_link = new \mysqli($dbConf->dbHost, $dbConf->dbUser, $dbConf->dbPassword, $dbConf->dbName, $dbConf->dbPort);
+    if (TRUE) {
+      $maxTries  = 3;
+      $connected = FALSE;
+      $loop      = 0;
+      do {
+        try {
+          $loop++;
+          $this->_link = new \mysqli($dbConf->dbHost, $dbConf->dbUser, $dbConf->dbPassword, $dbConf->dbName, $dbConf->dbPort);
+          $connected = TRUE;
+        } catch (\ErrorException $ex) {
+          sleep(1);
+          if ($loop >= $maxTries) {
+            throw $ex;
+          }
+        }
+      } while (!$connected && ($maxTries > $loop));
+
+      if ($loop > 1) {
+        email_nice("Needed " . $loop  . " connect tries.<br/>\n<strong>" . $_SERVER['SCRIPT_FILENAME']. "</strong><br/>\n
+        <pre>" . print_r_nice($_SERVER, TRUE) . "</pre>", "MysqlConnect");
+      }
+    } else {
+      $this->_link = new \mysqli($dbConf->dbHost, $dbConf->dbUser, $dbConf->dbPassword, $dbConf->dbName, $dbConf->dbPort);
+    }
 
     // Set the dbName used for error messages
     $this->_dbName = $dbConf->dbName;
