@@ -31,6 +31,18 @@ function echo_exit($data)
   exit;
 }
 
+function notifyAdmin($data, $subject = NULL, $cacheInterval = 0)
+{
+  $redisKey = "notifyAdmin-" . md5($data . $subject);
+  $redis = new Redis();
+  $cached = $redis->get($redisKey);
+  if (is_null($cached)) {
+    email_nice($data, $subject);
+    $redis->set($redisKey);
+    $redis->expire($redisKey, $cacheInterval);
+  }
+}
+
 function email_nice($data, $subject = NULL)
 {
   $config = fw\Config::getInstance();
