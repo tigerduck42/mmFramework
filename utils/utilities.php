@@ -31,7 +31,7 @@ function echo_exit($data)
   exit;
 }
 
-function email_nice($data)
+function email_nice($data, $subject = NULL)
 {
   $config = fw\Config::getInstance();
   $body = '';
@@ -48,6 +48,11 @@ function email_nice($data)
   $mail->AddAddress($config->errorEmail, "WebAdmin");
   $mail->Subject = "";
   $mail->Subject .= "[DEBUG] " . fw\HTTP::hostname();
+
+  if (!is_null($subject)) {
+    $mail->Subject .= " - " . $subject;
+  }
+
   $mail->IsHTML();
   $mail->setBody($body);
 

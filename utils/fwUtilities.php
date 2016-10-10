@@ -96,8 +96,18 @@ function customException($ex)
     $errorString .=  "\nPOST: " . print_r($_POST, TRUE);
   }
 
-  if (!empty($_SERVER)) {
-    $errorString .=  "\nSERVER: " . print_r($_SERVER, TRUE);
+
+  $api = php_sapi_name();
+  if ($api != 'cli') {
+    // Copy it across to have all values on a later stage
+    $myServer = $_SERVER;
+
+    // Remove some parts from
+    unset($myServer['LS_COLORS']);
+
+    if (!empty($myServer)) {
+      $errorString .=  "\nSERVER: " . print_r($myServer, TRUE);
+    }
   }
 
   $traceStack = $ex->getTrace();
