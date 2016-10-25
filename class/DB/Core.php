@@ -278,10 +278,10 @@ abstract class Core
 
       $errorMessageStack = array();
       $errorMessageStack[] = 'Query Failed';
-      if (!empty(fw\HTTP::server('REQUEST_URI'))) {
+      if (!is_null(fw\HTTP::server('REQUEST_URI'))) {
         $errorMessageStack[] = '<strong>URI:</strong> ' . fw\HTTP::server('REQUEST_URI');
       }
-      if (!empty(fw\HTTP::server("REMOTE_ADDR"))) {
+      if (!is_null(fw\HTTP::server("REMOTE_ADDR"))) {
         $errorMessageStack[] = '<strong>Remote Address:</strong> '  . fw\HTTP::server("REMOTE_ADDR");
       }
       $errorMessageStack[] = '<strong>Database:</strong> ' . $this->_dbName;
