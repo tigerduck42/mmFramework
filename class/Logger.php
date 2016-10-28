@@ -49,7 +49,7 @@ class Logger
   private $_maxRetry       = 1;
   private $_fromName       = 'Logger';
   private $_fromAddress    = NULL;
-  private $_toAddress      = NULL;
+  private $_recipientList  = NULL;
 
   // Digest settings
   private $_digestStack    = array();
@@ -74,6 +74,9 @@ class Logger
 
   public function __construct($type = self::LOG_CONSOLE)
   {
+    // Register logger config section
+    Config::registerSection('logger', TRUE);
+
     $this->_handleType = $type;
   }
 
@@ -104,10 +107,34 @@ class Logger
 
   private function _setupMail()
   {
-    if (is_null($this->_toAddress)) {
-      $config = Config::getInstance();
-      $this->_toAddress   = $config->errorEmail;
+    $config = Config::getInstance();
+
+    // Check from address
+    if (is_null($this->_fromAddress)) {
       $this->_fromAddress = $config->errorEmail;
+    }
+
+
+    if (is_null($this->_recipientList)) {
+      $recepientList = array();
+      if ($config->exists("logger")) {
+        $loggerConf = $config->logger['default'];
+
+        if (property_exists($loggerConf, "digestRecipient")) {
+          $recipentStackRaw = explode(',', $loggerConf->digestRecipient);
+          foreach ($recipentStackRaw as $emailAddress) {
+            $emailAddress = trim($emailAddress);
+            if (MyMailer::ValidateAddress($emailAddress)) {
+              $recepientList[] = $emailAddress;
+            }
+          }
+        }
+      }
+
+      if (empty($recepientStack)) {
+        $recepientList[] = $config->errorEmail;
+      }
+      $this->_recipientList = $recepientList;
     }
   }
 
@@ -250,7 +277,11 @@ class Logger
     $mail = new MyMailer();
     $mail->From = $this->_fromAddress;
     $mail->FromName = $this->_fromName;
-    $mail->AddAddress($this->_toAddress);
+
+    foreach ($this->_recipientList as $emailAddress) {
+      $mail->AddAddress($emailAddress);
+    }
+
     if (is_null($subject)) {
       $mail->Subject = $msg;
     } else {
