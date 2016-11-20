@@ -33,9 +33,9 @@ namespace mmFramework;
 
 class Page
 {
-
   protected $_query    = NULL;
   protected $_fullName = NULL;
+  protected $_referrer = NULL;
   protected $_parts    = NULL;
 
   public function __construct($url = NULL)
@@ -43,6 +43,7 @@ class Page
     if (is_null($url)) {
       $this->_query    = HTTP::server('QUERY_STRING');
       $this->_fullName = HTTP::server('SCRIPT_NAME');
+      $this->_referrer = HTTP::server('HTTP_REFERER');
     } else {
       $parts = explode('?', $url);
       $this->_fullName = $parts[0];
@@ -69,6 +70,9 @@ class Page
           $this->_parts = $this->_split();
         }
         return $this->_parts['basename'];
+        break;
+      case 'referrer':
+        return preg_replace('{^https?://[^/]+}', '', $this->_referrer);
         break;
       case "qStack":
         parse_str($this->_query, $stack);
