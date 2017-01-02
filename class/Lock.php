@@ -68,6 +68,9 @@ class Lock
   {
     switch($name) {
       case 'lockPath':
+        if (!file_exists($value)) {
+          mkdir($value);
+        }
         if (file_exists($value)) {
           $this->_lockPath = $value;
           $this->_setLockFile();

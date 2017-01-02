@@ -145,6 +145,11 @@ class Filter
     if (count($this->_orderStack) > 0) {
       $sql .= " ORDER BY ";
       foreach ($this->_orderStack as $order) {
+        if (preg_match('{^(.+)_NUM$}', $order->sort, $match)) {
+          $order->sort = $match[1];
+          $order->name = 'literal::' . $order->name . ' * 1';
+        }
+
         if (preg_match('{^literal::(.+)$}', $order->name, $match)) {
           $orderName = $match[1];
           $sql .= ' ' . $orderName . ' ' . $order->sort . ', ';

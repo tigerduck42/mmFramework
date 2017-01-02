@@ -35,14 +35,14 @@ use mmFramework as fw;
 
 abstract class Core
 {
-  protected $_link          = NULL;
-  protected $_rows          = NULL;
-  protected $_affectedRows  = NULL;
-  protected $_resultHandle  = NULL;
-  protected $_result        = NULL;
-  protected $_insertId      = NULL;
-
-  protected $_statement     = NULL;
+  protected $_dbName         = NULL;
+  protected $_link           = NULL;
+  protected $_rows           = NULL;
+  protected $_affectedRows   = NULL;
+  protected $_resultHandle   = NULL;
+  protected $_result         = NULL;
+  protected $_insertId       = NULL;
+  protected $_statementStack = array();
 
   protected $_inTransaction = FALSE;
 
@@ -68,17 +68,17 @@ abstract class Core
       //case 'link':
       //  return $this->_link;
       //  break;
-      case 'statement':
-        return $this->_statement;
-        break;
       case 'threadId':
         return $this->_threadId();
+        break;
+      case 'inTransaction':
+        return $this->_inTransaction;
         break;
       case 'success':
         return (is_object($this->_resultHandle) || (TRUE === $this->_resultHandle));
         break;
       default:
-        throw new Exception(__CLASS__ . "::Get - Attribute " . $name . " not defined!");
+        throw new Exception(__CLASS__ . "::Get - Attribute '" . $name . "' not defined!");
         break;
     }
   }
@@ -89,6 +89,7 @@ abstract class Core
 
   abstract protected function _connect();
   abstract protected function _q($sql);
+  abstract protected function _qMulti($sql);
   abstract protected function _escape($value);
   abstract protected function _rows();
   abstract protected function _affectedRows();
@@ -98,7 +99,9 @@ abstract class Core
 
   abstract protected function _prepare($sql);
   abstract protected function _bindParam(&$params);
-  abstract protected function _execute();
+  abstract protected function _execute($statementKey);
+  abstract protected function _bindParamExecute(&$params);
+  abstract protected function _executeWithId($sql, $id);
 
   // Transaction support
   abstract public function beginTransaction();
@@ -125,6 +128,11 @@ abstract class Core
           break;
       }
     }
+  }
+
+  public function queryMulti($sql)
+  {
+    return $this->_queryMulti($sql);
   }
 
 
@@ -242,7 +250,7 @@ abstract class Core
   }
 
 
-  protected function _query($sql)
+  private function _query($sql)
   {
 
     $mtime = microtime();
@@ -268,20 +276,30 @@ abstract class Core
       $endtime = $mtime;
       $totaltime = ($endtime - $starttime);
 
+      $errorMessageStack = array();
+      $errorMessageStack[] = 'Query Failed';
+      if (!is_null(fw\HTTP::server('REQUEST_URI'))) {
+        $errorMessageStack[] = '<strong>URI:</strong> ' . fw\HTTP::server('REQUEST_URI');
+      }
+      if (!is_null(fw\HTTP::server("REMOTE_ADDR"))) {
+        $errorMessageStack[] = '<strong>Remote Address:</strong> '  . fw\HTTP::server("REMOTE_ADDR");
+      }
+      $errorMessageStack[] = '<strong>Database:</strong> ' . $this->_dbName;
+      $errorMessageStack[] = '<strong>SQL:</strong> ' . $sql;
+      $errorMessageStack[] = '<strong>Total Time:</strong> ' . $totaltime;
+      $errorMessageStack[] = '<strong>MySQL Error:</strong> (' . $this->_errorNo() . ') ' . $this->_errorMsg();
 
-      $errorMessage =
-        'Query Failed<br/>
-        <b>Time:</b> ' . date('l dS \of F Y h:i:s A') . '<br/>
-        <b>URI:</b> ' . fw\HTTP::server('REQUEST_URI') . '<br/>
-        <b>Remote Address:</b> '  . fw\HTTP::server("REMOTE_ADDR") . '<br/>
-        <b>SQL:</b> ' . $sql . '<br/>
-        <b>Total Time:</b> ' . $totaltime . '<br/>
-        <b>MySQL Error:</b> (' . $this->_errorNo() . ') ' . $this->_errorMsg() . "<br/>\n";
+      $api = php_sapi_name();
+      if ($api == 'cli') {
+        $errorMessage = implode("\n", $errorMessageStack);
+      } else {
+        $errorMessage = implode("<br/>", $errorMessageStack);
+      }
 
       if ($this->_inTransaction) {
         throw new Exception($errorMessage);
       } else {
-        trigger_error($errorMessage, E_USER_ERROR);
+        fw\customError(42, $errorMessage, __FILE__, __LINE__, NULL);
       }
 
       $this->_resultHandle = FALSE;
@@ -301,6 +319,11 @@ abstract class Core
     }
 
     return $this->_resultHandle;
+  }
+
+  private function _queryMulti($sql)
+  {
+    return $this->_qMulti($sql);
   }
 
   protected function _threadId()
@@ -324,9 +347,21 @@ abstract class Core
     return $this->_bindParam($params);
   }
 
-  public function execute()
+  public function execute($statementKey)
   {
-    return $this->_execute();
+    return $this->_execute($statementKey);
+  }
+
+  public function bindParamExecute()
+  {
+    $params = func_get_args();
+    return $this->_bindParamExecute($params);
+  }
+
+  public function executeWithId($sql, $id)
+  {
+    assert(is_int($id));
+    return $this->_executeWithId($sql, $id);
   }
 
   public function escape($value)

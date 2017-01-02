@@ -103,9 +103,9 @@ class HTTP
   /*
    * Cookie
    */
-  public static function setCookie($name, $value, $expire = 0, $path = '/')
+  public static function setCookie($name, $value, $expire = 0, $path = '/', $domain = NULL, $secure = TRUE, $httpOnly = TRUE)
   {
-    if (!setcookie($name, $value, $expire, $path)) {
+    if (!setcookie($name, $value, $expire, $path, $domain, $secure, $httpOnly)) {
       trigger_error("Cookie '" . $name . "' could not be set!", E_USER_ERROR);
     }
   }
@@ -210,8 +210,13 @@ class HTTP
     return $hostname;
   }
 
-  public static function file($name, $target, $filename = NULL)
+  public static function file($name, $target = NULL, $filename = NULL)
   {
+    // Set target to default temp directory
+    if (is_null($target)) {
+      $target = sys_get_temp_dir();
+    }
+
     if (isset($_FILES[$name])) {
       $file = $_FILES[$name];
 
@@ -241,6 +246,11 @@ class HTTP
 
         case UPLOAD_ERR_NO_FILE:
           // still okay, no file uploaded
+          $file = NULL;
+          break;
+        case UPLOAD_ERR_INI_SIZE:
+          $errorKey = ErrorHandle::getErrorCode('UPLOAD_ERR', $file['error']);
+          trigger_error(__METHOD__ . " - Fileupload failed with error " . $errorKey);
           $file = NULL;
           break;
         default:

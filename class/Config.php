@@ -62,6 +62,9 @@ class Config
   private $_isDevServer           = FALSE;
   private $_forceAssetLoad        = FALSE;
   private $_assertActive          = FALSE;
+  private $_errorToExeptions      = TRUE;
+
+  private $_ignoreExections       = FALSE;
 
   // Helper stacks
   private $_configFileStack       = array();
@@ -252,6 +255,12 @@ class Config
       case 'forceAssetLoad':
         return $this->_fixBoolean($this->_forceAssetLoad);
         break;
+      case 'errorToExeptions':
+        return $this->_fixBoolean($this->_errorToExeptions);
+        break;
+      case 'ignoreExections':
+        return $this->_ignoreExections;
+        break;
       case 'errorEmail':
         if (is_null($this->_errorEmail) || !fw\MyMailer::ValidateAddress($this->_errorEmail)) {
           throw new Exception(__METHOD__ . " - Error email not defined!");
@@ -259,6 +268,9 @@ class Config
         return $this->_errorEmail;
         break;
       case 'mailOverRide':
+        if (preg_match('{(NULL|FALSE|0)}i', $this->_mailOverRide)) {
+          $this->_mailOverRide = NULL;
+        }
         if (!is_null($this->_mailOverRide) && !fw\MyMailer::ValidateAddress($this->_mailOverRide)) {
           throw new Exception(__METHOD__ . " - Override email not defined!");
         }
@@ -292,6 +304,18 @@ class Config
             trigger_error(__CLASS__ . "::Getter - Attribute " . $name . " not defined!", E_USER_ERROR);
           }
         }
+        break;
+    }
+  }
+
+  public function __set($name, $value)
+  {
+    switch($name) {
+      case 'ignoreExections':
+        $this->_ignoreExections = $value;
+        break;
+      default:
+        trigger_error(__CLASS__ . "::Setter - '" . $name . "' Please use config file!", E_USER_ERROR);
         break;
     }
   }
@@ -351,11 +375,6 @@ class Config
     return FALSE;
   }
 
-  public function __set($name, $value)
-  {
-    trigger_error(__CLASS__ . "::Setter - '" . $name . "' Please use config file!", E_USER_ERROR);
-  }
-
   public function __clone()
   {
     trigger_error('Clone is not allowed.', E_USER_ERROR);
@@ -372,6 +391,11 @@ class Config
     }
   }
 
+  /**
+   * Get a single config attribute
+   * @param  string $name Name of attribute
+   * @return mixed        Value of attribute
+   */
   public static function get($name)
   {
     $obj = self::getInstance();

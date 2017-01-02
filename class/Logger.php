@@ -39,6 +39,9 @@ class Logger
   const LOG_MAIL    = 8;
   const LOG_RETURN  = 16;
 
+  const TS_FORMAT_LOG      = 'log';
+  const TS_FORMAT_FAIL2BAN = 'fail2ban';
+
   private $_withTimestamp  = FALSE;
   private $_handleType     = 1;
 
@@ -46,7 +49,7 @@ class Logger
   private $_maxRetry       = 1;
   private $_fromName       = 'Logger';
   private $_fromAddress    = NULL;
-  private $_toAddress      = NULL;
+  private $_recipientList  = NULL;
 
   // Digest settings
   private $_digestStack    = array();
@@ -56,21 +59,24 @@ class Logger
   private $_fileName       = NULL;
 
   private $_styleStack = array(
-    'reset'   => "\e[0m",
-
     'red'     => "\e[91m",
     'green'   => "\e[92m",
     'blue'    => "\e[94m",
     'magenta' => "\e[95m",
 
     'bold'    => "\e[1m",
-    'invers'  => "\e[7m",
+    'inverse' => "\e[7m",
+
+    'reset'   => "\e[0m",
   );
 
 
 
   public function __construct($type = self::LOG_CONSOLE)
   {
+    // Register logger config section
+    Config::registerSection('logger', TRUE);
+
     $this->_handleType = $type;
   }
 
@@ -101,10 +107,34 @@ class Logger
 
   private function _setupMail()
   {
-    if (is_null($this->_toAddress)) {
-      $config = Config::getInstance();
-      $this->_toAddress   = $config->errorEmail;
+    $config = Config::getInstance();
+
+    // Check from address
+    if (is_null($this->_fromAddress)) {
       $this->_fromAddress = $config->errorEmail;
+    }
+
+
+    if (is_null($this->_recipientList)) {
+      $recepientList = array();
+      if ($config->exists("logger")) {
+        $loggerConf = $config->logger['default'];
+
+        if (property_exists($loggerConf, "digestRecipient")) {
+          $recipentStackRaw = explode(',', $loggerConf->digestRecipient);
+          foreach ($recipentStackRaw as $emailAddress) {
+            $emailAddress = trim($emailAddress);
+            if (MyMailer::ValidateAddress($emailAddress)) {
+              $recepientList[] = $emailAddress;
+            }
+          }
+        }
+      }
+
+      if (empty($recepientStack)) {
+        $recepientList[] = $config->errorEmail;
+      }
+      $this->_recipientList = $recepientList;
     }
   }
 
@@ -147,6 +177,7 @@ class Logger
     $this->_handleType    = self::LOG_MAIL;
     $this->_withTimestamp = FALSE;
 
+    // mail the message
     $this->write($msg);
 
     $this->_handleType    = $oldType;
@@ -197,6 +228,9 @@ class Logger
 
   private function _build($msg, $format = NULL)
   {
+    // remove html entities
+    $msg = html_entity_decode($msg);
+
     if (!is_null($format)) {
       $parts = explode("|", $format);
       $styledMsg = '';
@@ -215,7 +249,21 @@ class Logger
       if (TRUE === $this->_withTimestamp) {
         $msg = '[' . $date->format('r') . '] - ' . $msg;
       } else {
-        $msg = '[' . $date->format($this->_withTimestamp) . '] - ' . $msg;
+        $wrapping = TRUE;
+        switch($this->_withTimestamp) {
+          case self::TS_FORMAT_LOG:
+            $this->_withTimestamp = 'D j M H:i:s T Y';
+            break;
+          case self::TS_FORMAT_FAIL2BAN:
+            $this->_withTimestamp = 'M j H:i:s T Y';
+            $wrapping = FALSE;
+        }
+
+        if ($wrapping) {
+          $msg = '[' . $date->format($this->_withTimestamp) . '] - ' . $msg;
+        } else {
+          $msg = $date->format($this->_withTimestamp) . ' - ' . $msg;
+        }
       }
     }
 
@@ -229,7 +277,11 @@ class Logger
     $mail = new MyMailer();
     $mail->From = $this->_fromAddress;
     $mail->FromName = $this->_fromName;
-    $mail->AddAddress($this->_toAddress);
+
+    foreach ($this->_recipientList as $emailAddress) {
+      $mail->AddAddress($emailAddress);
+    }
+
     if (is_null($subject)) {
       $mail->Subject = $msg;
     } else {

@@ -14,7 +14,7 @@ function echo_nice($data, $return = FALSE)
 {
   $api = php_sapi_name();
   if (preg_match('{cli}', $api)) {
-    $data .= "\n";
+    $data = html_entity_decode($data) . "\n";
   } else {
     $data = '<pre>' . $data . '</pre>';
   }
@@ -31,7 +31,7 @@ function echo_exit($data)
   exit;
 }
 
-function email_nice($data)
+function email_nice($data, $subject = NULL)
 {
   $config = fw\Config::getInstance();
   $body = '';
@@ -48,6 +48,11 @@ function email_nice($data)
   $mail->AddAddress($config->errorEmail, "WebAdmin");
   $mail->Subject = "";
   $mail->Subject .= "[DEBUG] " . fw\HTTP::hostname();
+
+  if (!is_null($subject)) {
+    $mail->Subject .= " - " . $subject;
+  }
+
   $mail->IsHTML();
   $mail->setBody($body);
 
@@ -64,11 +69,16 @@ function intNice($value)
   return $value;
 }
 
-function waitForMe()
+function waitForMe($question = NULL)
 {
-  echo_nice("Press Key to continue.");
+  if (is_null($question)) {
+    echo_nice("Press Key to continue.");
+  } else {
+    echo($question . " ");
+  }
   $handle = fopen("php://stdin", "r");
-  $line = fgets($handle);
+  $char = fgetc($handle);
+  return $char;
 }
 
 function substrAdv($str, &$start, $len)

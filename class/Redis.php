@@ -104,7 +104,7 @@ class Redis
       return $reflectionMethod->invokeArgs($this->_redis, $args);
     } catch (\ReflectionException $ex) {
       echo_nice($ex->getMessage());
-      //trigger_error($err->getMessage());
+      //trigger_error($ex->getMessage());
     }
   }
 

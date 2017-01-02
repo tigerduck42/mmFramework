@@ -147,7 +147,7 @@ abstract class OutputRenderer
         }
         break;
       default:
-        throw new Exception(__METHOD__ . " - Property " . $name . " not defined!");
+        throw new Exception(__METHOD__ . " - Property '" . $name . "' not defined!");
         break;
     }
   }
@@ -190,7 +190,7 @@ abstract class OutputRenderer
     } else {
       trigger_error("No Content type set", E_USER_ERROR);
     }
-    // TODO: throw exception or use fallback if fileinfo not available?
+    // TODO: throw new exception or use fallback if fileinfo not available?
   }
 
   /**
@@ -230,7 +230,7 @@ abstract class OutputRenderer
    * @param string $media The media type, defaults to screen.
    * @return HtmlRelationTag The new tag, if you need to add extra attributes.
    */
-  public function addCss($cssUrl, $media = "screen")
+  public function addCss($cssUrl, $media = "all")
   {
     assert(is_string($cssUrl));
     assert(is_string($media));
