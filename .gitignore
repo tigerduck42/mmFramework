@@ -1,2 +1,13 @@
+# User specific & automatically generated files #
+#################################################
+/build
+/dist
+/tags
+/init
+/composer.lock
+/phpunit.xml
+/phpcs.xml
+/vendor
+*.mo
 .AppleDouble
 .DS_Store
