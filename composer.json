@@ -31,6 +31,9 @@
       "Tests\\tigerduck42\\mmFramwork\\": "tests/"
     }
   },
+  "bin": [
+    "bin/init_project.sh"
+  ],
   "scripts": {
     "post-install-cmd": [
       "@configure"
@@ -40,7 +43,7 @@
     ],
     "configure": [
       "mkdir -p init",
-      "cp src/init/config.ini.default init/config.ini"
+      "cp default/init/config.ini init/config.ini"
     ]
   }
 }
