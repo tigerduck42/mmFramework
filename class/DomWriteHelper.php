@@ -304,7 +304,7 @@ class DomWriteHelper
   public function encodeToUtf8($string)
   {
     /*
-    $string = mb_convert__encoding($string, "UTF-8", mb_detect__encoding($string, "UTF-8, ISO-8859-1", TRUE));
+    $string = mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "UTF-8, ISO-8859-1", TRUE));
     if (strtolower($this->_encoding) != 'utf-8') { // hack to stop libxml sending unicode in entities, try and convert it to its closest equivelent
       $string = iconv("UTF-8","{$this->_encoding}//TRANSLIT//IGNORE", $string); // switch to our target _encoding translating then taking away as many unencodable chars as possible
       $string = mb_convert__encoding($string, "UTF-8", $this->_encoding); // switch back to utf8 _before sending it away

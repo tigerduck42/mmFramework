@@ -71,6 +71,9 @@ abstract class Core
       case 'threadId':
         return $this->_threadId();
         break;
+      case 'inTransaction':
+        return $this->_inTransaction;
+        break;
       case 'success':
         return (is_object($this->_resultHandle) || (TRUE === $this->_resultHandle));
         break;
@@ -275,10 +278,10 @@ abstract class Core
 
       $errorMessageStack = array();
       $errorMessageStack[] = 'Query Failed';
-      if (!empty(fw\HTTP::server('REQUEST_URI'))) {
+      if (!is_null(fw\HTTP::server('REQUEST_URI'))) {
         $errorMessageStack[] = '<strong>URI:</strong> ' . fw\HTTP::server('REQUEST_URI');
       }
-      if (!empty(fw\HTTP::server("REMOTE_ADDR"))) {
+      if (!is_null(fw\HTTP::server("REMOTE_ADDR"))) {
         $errorMessageStack[] = '<strong>Remote Address:</strong> '  . fw\HTTP::server("REMOTE_ADDR");
       }
       $errorMessageStack[] = '<strong>Database:</strong> ' . $this->_dbName;
@@ -296,7 +299,7 @@ abstract class Core
       if ($this->_inTransaction) {
         throw new Exception($errorMessage);
       } else {
-        trigger_error($errorMessage, E_USER_ERROR);
+        fw\customError(42, $errorMessage, __FILE__, __LINE__, NULL);
       }
 
       $this->_resultHandle = FALSE;

@@ -233,7 +233,7 @@ class ErrorHandle
       }
     } else {
       //
-      // If redis is down we fallback to a file bases method
+      // If redis is down we fall back to a file bases method
       //
       $cacheCount = 0;
       $blockFile = sys_get_temp_dir() . '/errorBlock_' . md5(DIR_BASE . '|' . HTTP::hostname());
