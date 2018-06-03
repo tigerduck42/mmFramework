@@ -1,0 +1,13 @@
+[general]
+;Mail
+;mailer=sendmail
+mailer = smtp
+mailHostName = <host>
+mailUsername = <username>
+mailPassword = <password>
+mailSecure = ssl
+mailPort = <port>
+
+[userdefined]
+redisHost = none
+
