@@ -5,8 +5,6 @@
 /tags
 /init
 /composer.lock
-/phpunit.xml
-/phpcs.xml
 /vendor
 *.mo
 .AppleDouble
