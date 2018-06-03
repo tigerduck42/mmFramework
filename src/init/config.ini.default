@@ -1,0 +1,8 @@
+[general]
+timezone = Europe/Vienna
+isDevServer = TRUE
+errorEmail = martin.mitterhauser@mac.com
+
+
+[userdefined]
+redisHost = none

@@ -1,2 +1,11 @@
+# User specific & automatically generated files #
+#################################################
+/build
+/dist
+/tags
+/init
+/composer.lock
+/vendor
+*.mo
 .AppleDouble
 .DS_Store

@@ -1,0 +1,46 @@
+
+{
+  "name": "tigerduck42/mm-framework",
+  "description": "Light PHP framework.",
+  "type": "library",
+  "license": "MIT",
+  "support": {
+    "issues": "https://github.com/tigerduck42/mmFramework/issues"
+  },
+  "keywords": [
+    "framework",
+    "light",
+    "rapid-development"
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": "^5.6",
+    "smarty/smarty": "~3.1",
+    "phpmailer/phpmailer": "~5.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "tigerduck42\\mmFramwork\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\tigerduck42\\mmFramwork\\": "tests/"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "@configure"
+    ],
+    "post-update-cmd": [
+      "@configure"
+    ],
+    "configure": [
+      "mkdir -p init",
+      "cp src/init/config.ini.default init/config.ini"
+    ]
+  }
+}
